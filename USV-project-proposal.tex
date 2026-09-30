@@ -1,0 +1,130 @@
+\documentclass[sigconf]{acmart}
+% Cleaning
+\pagestyle{fancy} % removes running headers
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\pagestyle{plain} % removes running headers
+\fancyhead{}
+\settopmatter{printacmref=false, printfolios=false}
+% Copyright
+\setcopyright{none}
+% \setcopyright{acmcopyright}
+% \setcopyright{acmlicensed}
+% \setcopyright{rightsretained}
+% \setcopyright{usgov}
+% \setcopyright{usgovmixed}
+% \setcopyright{cagov}
+% \setcopyright{cagovmixed}
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\acmDOI{}
+
+
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\setlength{\headsep}{0pt}
+\setlength{\topskip}{0pt}
+\setlength{\topmargin}{0pt}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+%\linespread{0.95}
+\usepackage{mdwlist}
+\usepackage{amsmath}
+
+
+\begin{document}
+\title{Predicting Remote Intervention for a Station-Keeping USV}
+\author{Jake Cushway}
+\affiliation{
+  \institution{University of Victoria}
+%   \streetaddress{P.O. Box 1212}
+%   \city{Toronto}
+%   \state{ON}
+%   \country{Canada}
+%   \postcode{43017-6221}
+}
+\email{jakecush1@uvic.ca }
+
+\author{Rowan Hall}
+\affiliation{
+  \institution{University of Victoria}
+%   \streetaddress{P.O. Box 1212}
+%   \city{Toronto}
+%   \state{ON}
+%   \country{Canada}
+%   \postcode{43017-6221}
+}
+\email{rowanhall@uvic.ca }
+
+
+\begin{abstract}
+{Open Ocean Robotics (OOR) operates the DataXplorer, an Uncrewed Surface Vehicle (USV), reporting marine weather data in place of the discontinued weather buoy. The USV must hold within 10 nautical miles (nm) of the buoy's former position. U.S. marine law does not require a human pilot in the loop, however, OOR staffs a pilot 24/7 for a piloting task which requires very little effort.  This project investigates whether live vessel telemetry, including position, wind speed, and wind direction, can be used to predict when human intervention will be required within a specified time window.  The codebase, along with the installation and execution instructions as well as software artifacts, can be obtained under cc-by-nc-sa-4.0 license at \url{https://github.com/jakecush1/autonomous-pilot-ML}.}
+\end{abstract}
+
+
+\maketitle 
+\section{Introduction}
+{OOR holds a contract with NOAA to replace Station 46012, with the deliverable of
+continuous data collection from the DataXplorer USV. The DataXplorer reports
+marine weather data which is used daily by local mariners and fishermen.  Its only hard operating constraint is to remain within 10\,nm of the buoy's former
+position (37.353612, -122.879874). A remote pilot, using OOR's piloting
+software, issues a navigation command every few hours when wind pushes the USV
+toward the edge of this zone. The 24-hour watchkeeper is a business choice OOR
+makes to ensure the safety of the vessel, not a requirement of the law.
+The configuration has proven successful, but it means paying a pilot to watch a
+vessel that rarely calls for action. This project examines whether the decision
+of \textit{when a pilot's attention is actually needed} can be determined from
+live telemetry (location, wind direction, and wind speed), and refined over time using simulated and logged outcomes, turning a 24/7 watch-keeping cost into an on-call, alert-driven one.}
+
+
+{Existing work does not answer that question. One line of research focuses on
+\textit{how} a vessel holds station, designing control laws that reject wind and
+current disturbance on small, lightweight USVs~\cite{sarda2016station}. While effective, these methods address a different problem from OOR's current operational challenge: with only occasional human intervention, the DataXplorer is already able to remain on station effectively. A second line studies the human side of remote operation, asking how an interface should signal that a vehicle needs help and how many vehicles one operator can supervise before interventions are missed~\cite{bogg2026alert}. Neither line directly addresses the prediction task considered here: using vessel telemetry to estimate whether human intervention will be required within a future time horizon.}
+
+
+\section{Motivation}
+{OOR currently staffs this contract with a pilot on 24/7 watch, roughly 1,095 eight-hour shifts per year.  That is a costly commitment for a vessel that, by the pilot's own account, needs a navigation decision only every 2–3 hours.  Reducing that watch by one third or changing to an advisory alert system, one that does not command the vessel but alerts an on-call pilot only when a decision is likely needed, could substantially reduce this cost.  This represents a large potential return from a comparatively simple modeling task.}
+
+
+\subsection{Motivating Example}
+{Consider two days of DataXplorer telemetry. On the first, wind stays below 10 knots and the vessel remains within 4nm of station, requiring no pilot action despite continuous monitoring. On the second, a 22-knot northerly wind pushes the vessel 9nm south of station and still outward toward the 10nm limit, requiring correction within the hour. Under the current arrangement, both days require the same supervision. A model that distinguishes these states could alert the pilot only on the second day.}
+
+
+\section{Problem Definition}
+Let $\mathcal{P}$ be the set of latitude--longitude positions. Let
+$p_t \in \mathcal{P}$ be the vessel's position at time $t$, and let
+$p_0 \in \mathcal{P}$ be the fixed station position.  Let the local wind, given as a speed $v \in \mathbb{R}_{\ge 0}$ in knots and a direction
+$\theta \in [0^\circ, 360^\circ)$ measured clockwise from true North, following
+the meteorological convention in which $\theta$ names the direction the wind
+blows \textit{from}. A state is the tuple
+\begin{equation}
+  \mathbf{s}_t = (p_t,\,p_0,\,v_t,\,\theta_t) \in \mathcal{S}
+\end{equation}
+
+Write $d(\mathbf{s}_t)=\mathrm{dist}(p_t,p_0)$ for the geodesic distance between
+vehicle and station point in nautical miles. The single hard operating
+constraint is $d(\mathbf{s}_t) \le R$ with $R = 10$\,nm; a state with
+$d(\mathbf{s}_t) > R$ is a contract violation.
+
+For a future time window $\Delta t > 0$, the goal is to learn
+\begin{equation}
+  f: \mathcal{S} \rightarrow \{0,1\},
+\end{equation}
+where $f(\mathbf{s}) = 1$ if pilot intervention is required within
+$[t,\,t+\Delta t]$ to keep the vessel within $R$, and $0$ otherwise.
+
+The model predicts only whether intervention is required, not which
+navigation command should be issued. A probabilistic version may instead estimate
+$\mathbb{P}(Y=1\mid\mathbf{s})$, allowing the alert threshold to be adjusted
+without retraining.
+
+\subsection{Running Example}
+
+A vessel $9$\,nm from station and drifting outward under a
+22-knot northerly wind may satisfy $f(\mathbf{s}_t)=1$ for
+$\Delta t=1$ hour, while a vessel remaining within $4$\,nm under weak winds
+would satisfy $f(\mathbf{s}_t)=0$.
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{bibliography.bib}
+
+\end{document}

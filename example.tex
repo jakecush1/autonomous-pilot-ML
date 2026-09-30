@@ -1,0 +1,107 @@
+\documentclass[sigconf]{acmart}
+% Cleaning
+\pagestyle{fancy} % removes running headers
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\pagestyle{plain} % removes running headers
+\fancyhead{}
+\settopmatter{printacmref=false, printfolios=false}
+% Copyright
+\setcopyright{none}
+% \setcopyright{acmcopyright}
+% \setcopyright{acmlicensed}
+% \setcopyright{rightsretained}
+% \setcopyright{usgov}
+% \setcopyright{usgovmixed}
+% \setcopyright{cagov}
+% \setcopyright{cagovmixed}
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\acmDOI{}
+
+
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\setlength{\headsep}{0pt}
+\setlength{\topskip}{0pt}
+\setlength{\topmargin}{0pt}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+%\linespread{0.95}
+\usepackage{mdwlist}
+\usepackage{amsmath}
+
+
+\begin{document}
+\title{Clear and Concise Title Like a Headline }
+\author{Reia Drucker}
+\affiliation{
+  \institution{University of Victoria}
+%   \streetaddress{P.O. Box 1212}
+%   \city{Toronto}
+%   \state{ON}
+%   \country{Canada}
+%   \postcode{43017-6221}
+}
+\email{reiadrucker@uvic.ca }
+\author{Ali Mortazavi}
+\affiliation{
+  \institution{University of Victoria}
+%   \streetaddress{P.O. Box 1212}
+%   \city{Toronto}
+%   \state{ON}
+%   \country{Canada}
+%   \postcode{43017-6221}
+}
+\email{alimorty@uvic.ca}
+\author{Luiz Franciscatto Guerra}
+\affiliation{
+  \institution{University of Victoria}
+%   \streetaddress{P.O. Box 1212}
+%   \city{Toronto}
+%   \state{ON}
+%   \country{Canada}
+%   \postcode{43017-6221}
+}
+\email{luizguerra@uvic.ca}
+
+\author{Hossein Fani}
+% \authornotemark[1]
+\orcid{0000-0002-6033-6564}
+\affiliation{
+ \institution{University of Victoria}
+%   \city{Fredericton}
+%   \state{NB}
+%   \country{Canada}
+}\email{hfani@uvic.ca}
+
+\begin{abstract}
+{\color{blue}This is a \textit{sample} one-page proposal for the Natural Language Understanding course. The sections and subsections are \textit{by no means} fixed and should be indeed changed or customized according to the proposal. For instance, your proposal should have an abstract that briefly explains the whole proposal in just one short paragraph. The reader should become interested in reading your manuscript in less than 10-20 seconds. The codebase, along with the installation and execution instructions as well as software artifacts, can be obtained under cc-by-nc-sa-4.0 license at https://github.com/**.}
+\end{abstract}
+
+\keywords{More Specific Keywords, Specific Keyword, General Keyword}
+\maketitle
+
+\section{Introduction}
+{\color{blue}This is an important section that all manuscript should have. In this section, is an opening to your proposal. The reader, who already became interested in putting more time on reading your proposal, wants to know more although she may not have deep knowledge about the scope of your work. For the purpose of this proposal, you can assume that the reader is an undergraduate from computer-related field. Therefore, you have to gradually explain your proposal from very general prospective and narrow it down to the  main goal of your proposal. Please avoid exotic openings. An example:}
+
+Users' topics of interest are dynamic and evolve in online social networks such as  Twitter. For example, \textit{*\{example\}*}. Effective prediction of users' topics of interest can improve user experience [*] and increase advertising revenue [*], just to name a few. For example, \textit{*\{continue on same example\}*}. There are existing methods like time series models [*], which use observations from past time intervals to predict the users' future topics of interest. However, such methods have an independence assumption that users' behavior is considered to evolve independently from the other users. These methods overlook the explicit or implicit social interactions that are inherent to social networks. To address this shortcoming, time-aware collaborative filtering approaches such as x, y, z. Successful as they are, these approaches, however, do not consider strict  inter-user dependence and only benefit from users' behavioral correlation to make predictions. In contrast, social-aware recommender systems such as socialpmf~\cite{DBLP:conf/sigmod/HuYCX15} have already addressed this issue but they in turn overlook temporal evolution.
+\section{Motivation}
+{\color{blue}This is an import part of a proposal, whether in a separate section or inside introduction section. You have to motivate the reader that this proposal is worth spending time, effort and money. The proposal is worthy for you otherwise you would not put effort on doing it. However, you have to put forward arguments and reason for the reader. The reader, who already came with you so far and is interested in your proposal, wants to see how you improve \textit{society}, {human civilization}, {life style}, and making {more money}. Simply put, why you want to do this proposal while others have already solved it? Furthermore, in proposal, we do not show the solution but the \textit{need} for solution. Let's continue.}
+
+In this proposal, we propose to consider both the temporal evolution of users' interests as well as **. We employ Granger causality to determine the degree of inter-user influence that can be used to identify which users play influential roles in the behavioral evolution of one or more other users.
+\subsection{Motivating Example}
+{\color{blue}\textit{Simple} and \textit{consistent} example is key for helping a reader with general knowledge to understand your proposal. Throughout your manuscript you should reuse same example for different part of your proposal. As you can see in this manuscript, we already used two examples in introduction section. Motivation example is the continuation of the same example but to showcase the importance of your proposal. Again, it could be a separate section or subsection or could be inside them. Also, it could be an image or figure. Then, you have to fully explain the image/figure in text as well. }
+
+\section{Problem Definition}
+{\color{blue}This section is also an important section that all manuscript in computer science should have. In this section, you have to say whatever you said in math! You have define variables, sets, etc to define (not to solve) the problem. }
+
+Given a set of topics $\mathcal{Z}$ within T time steps (e.g. days) extracted by a topic detection method (e.g. lda [*]) and a set of users $\mathcal{U}$, we represent the time-aware topic preferences of each user $e\in \mathcal{U}$ towards each topic $z\in \mathcal{Z}$ over time steps  $1\leq t \leq \text{T}$  as a time series $X_{ez} = [x_{ez,1} : x_{ez,\text{T}}]$, namely \textit{topic preference timeseries}, where $x_{ez,t}\in\mathfrak{R}^{[0,1]}$ indicates the preference by user $e$ for topic $z$ at time step $t$. The main objective of our work is to accurately predict $x_{ez,\text{T}+1}; \forall z\in\mathcal{Z}, \forall e\in\mathcal{U}$.
+
+\subsection{Runing Example}
+
+\section{Team Justification}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{bibliography.bib}
+
+\end{document}
