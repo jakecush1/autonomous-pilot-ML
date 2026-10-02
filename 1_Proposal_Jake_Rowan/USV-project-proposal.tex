@@ -57,7 +57,7 @@
 
 
 \begin{abstract}
-{Open Ocean Robotics (OOR) operates the DataXplorer, an Uncrewed Surface Vehicle (USV), reporting marine weather data in place of the discontinued weather buoy. The USV must hold within 10 nautical miles (nm) of the buoy's former position. U.S. marine law does not require a human pilot in the loop, however, OOR staffs a pilot 24/7 for a piloting task which requires very little effort.  This project investigates whether live vessel telemetry, including position, wind speed, and wind direction, can be used to predict when human intervention will be required within a specified time window.  The codebase, along with the installation and execution instructions as well as software artifacts, can be obtained under cc-by-nc-sa-4.0 license at \url{https://github.com/jakecush1/autonomous-pilot-ML}.}
+{Open Ocean Robotics (OOR) operates the DataXplorer, an Uncrewed Surface Vehicle (USV), reporting marine weather data in place of the discontinued weather buoy. The USV must hold within 10 nautical miles (nm) of the buoy's former position. U.S. marine law does not require a human pilot in the loop, however, OOR staffs a pilot 24/7 to ensure the continuous flow of data, and the safety of the vessel.  This project investigates whether live vessel telemetry, including position, wind speed, and wind direction, can be used to effectively predict when human intervention is needed.  The codebase, along with the installation and execution instructions as well as software artifacts, can be obtained under cc-by-nc-sa-4.0 license at \url{https://github.com/jakecush1/autonomous-pilot-ML}.}
 \end{abstract}
 
 
@@ -67,13 +67,7 @@
 continuous data collection from the DataXplorer USV. The DataXplorer reports
 marine weather data which is used daily by local mariners and fishermen.  Its only hard operating constraint is to remain within 10\,nm of the buoy's former
 position (37.353612, -122.879874). A remote pilot, using OOR's piloting
-software, issues a navigation command every few hours when wind pushes the USV
-toward the edge of this zone. The 24-hour watchkeeper is a business choice OOR
-makes to ensure the safety of the vessel, not a requirement of the law.
-The configuration has proven successful, but it means paying a pilot to watch a
-vessel that rarely calls for action. This project examines whether the decision
-of \textit{when a pilot's attention is actually needed} can be determined from
-live telemetry (location, wind direction, and wind speed), and refined over time using simulated and logged outcomes, turning a 24/7 watch-keeping cost into an on-call, alert-driven one.}
+software, issues a navigation command whenever deemed necessary, usually due to  wind pushing the USV toward the edge of this zone. Currently the only option to ensure the safety of the vessel and the continuous flow of data is employing a 24-hour watchkeeper.  This option has proven successful, though at times perhaps excessive for a vessel that rarely calls for action. This project examines whether the decision of \textit{when a pilot's attention is actually needed} can be determined from live telemetry (location, wind direction, and wind speed), and refined over time using simulated and logged outcomes, turning a 24/7 watch-keeping cost into an on-call, alert-driven one.}
 
 
 {Existing work does not answer that question. One line of research focuses on

@@ -1,0 +1,172 @@
+\documentclass[sigconf]{acmart}
+% Cleaning 
+\usepackage{pifont}
+\pagestyle{fancy} % removes running headers
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+\pagestyle{plain} % removes running headers
+\fancyhead{}
+\settopmatter{printacmref=false, printfolios=false}
+% Copyright
+\setcopyright{none}
+% \setcopyright{acmcopyright}
+% \setcopyright{acmlicensed}
+% \setcopyright{rightsretained}
+% \setcopyright{usgov}
+% \setcopyright{usgovmixed}
+% \setcopyright{cagov}
+% \setcopyright{cagovmixed}
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\acmDOI{}
+
+
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\setlength{\headsep}{0pt}
+\setlength{\topskip}{0pt}
+\setlength{\topmargin}{0pt}
+\setlength{\topsep}{0pt}
+\setlength{\partopsep}{0pt}
+%\linespread{0.95}
+\usepackage{mdwlist}
+\usepackage{amsmath}
+
+\begin{document}
+\title{Like-minded User Community Detection: A Brief Review}
+\author{Reia Drucker}
+\affiliation{
+  \institution{University of Victoria}
+%   \streetaddress{P.O. Box 1212}
+%   \city{Toronto} 
+%   \state{ON} 
+%   \country{Canada} 
+%   \postcode{43017-6221}
+}
+\email{reiadrucker@uvic.ca }
+\author{Ali Mortazavi}
+\affiliation{
+  \institution{University of Victoria}
+%   \streetaddress{P.O. Box 1212}
+%   \city{Toronto} 
+%   \state{ON} 
+%   \country{Canada} 
+%   \postcode{43017-6221}
+}
+\email{alimorty@uvic.ca}
+\author{Luiz Franciscatto Guerra}
+\affiliation{
+  \institution{University of Victoria}
+%   \streetaddress{P.O. Box 1212}
+%   \city{Toronto} 
+%   \state{ON} 
+%   \country{Canada} 
+%   \postcode{43017-6221}
+}
+\email{luizguerra@uvic.ca}
+
+\author{Hossein Fani}
+% \authornotemark[1]
+\orcid{0000-0002-6033-6564}
+\affiliation{
+ \institution{University of Victoria}
+%   \city{Fredericton} 
+%   \state{NB} 
+%   \country{Canada} 
+}\email{hfani@uvic.ca}
+
+
+\begin{abstract}
+{\color{blue}This is a \textit{sample} background and related work review for your project. The sections and subsections are \textit{by no means} fixed and should indeed be changed or customized according to the proposal. For example,} This paper provides a concise overview of the definitions, the concepts, history and state of the art in user community detection and prediction.
+\end{abstract}
+\keywords{More Specific, Specific, General, More General}
+\maketitle
+
+%%----------Chapter 2------------------------------------------
+\vspace{-1em}
+\section{User Community}
+The word community refers to a social context. People naturally tend to form groups, within their work environment, family, or friends. A community is a group of users who share similar interests, consume similar content or interact with each other more than other users in the network. Communities are either explicit or latent. Explicit communities are known in advance and users deliberately participate in managing explicit communities, i.e., users create, destroy, subscribe to, and unsubscribe from them. For instance, Google's social network platform, Google+\footnote{Google+ is no longer available since April 2019.}, had Circles that allowed users to put different people in specific groups. \textbf{In contrast, in this work, communities are meant to be latent. Members of \textit{latent} communities do not tend to show explicit membership and their similarity of interest lies within their social interactions.}
+
+\subsection{History}
+Probably the earliest account of work on community detection dates back to 1927. At the time, Stuart Rice studied the voting themes of people in small legislative bodies (less than 30 individuals). He looked for \textit{blocs} based on the degree of agreement in casting votes within members of a group, called Index of Cohesion, and between any two distinct groups, named Index of Likeness~\cite{10.2307/1945514}. Later, in 1941, Davis et al.~\cite{davis1941deep} performed a social anthropological study on the social activities of a small city and surrounding county of Mississippi over 18 months. They introduced the concept of \textit{caste} to the earlier studies of community stratification by social class. They showed that there is a system of colored caste which parsed a community through rigid social ranks. The general approach was to partition the nodes of a network into discrete subgroup positions (communities) according to some equivalence definition. Meantime, George Homans showed that social groups could be detected by reordering the rows and the columns of the matrix describing social ties until they form a block-diagonal shape~\cite{homans2013human}. This procedure is now standard and mainly addressed as blockmodel analysis in social network analysis. 
+
+\section{Prior Work}
+In our work, we will focus on identifying and modeling the latent like-minded user communities detected in a given time period on online social networks. As a result, the main area that is closely related to our proposal is community detection which we review in this section. 
+% We refer the reader to our published entry in Encyclopedia with Semantic Computing and Robotic Intelligence~\cite{fani2017community} for more on community detection in social networks.
+
+Existing community detection approaches can be broadly classified into two categories~\cite{FORTUNATO201075}; \textit{link}-based and \textit{content}-based approaches, shown in Figure *. Link-based approaches, also known as topology-based, view a social network as a graph whose nodes are users and whose edges indicate explicit user relationships. On the other hand, content-based approaches, also known as topic-based, mainly focus on the information content of the users in the social network to detect communities. The goal of content-based approaches is *. \textit{Hybrid} approaches incorporate both topological and topical information to *. Recently, researchers have performed longitudinal studies on the task of community detection in which the social network is monitored in time intervals over a period of time~\cite{DBLP:conf/aaai/HuYC14,DBLP:conf/sigmod/HuYCX15,DBLP:journals/tois/LiangRZMYR17}. The Time dimension results in a new \textit{temporal} form of community detection which is the main motivation of our project. 
+\begin{figure}
+    \centering
+\includegraphics[]{figures/
+.pdf}
+  \caption{Categories of work *.}
+\end{figure}
+\vspace{-1em}
+
+\subsection{Link Analysis}
+Link-based user community detection methods are primarily based on the homophily principle~\cite{homophily} where *. In this line of work, the social network is modeled as *. The primary principle considered in this line of work is \textit{connectedness}, which means that connections within each community are dense and connections among different communities are relatively sparse. To this end, primitive graph structures such as components, cliques, k-plexes or other pseudo-clique structures are considered to represent user communities~\cite{DBLP:conf/kdd/ConteMSGMV18, FORTUNATO201075, lancichinetti2009community}. There are also graph partitioning (clustering) approaches which try to *. Such approaches are based on iterative bisection: continuously dividing one group into two groups, while the number of communities which should be in a network is unknown. The Girvan–Newman approach~\cite{girvan2002community} is one of the most commonly used methods in link-based user community detection. It partitions *. 
+
+{\color{blue} Not all link-based methods perform well on large real-world networks that have many complex structural features such as sparsity, heavy tailed degree distributions and small diameters, among others. For empirical comparison of these algorithms in practice, see~\cite{DBLP:journals/pvldb/WangWYZ15, DBLP:conf/www/LeskovecLM10}. Nonetheless, link-based methods inherently fall short when the communities of interest need to take users' content similarity into account. This is mainly due to two reasons: \textit{i}) there are many users on a social network that have similar interests but are not explicitly connected to each other; and, \textit{ii}) explicit social connections do not necessarily indicate user interest similarity but could be owing to sociological processes such as conformity, aspiration, and sociability or other factors such as friendship and kinship that do not necessarily point to inter-user interest similarity~\cite{snijders2019beyond, DBLP:conf/aaai/DiehlNG07}. There are also some special cases where link-based methods are not applicable like when the network is not available~\cite{DBLP:journals/tist/BarbieriBM17} or misleading, e.g., when links are fraudulent because of link-farmers (social capitalists)~\cite{DBLP:conf/asunam/LabatutDP14}.}
+
+\subsection{Content Analysis}
+With the development of social media, a significant amount of user-generated content, known as social content, is available within user networks. Users communicate and interact with each other in social network websites. Besides the links between users, huge amounts of textual content are generated as well. Along with rich information in social network structure, user graphs can be extended with textual information on nodes. In social networking sites, users maintain profile pages, write comments and share articles. In photo and video sharing sites, users use short texts to tag photos and videos. In microblogging websites, users post their status updates. Therefore, researchers have explored the possibility of utilizing the topical similarity of social content. They have been proposing topic-based community detection methods, irrespective of the social network structure, to build like-minded communities of users~\cite{DBLP:journals/tist/BarbieriBM17, DBLP:journals/kais/LiCYZCL15, DBLP:conf/asunam/NatarajanSC13, Abdelbary6918274, DBLP:journals/tist/YinCGH12, DBLP:conf/www/SachanCFS12}.
+
+Most of these content-based methods have been inspired by latent Dirichlet allocation (LDA)~\cite{DBLP:journals/jmlr/BleiNJ03} in one way or another and focused on probabilistic generative models based on textual content~\cite{DBLP:conf/www/ZhouMLGZ06, DBLP:conf/www/SachanCFS12}. For example, Zhou et al.~\cite{DBLP:conf/www/ZhouMLGZ06} *. Abdelbary et al.~\cite{Abdelbary6918274} have identified users' topics of interest *. Yin et al.~\cite{DBLP:journals/tist/YinCGH12} have integrated *. Sachan et al.~\cite{DBLP:conf/www/SachanCFS12} have proposed probabilistic schemes that incorporate users' posts, social connections and interaction types to discover latent user communities in social networks. They have considered three types of interactions: a conventional tweet, a reply tweet and a re-tweet.
+\begin{table}[t!]
+\centering
+\caption{Summary of our review on *. Black vs. {\color{gray} gray} show strong vs. conservative positive (\pmb{\checkmark}) or negative (\ding{53}) answers.}
+\label{tab:rqsum}
+\vspace{-1em}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lllccc@{}}
+\cline{4-6}
+ &
+   &
+   &
+  \multicolumn{3}{c}{our proposed curricula} \\ \cline{3-6} 
+ &
+   &
+  neural model &
+  static (\texttt{sc}) &
+  parametric (\texttt{pc}) &
+  non-parametric (\texttt{npc}) \\ \hline
+\multicolumn{1}{@{}l|}{\multirow{4}{*}{\rotatebox[origin=c]{90}{\texttt{dataset}}}} &
+  \multicolumn{1}{l|}{\multirow{2}{*}{\rotatebox[origin=c]{90}{\texttt{dblp}}}} &
+  non-variational &
+   \ding{53} &
+    \ding{53} &
+  $\pmb{\checkmark}$ \\
+\multicolumn{1}{l|}{} &
+  \multicolumn{1}{l|}{} &
+  variational &
+   \color{gray} {\checkmark} &
+   \color{gray} {\checkmark} &
+   \color{gray} {\checkmark} \\ \cline{2-6} 
+\multicolumn{1}{l|}{} &
+  \multicolumn{1}{l|}{\multirow{2}{*}{\rotatebox[origin=c]{90}{\texttt{imdb}}}} &
+  non-variational &
+    \ding{53} &
+    \ding{53} &
+  $\pmb{\checkmark}$ \\
+\multicolumn{1}{l|}{} &
+  \multicolumn{1}{l|}{} &
+  variational &
+   \color{gray}\ding{53} &
+    \ding{53} &
+    \ding{53} \\ \hline
+\end{tabular}%
+}
+\vspace{-1.5em}
+\end{table}
+
+\subsection{Temporal Analysis}
+{\color{blue} All the above methods do not incorporate \textit{i}) temporal aspects of users' topics of interests, and/or \textit{ii}) dynamics of social links and undermine the fact that users of communities would ideally show similar contribution or interest patterns for similar topics and/or similar network neighborhood evolution throughout time. As a matter of fact, many content based and link based methods assume that the structure of the network and the topics discussed by the users remain stable over time, which can be a limiting assumption in practice. While a myriad of work has addressed the dynamics of social links in user community detection, i.e., dynamic community detection~\cite{DBLP:journals/csur/RossettiC18, DBLP:journals/complexity/WuYZSLDH18}, there  have  been  a  few  works  that  have  considered  temporal aspects of users' topics of interests as an explicit dimension when identifying user communities in social networks~\cite{DBLP:conf/aaai/HuYC14, DBLP:conf/sigmod/HuYCX15, DBLP:journals/tois/LiangRZMYR17}. }
+
+The work by Hu et al.~\cite{DBLP:conf/aaai/HuYC14} is among the pioneers to consider temporality in user-generated contents through  a  generative  process, which  models  how  users  and  topics  are  related to  each  other  and  co-evolve  over  time.   Their  model, namely Group Specific Topic over Time (GrosToT), learns a  specific time-aware probability distribution known as the community-topic-time distribution addressing how communities and  topics are associated with each  other over time. Assuming the number of topics K and the number of communities C are known in advance, the model associates Dirichlet distributions for topics over words, communities over users, and topics over communities with different parameters, respectively. Also, a Dirichlet distribution for time is assigned given topic-community pairs. A user is a member of a community according to the assigned community-user distribution. As seen, the model is based on the idea that there is a tight interrelation between communities and topics. This prevents integration of other topic detection methods for the task of community detection. 
+
+{\color{red} In our project, we follow the same underlying hypothesis related to topics and temporality as by Hu et al. and Liang et al., i.e., the evolution of user-generated content is dynamic over time (temporal) and users' interests can evolve over different time intervals. In contrast to dynamic community detection methods, however, we assume that the social network structure is static and remains stable over time.  The main reason for this assumption is that the social network structure has a significantly lower pace of change compared to how fast content is generated over time and distributed across the online social network~\cite{Myers:2014:BDT:2566486.2568043}.} 
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{bibliography.bib} 
+
+\end{document}
+
