@@ -31,13 +31,25 @@ Other resources:
 
 
 ## history - jake
-origin and evolution of the problem, context for those not familiar. where the problem came from, why its important to CS and ML
-trace problem back to its eariliest roots, even before CS. earliest ideas, practices or challenges that are related to the problem 
+origin and evolution of the problem, context for those not familiar. where the problem came from, why its important to CS and ML trace problem back to its eariliest roots, even before CS. earliest ideas, practices or challenges that are related to the problem 
 - do not give exhaustive history, give quick journey from early origins to modern
 
 " early forms of weather reporting we done by .... later they used radio, now its all online...
 "early marine navigation decisions done by ... captains? ... now done by robots with pilots.... 
 "integrating machine learning to emulate human decision making to used to pilot marine vessels
+
+1898: Nikola Tesla 1898 - teleautomaton boat radio controlled
+1914: WW1 - german army developed fernlenkboote - radio controlled motorboats packed with explosives to ram british warships
+1940s - 1990s: WW2 - US navy began converting conventional small vessels into remote controlled boats for mine sweeping to clear waters
+    - all of these were limited to short range radio proximity
+1990-2010: MIT sea grant developed ARTEMIS
+    - [Liquid robotics](https://en.wikipedia.org/wiki/Liquid_Robotics#Wave_Glider): wave glider
+    - [Saildrone](https://en.wikipedia.org/wiki/Saildrone_(company))
+2020s - present: drone boats
+
+[USV Development last 15 year](https://scispace.com/pdf/unmanned-surface-vehicles-15-years-of-development-4nxzuv0wq9.pdf)
+
+USV's have been in development for over 100 years, but the ability for them to be driven autonomously is a relatively new concept.  This topic of autonomous driving, humanless piloting, is popular and new.  Autonomous Robotics is a huge topic in ML and CS.  Most people think humanoid, but the development of autonomous piloting and robotics development are all closely related.
 
 ## Hierarchy - Jake
 Organize existing approaches into meaningful categories and subcategories by: 
