@@ -62,5 +62,14 @@ Purpose of this section is to help reader understand existing approaches
 
 ## Comparative analysis - Rowan
 
-## Position Your Project
+#### Existing Approaches and Their Limitations
+Existing  solutions  fall into reactive control or model based trajectory estimators. While reactive geofences are computationally light, they are inherently backward-looking—initiating counter-thrust only after a vessel has drifted outside its designated boundary. This leads to excessive power consumption and increased risk of grounding in strong, dynamic currents. Conversely, physics-based predictive drift models and Dynamic Risk Assessment (DRA) frameworks offer proactive safety boundaries but heavily rely on explicit dynamic oceanographic models that are difficult to calibrate in real time.
 
+#### Identified Gap in the Literature
+Most current frameworks treat station-keeping as a deterministic control problem or rely on static risk thresholds. There is a clear gap in utilizing [insert your ML focus here, e.g., historical trajectory data mining / probabilistic machine learning / Dynamic Risk Indicators] to predict drift probability dynamically under stochastic marine conditions before a boundary breach occurs. Furthermore, existing literature lacks a clear integration between dynamic risk scoring and automated human-intervention triggers.
+
+### Positioning Project
+
+1. propose a data driven model that mines historical telemetry (GPS, wind, current vectors) to predict boundary exceedance $t$ seconds into the future.
+2.Real time risk scoring shifts operations from reactive thrusting to early, power-efficient drift mitigation.
+3. **Human Integration:** Clear thresholds define when the system operates autonomously vs when human pilot.
