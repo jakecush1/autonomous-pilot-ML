@@ -2,10 +2,11 @@
 
 >  Reading list (most important first).** 
 
+> | 3 | **Sarda et al. 2016**, "Station-keeping control of a USV exposed to current and wind disturbances", Ocean Eng. 127 (already `sarda2016station`). [arXiv](https://arxiv.org/pdf/1702.04941) | Your representative station-keeping control paper; its §II is a mini-survey of station-keeping control | Abstract, §I–II, conclusions (long paper; skip the maths) | 2.1, comparison |
+
 > | 1 | **Kristensen, Liu & Utne 2022**, "Dynamic Risk Analysis of Maritime Autonomous Surface Ships", PSAM16. [PDF](https://www.iapsam.org/PSAM16/papers/SU247-PSAM16.pdf) | Closest prior work: risk model for a USV with a shore operator checking in every 2 h; suggests the model can tell the operator when to pay attention | **All** (12 pp) | 2.3, comparison, positioning |
 
 
-> | 3 | **Sarda et al. 2016**, "Station-keeping control of a USV exposed to current and wind disturbances", Ocean Eng. 127 (already `sarda2016station`). [arXiv](https://arxiv.org/pdf/1702.04941) | Your representative station-keeping control paper; its §II is a mini-survey of station-keeping control | Abstract, §I–II, conclusions (long paper; skip the maths) | 2.1, comparison |
 > | 4 | **Song et al. 2024**, "Prediction and Dynamic Correction of Drifting Trajectory for Unmanned Maritime Equipment…", JMSE 12:2262. [MDPI](https://www.mdpi.com/2077-1312/12/12/2262) | The only data-driven drift paper you have (physics model + neural-network correction) | Abstract, method overview, results, §5 limitations | 2.2, comparison |
 
 
