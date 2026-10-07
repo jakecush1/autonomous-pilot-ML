@@ -2,13 +2,15 @@
 
 >  Reading list (most important first).** 
 
-> **Suggested split, based on the names on your headings:** Jake reads 5 and 6 (history, hierarchy); Rowan reads 1 and 2 (comparison, positioning); you both read 3 and 4.
-
-
 > | 1 | **Kristensen, Liu & Utne 2022**, "Dynamic Risk Analysis of Maritime Autonomous Surface Ships", PSAM16. [PDF](https://www.iapsam.org/PSAM16/papers/SU247-PSAM16.pdf) | Closest prior work: risk model for a USV with a shore operator checking in every 2 h; suggests the model can tell the operator when to pay attention | **All** (12 pp) | 2.3, comparison, positioning |
-> | 2 | **Dugan & Utne 2024**, "Development of a risk indicator for ship drifting groundings", PSAM17. [PDF](https://www.iapsam.org/PSAM17/program/Papers/PSAM17&ASRAM2024-1377.pdf) | Time-to-event early warning built from drift; argues that distance alone is a weak signal. Replace "ground" with "10 nm boundary" | **All** (10 pp) | 2.2, comparison, positioning |
+
+
 > | 3 | **Sarda et al. 2016**, "Station-keeping control of a USV exposed to current and wind disturbances", Ocean Eng. 127 (already `sarda2016station`). [arXiv](https://arxiv.org/pdf/1702.04941) | Your representative station-keeping control paper; its §II is a mini-survey of station-keeping control | Abstract, §I–II, conclusions (long paper; skip the maths) | 2.1, comparison |
 > | 4 | **Song et al. 2024**, "Prediction and Dynamic Correction of Drifting Trajectory for Unmanned Maritime Equipment…", JMSE 12:2262. [MDPI](https://www.mdpi.com/2077-1312/12/12/2262) | The only data-driven drift paper you have (physics model + neural-network correction) | Abstract, method overview, results, §5 limitations | 2.2, comparison |
+
+
+> | 2 | **Dugan & Utne 2024**, "Development of a risk indicator for ship drifting groundings", PSAM17. [PDF](https://www.iapsam.org/PSAM17/program/Papers/PSAM17&ASRAM2024-1377.pdf) | Time-to-event early warning built from drift; argues that distance alone is a weak signal. Replace "ground" with "10 nm boundary" | **All** (10 pp) | 2.2, comparison, positioning |
+
 > | 5 | **Manley 2008**, "Unmanned surface vehicles, 15 years of development", OCEANS 2008. [link](https://scispace.com/pdf/unmanned-surface-vehicles-15-years-of-development-4nxzuv0wq9.pdf) | The history source; replaces the Wikipedia links | History sections | 1.1 |
 > | 6 | **Chen et al. 2021**, "A Review of Risk Analysis Research for the Operations of AUVs", RESS 216. [PDF](https://eprints.soton.ac.uk/id/eprint/451143/1/A_Review_of_Risk_Analysis_Research_for_the_Operation_of_Autonomous_Underwater_Vehicles_revised_13th_Jan_no_markup_rev1.pdf) | Its qualitative / semi-quantitative / quantitative taxonomy can justify your hierarchy for 2.3 | Abstract + taxonomy section only | 2 overview, 2.3 |
 > | 7 | **Qu & Cai 2022**, "Nonlinear station keeping control for underactuated USVs…", Ocean Eng. 246. [ScienceDirect](https://www.sciencedirect.com/science/article/pii/S0029801822000725) (paywalled; use the UVic library) | A second station-keeping control example (heading turns to face the disturbance) | Abstract + intro | 2.1 |
