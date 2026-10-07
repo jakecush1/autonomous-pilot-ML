@@ -4,7 +4,6 @@
 
 > **Suggested split, based on the names on your headings:** Jake reads 5 and 6 (history, hierarchy); Rowan reads 1 and 2 (comparison, positioning); you both read 3 and 4.
 
->  **Sources:** the 10 links are only 8 distinct papers, and several labels don't match the paper (notes at each link). Only one of them, Kristensen et al. 2022 (§2.3), is about *when an operator should pay attention*. That makes it your closest prior work.
 
 > | 1 | **Kristensen, Liu & Utne 2022**, "Dynamic Risk Analysis of Maritime Autonomous Surface Ships", PSAM16. [PDF](https://www.iapsam.org/PSAM16/papers/SU247-PSAM16.pdf) | Closest prior work: risk model for a USV with a shore operator checking in every 2 h; suggests the model can tell the operator when to pay attention | **All** (12 pp) | 2.3, comparison, positioning |
 > | 2 | **Dugan & Utne 2024**, "Development of a risk indicator for ship drifting groundings", PSAM17. [PDF](https://www.iapsam.org/PSAM17/program/Papers/PSAM17&ASRAM2024-1377.pdf) | Time-to-event early warning built from drift; argues that distance alone is a weak signal. Replace "ground" with "10 nm boundary" | **All** (10 pp) | 2.2, comparison, positioning |
@@ -16,7 +15,7 @@
 > | 8 | **Na et al. 2025**, qualitative MASS risk (COFA-HAZID), JMSE 13:970. [MDPI](https://www.mdpi.com/2077-1312/13/5/970) | A one-line citation for "static/design-phase risk isn't enough; real-time assessment is needed" | Abstract + intro | 2.3 |
 > | 9 | `bogg2026alert` (already in the proposal bib) | Operator alerting in automated vehicles | Whatever you used for the proposal | 2.3 Operator supervision |
 >
-> **Optional or new finds:** DeepTake ([arXiv:2012.15441](https://arxiv.org/abs/2012.15441); data-driven takeover prediction in cars), the Wave Glider [product sheet](https://www.boeing.com/resources/boeingdotcom/defense/autonomous-systems/wave-glider-sharc/wave_glider_product_sheet.pdf) (a "watch circle" source for the geofence approach), and Clark et al., IEEE JOE 2020 ([PDF](https://ai.jpl.nasa.gov/public/papers/clark-joe2019-station.pdf); predictive station keeping). **Probably drop:** Li et al. 2024 (the collision FTA-FBN paper behind the "Risk assesment" and "Marine Risk assessment" links), since collision isn't your failure mode.
+> **Optional or new finds:** DeepTake ([arXiv:2012.15441](https://arxiv.org/abs/2012.15441); data-driven takeover prediction in cars), the Wave Glider [product sheet](https://www.boeing.com/resources/boeingdotcom/defense/autonomous-systems/wave-glider-sharc/wave_glider_product_sheet.pdf) (a "watch circle" source for the geofence approach), and Clark et al., IEEE JOE 2020 ([PDF](https://ai.jpl.nasa.gov/public/papers/clark-joe2019-station.pdf); predictive station keeping). **Probably drop:** Li et al. 2024 (the collision FTA-FBN paper behind the "Risk assesment" link in 2.3), since collision isn't your failure mode.
 
 
 > 2. **Station-keeping framing (updated):** your framing works: station-keeping literature belongs in the review, and its gaps motivate your system. Be precise about *which part* you improve, though. Your model doesn't issue commands (proposal: it "predicts only whether intervention is required"), so the improvement is to station-keeping *supervision* (when a human must act), not to the *control law* that holds position. The proposal's intro calls control-law work "a different problem", so add one sentence in this document that bridges the two (control = how the vessel holds station; this project = supervising station keeping) so a marker doesn't see a contradiction.
@@ -147,7 +146,7 @@ Another interesting approach to saving energy while geofencing is using Weather 
 
 > **[Claude] Link check:**
 > - **"Paper"** is **Qu & Cai, "Nonlinear station keeping control for underactuated unmanned surface vehicles to resist environmental disturbances", Ocean Engineering 246 (2022)**, doi:10.1016/j.oceaneng.2022.110603. It's paywalled, so I only read the abstract. An update law slowly turns the heading until it faces *against the combined disturbance* (unknown magnitude and direction). That's "into the disturbance", not specifically "into the wind to minimise aerodynamic drag", and the abstract doesn't mention energy.
-> - **"(another)"** is arXiv 1702.04941, which is **Sarda et al. 2016**: the same paper as the "Station-Keeping USV" ResearchGate link under Other resources, and `sarda2016station`, already in your proposal bib. It isn't a weather-optimal positioning paper. It compares PD, backstepping and sliding-mode controllers, with and without wind feedforward, on a 4 m, 180 kg WAM-V in 4–5 kn wind. Sliding mode did best, and feedforward only helped PD and backstepping in cross-wind. For a real weather-optimal positioning source, see its ref [53]: Kjerstad et al., "Weather Optimal Positioning Control for Marine Surface Vessels", IFAC CAMS 2010.
+> - **"(another)"** is arXiv 1702.04941, which is **Sarda et al. 2016**: the same paper as `sarda2016station`, already in your proposal bib. It isn't a weather-optimal positioning paper. It compares PD, backstepping and sliding-mode controllers, with and without wind feedforward, on a 4 m, 180 kg WAM-V in 4–5 kn wind. Sliding mode did best, and feedforward only helped PD and backstepping in cross-wind. For a real weather-optimal positioning source, see its ref [53]: Kjerstad et al., "Weather Optimal Positioning Control for Marine Surface Vessels", IFAC CAMS 2010.
 > - The markdown link is reversed: `(another)[url]` should be `[another](url)`.
 
 ### 2.2 Drift prediction
@@ -172,7 +171,7 @@ Consider other risks, DRA, opertator alerting systems, forecast consideration?
 - [Dynamic Risk Assessment](https://www.iapsam.org/PSAM16/papers/SU247-PSAM16.pdf)
 
 > **[Claude] Link check:**
-> - **The "Risk assesment" link** (the same URL as "Marine Risk assessment" under Other resources) is **not** a dynamic risk paper. It's **Li, Wang & Yang, "Risk assessment of maritime autonomous surface ships collisions using an FTA-FBN model", Ocean Engineering 309 (2024)**. It covers *collision* risk: a fault tree mapped into a fuzzy Bayesian network, with probabilities from expert surveys because MASS failure data is scarce. It's static and design-level, not real-time. It could serve as the "static, expert-elicited" example in 2.3, or you could drop it, since collision isn't your failure mode. Open-access copy: [LJMU repository](https://researchonline.ljmu.ac.uk/id/eprint/24721/).
+> - **The "Risk assesment" link** is **not** a dynamic risk paper. It's **Li, Wang & Yang, "Risk assessment of maritime autonomous surface ships collisions using an FTA-FBN model", Ocean Engineering 309 (2024)**. It covers *collision* risk: a fault tree mapped into a fuzzy Bayesian network, with probabilities from expert surveys because MASS failure data is scarce. It's static and design-level, not real-time. It could serve as the "static, expert-elicited" example in 2.3, or you could drop it, since collision isn't your failure mode. Open-access copy: [LJMU repository](https://researchonline.ljmu.ac.uk/id/eprint/24721/).
 > - **The "Dynamic Risk Assessment" (PSAM16) link is your most important paper.** I read it in full: **Kristensen, Liu & Utne, "Dynamic Risk Analysis of Maritime Autonomous Surface Ships", PSAM16 2022.**
 >   - A dynamic Bayesian network (DBN) estimates mission-failure risk from power management and situation awareness on a 5 m AutoNaut USV (wave-propelled, solar-powered).
 >   - Case study: a 19-day mission off Norway, operating within a defined area. A shore operator checked in **every 2 hours**, which is also the DBN's time step. That's very close to OOR's pilot cadence. The real vessel grounded in a storm after losing communications with a low battery, and the model's risk rose before the event.
@@ -188,18 +187,12 @@ Other resources:
 
 [Qualitative Risk Assessment Methodology for Maritime Autonomous Surface Ships](https://www.mdpi.com/2077-1312/13/5/970)
 
-[Marine Risk assessment](https://www.sciencedirect.com/science/article/pii/S0029801824017827)
-
 [Review of Risk analysis](https://eprints.soton.ac.uk/id/eprint/451143/1/A_Review_of_Risk_Analysis_Research_for_the_Operation_of_Autonomous_Underwater_Vehicles_revised_13th_Jan_no_markup_rev1.pdf)
-
-[Station-Keeping USV](https://www.researchgate.net/publication/309185307_Station-keeping_control_of_an_unmanned_surface_vehicle_exposed_to_current_and_wind_disturbances)
 
 > **[Claude]** What each "other resource" is:
 > - **"Prediction and Dynamic Correction of Drifting Trajectory":** move to 2.2 (see the note there).
 > - **"Qualitative Risk Assessment Methodology…":** **Na et al., "Qualitative Risk Assessment Methodology for Maritime Autonomous Surface Ships: Cognitive Model-Based Functional Analysis and Hazard Identification" (COFA-HAZID), JMSE 13(5):970, 2025** (Korean Register). Design-phase and qualitative, with no numeric risk. It gives you a citable argument for dynamic over static assessment: systems that "drastically reduce human intervention" may require "real-time risk assessment methodologies". It also reports that STPA is the most-used qualitative method for MASS.
-> - **"Marine Risk assessment":** duplicate of the "Risk assesment" link in 2.3 (Li et al. 2024, collision).
 > - **"Review of Risk analysis":** **Chen, Bose, Brito, Khan, Thanyamanta & Zou, "A Review of Risk Analysis Research for the Operations of Autonomous Underwater Vehicles", Reliability Engineering & System Safety 216 (2021)** (abstract only; the PDF link blocked me). It reviews 42 papers, sorts methods into qualitative / semi-quantitative / quantitative, and recommends dynamic risk analysis and work on limited historical data. Its taxonomy could be your level-2 split for 2.3, and citing it backs up your hierarchy.
-> - **"Station-Keeping USV":** duplicate of the "(another)" arXiv link in 2.1 (Sarda et al. 2016).
 > - **Possibly useful for between 2.1 and 2.2:** Clark et al., "Station-Keeping Underwater Gliders Using a Predictive Ocean Circulation Model and Applications to SWOT Calibration and Validation", IEEE JOE, 2020 ([PDF](https://ai.jpl.nasa.gov/public/papers/clark-joe2019-station.pdf)). It does *predictive* station keeping from an ocean-current forecast, with simulation and field results. I only saw the abstract.
 
 
