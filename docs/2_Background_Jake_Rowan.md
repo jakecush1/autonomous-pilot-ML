@@ -19,26 +19,41 @@
 > **Optional or new finds:** DeepTake ([arXiv:2012.15441](https://arxiv.org/abs/2012.15441); data-driven takeover prediction in cars), the Wave Glider [product sheet](https://www.boeing.com/resources/boeingdotcom/defense/autonomous-systems/wave-glider-sharc/wave_glider_product_sheet.pdf) (a "watch circle" source for the geofence approach), and Clark et al., IEEE JOE 2020 ([PDF](https://ai.jpl.nasa.gov/public/papers/clark-joe2019-station.pdf); predictive station keeping). **Probably drop:** Li et al. 2024 (the collision FTA-FBN paper behind the "Risk assesment" and "Marine Risk assessment" links), since collision isn't your failure mode.
 
 
-
-
-
 > 2. **Station-keeping framing (updated):** your framing works: station-keeping literature belongs in the review, and its gaps motivate your system. Be precise about *which part* you improve, though. Your model doesn't issue commands (proposal: it "predicts only whether intervention is required"), so the improvement is to station-keeping *supervision* (when a human must act), not to the *control law* that holds position. The proposal's intro calls control-law work "a different problem", so add one sentence in this document that bridges the two (control = how the vessel holds station; this project = supervising station keeping) so a marker doesn't see a contradiction.
-
 
 > 4. **Graded items still missing:** abstract, hierarchy figure, comparison table, Venn diagram.
 
 
 ## Abstract -jake
 
-> **[Claude] Ideas for the abstract.** These are points to cover, not wording; this milestone only allows AI-assisted *editing*, so the sentences need to be yours.
-> - **Scope statement (1 sentence):** what this paper is, e.g. a brief review of the history and current state of [deciding when a station-keeping USV needs a human pilot]. The example's abstract is essentially just this sentence.
-> - **Context (1 clause):** OOR's DataXplorer holds within 10 nm of a retired NOAA buoy station, with a pilot on 24/7 watch.
-> - **What the review covers:** the history (your timeline, from early roots to autonomous USVs), then the three families: station-keeping control, drift prediction, and risk assessment & operator supervision. Optionally name your level-2 split (physics/expert-based vs. data-driven).
-> - **The main takeaway:** control methods hold position but don't say when a human is needed. Drift/TTG and dynamic-risk methods give early warnings but are physics- or expert-based and were validated on single voyages or missions. None learns *when the pilot is needed* from telemetry.
-> - **Where you fit:** a data-driven model that predicts pilot intervention within a time window, building on time-to-event (TTG) and dynamic-risk ideas, compared against a distance-threshold baseline.
-> - **Repository link (required):** manual §1.6.2 says the repo must be linked in the abstract. Your proposal abstract already has the sentence with https://github.com/jakecush1/autonomous-pilot-ML, so reuse it.
-> - **Length:** with exactly 2 pages, aim for 3–5 sentences plus the repo sentence. Write it last, once the sections are settled.
-> - **Keywords line** (the example template has `\keywords{}`; pick about 4): unmanned surface vehicles, station keeping, human-in-the-loop, dynamic risk assessment, drift prediction.
+This paper is a brief overview of the history and current state of human monitored, and autonomous methods for station keeping using an Uncrewed Surface Vehicle (USV), and more specifically looking at the determining if we can automate the decision of *When human intervention is needed* while utilizing common semi-autonomous station keeping methods.  Open Ocean Robotics (OOR) DataXplorer(^tm) holds within 10nm of a retired NOAA buoy station, with a pilot on 24/7 watch.  By analyzing current methods, we hope to develop a more efficient method to reduce the labor necessary to complete this task.  The review covers a brief history of USV's and relevent methods: control methods like Geo-fencing, drift prediction, dynamic risk assesment, and autnomous control vs operator supervision.  
+
+None of these methods explore the problem of hybrid station keeping, which asks the question of determining *When* human interaction is needed. Control methods hold position, but dont predict when a human is needed.  Drift or risk prediction algorithms give early warnings, which is a benficial method in predicting when a human would be needed.  If we can combine the outcomes from all of these we can start to think of a superior solution which would could save lots of money in labor.
+
+by using methods in used in control methods, drift prediction, and risk assesment, we could build a probability based solution, considering all of these factors, to determine when human interaction is needed, effectively combining all methods to create a hybrid usv monitoring system.  Using live telemetry to predict when a pilot is needed.  You can find code and more documents relating to this subject at https://github.com/jakecush1/autonomous-pilot-ML
+
+
+keywords: unmanned surface vehicles, station keeping, human-in-the-loop, dynamic risk assessment, drift prediction.
+
+> **[Claude] Abstract vs. Introduction.** Below are your own sentences sorted into the two places, with the wording unchanged. `[…]` marks a suggested cut.
+>
+> **Abstract** (make it one paragraph; it's currently about 260 words, so aim for roughly 120):
+> This paper is a brief overview of the history and current state of human monitored, and autonomous methods for station keeping using an Uncrewed Surface Vehicle (USV), and more specifically looking at the determining if we can automate the decision of *When human intervention is needed* […]. Open Ocean Robotics (OOR) DataXplorer(^tm) holds within 10nm of a retired NOAA buoy station, with a pilot on 24/7 watch. The review covers a brief history of USV's and relevent methods: control methods like Geo-fencing, drift prediction, dynamic risk assesment, and autnomous control vs operator supervision. Control methods hold position, but dont predict when a human is needed. Drift or risk prediction algorithms give early warnings […]. […] we could build a probability based solution […] to determine when human interaction is needed […]. Using live telemetry to predict when a pilot is needed. You can find code and more documents relating to this subject at https://github.com/jakecush1/autonomous-pilot-ML
+>
+> **Introduction** (motivation and the term you're introducing):
+> By analyzing current methods, we hope to develop a more efficient method to reduce the labor necessary to complete this task. None of these methods explore the problem of hybrid station keeping, which asks the question of determining *When* human interaction is needed. […] If we can combine the outcomes from all of these we can start to think of a superior solution which would could save lots of money in labor.
+>
+> **§3 Positioning, not the abstract:** the full "by using methods in used in control methods, drift prediction, and risk assesment … hybrid usv monitoring system" sentence. The abstract keeps only its core (above).
+>
+> **Why these moves and what to fix:**
+> - **What the abstract is for:** saying what the paper covers and what it concludes. Motivation (labour cost), defining a new term, and the detailed plan belong in the Introduction and Positioning.
+> - **Sentence 1:** I cut "while utilizing common semi-autonomous station keeping methods" because the sentence is already long and the station-keeping context is in the next sentences. "Looking at the determining if we can automate" doesn't parse, so rephrase it.
+> - **"None of these methods explore…"** is too strong given Kristensen 2022, whose risk model is meant to show when the operator should pay attention. Narrow it (for example, none *learn* this from telemetry). "Hybrid station keeping" is your own term, so define it in the Introduction before using it.
+> - **The early-warning sentence** needs its second half for the abstract to state a gap: what limits drift and risk methods (physics- or expert-based, each validated on a single voyage or mission).
+> - **"Superior solution" and "lots of money"** are informal and unsupported. Your proposal has the actual figure (about 1,095 eight-hour pilot shifts a year), so use that in the Introduction.
+> - **Repo sentence:** keep it. Manual §1.6.2 requires the repo to be linked in the abstract.
+> - **Keywords:** in LaTeX these go in `\keywords{}`, separate from the abstract text, as in the example template.
+> - **Typos:** relevent, assesment, autnomous, benficial, dont, "would could", "methods in used in". For "DataXplorer(^tm)", use `DataXplorer\texttrademark{}` or drop the ™.
 
 ## 1. Introduction - Both read and research
 Our problem is exploring the idea of "if we can determine *When* a human interaction is needed, while station keeping with a USV".  In exploring this topic we found it import to first explore the most popular methods of station keeping used in the industry.
@@ -47,8 +62,6 @@ Our problem is exploring the idea of "if we can determine *When* a human interac
 
 Here is our specific problem at the company. we care because - having to pay someone is expensive
 
-some approaches to solving this problem are x, y z, and their shortcomings are a,b,c.
-  - method 1 does a well but not b, method 2 does b well but not c; our method will take pros from 1 and 2 and do a, b and c
 
 3 methods used in automated marine station keeping, and USV station keeping which are relevant to our problem.  These are current popular methods which are researched, simulated, tested and used.  Ideally our method or solution would combine all of these methods, considering all research and creating a probability rating which considers geofencing and usv location relative to its station, calcualtes a drift prediction based on current telemetry, and considers other data to influence the probabilty encompassing risk assessment.
 
@@ -207,6 +220,9 @@ Other resources:
 
  - compare and contract each method
  - option a does x well, but lacks in y; option b does k well but lacks in z; our option does x y and z well. 
+
+ some approaches to solving this problem are x, y z, and their shortcomings are a,b,c.
+  - method 1 does a well but not b, method 2 does b well but not c; our method will take pros from 1 and 2 and do a, b and c
 
 *NEED VEN DIAGRAMS AND TABLE IN THIS SECTION* see example for reference - venn diagram could be:
 - A: station keeping
