@@ -65,7 +65,6 @@ Here is our specific problem at the company. we care because - having to pay som
 
 3 methods used in automated marine station keeping, and USV station keeping which are relevant to our problem.  These are current popular methods which are researched, simulated, tested and used.  Ideally our method or solution would combine all of these methods, considering all research and creating a probability rating which considers geofencing and usv location relative to its station, calcualtes a drift prediction based on current telemetry, and considers other data to influence the probabilty encompassing risk assessment.
 
-> **[Claude]** The "some approaches… x, y z" lines are a good skeleton for the four questions in manual §1.1. The "3 methods used…" paragraph is mostly positioning ("Ideally our method…"), so move it to §3. "Researched, simulated, tested and used" needs citations showing which papers did which; the comparison table can carry that.
 
 ### 1.1 History - jake
 
@@ -99,14 +98,11 @@ USV's have been in development for over 100 years, but the ability for them to b
 
 ## 2. Related Work
 
-Station keeping with a USV is not a new problem.  Many other companies actively research and perform this in different capacities.  Our problem differs in that we want to employ a hybrid method, combining the benefits of these popular techniques.
+Station keeping with a USV is not a new problem.  Many other companies actively research and perform this in different capacities.  
 
-In the following sections we explore some of the most common methods and research done in field.  other reaserch explore time to run aground, where this is not a concern for us.
+In the following sections we explore some of the most common methods and research done in field.  other reaserch (TTG's paper) explore time to run aground which can be looked as time until vessel crosses the 10nm boundary and the solution is virtually the same.  The paper also argues that distance alone (geofencing) is a weaker warning signal that a time-to-event estimation, accounting for drift.  this is an inspiration or userful reasearch information for our problem
 
-> **[Claude]** "We want to employ a hybrid method, combining the benefits of these popular techniques" is a positioning claim, so move it to §3. Here, just introduce the categories and the hierarchy figure. If you keep "hybrid", say what's combined: you aren't merging a control law into the model (see overall note 2).
->
-> On "time to run aground… not a concern for us": grounding itself isn't your risk, but the TTG paper's *idea* carries over directly. Replace "time until the vessel hits ground" with "time until it crosses the 10 nm boundary". The paper also argues that distance alone (the geofence view) is a weaker warning signal than a time-to-event estimate that accounts for drift. I'd cite it as inspiration rather than dismiss it.
-
+``
 Organize existing approaches into meaningful categories and subcategories by: 
 - type of algorithm
 - information or features used
@@ -114,6 +110,7 @@ Organize existing approaches into meaningful categories and subcategories by:
 - learning technique
 
 Purpose of this section is to help reader understand existing approaches
+``
 
 > **[Claude]** This section needs the **hierarchy figure** (20%). Manual §1.3: pick one perspective for level 1 and one for level 2. Your 2.1/2.2/2.3 split is "what question the method answers" (how to hold position / where it will drift / when a human should act). A level-2 split that works across all three is **physics- or expert-knowledge-based vs. data-driven**, which is also the axis your project sits on. Here's where your linked sources currently fall (check this against your own reading):
 >
@@ -131,8 +128,14 @@ Purpose of this section is to help reader understand existing approaches
 A popular approach is *Geofencing*  - radius threshold - essentially once the USV drifts outside of some geofence - do something.
 Geofencing is the most popular approach to station keeping with a USV.  The focus is often centered around energy efficiency, and what are the best methods.  Simple feedback loops are are a common implemnetation to combat different marine weather (winds, currents).  This could encorporate wind sensors, water current sensors, or simply drift COG speed over time of the location.
 
-> **[Claude]** The geofencing claims here have no source, and the two control papers you linked don't support them. Both are *continuous* closed-loop controllers that hold position to within metres over minutes (Sarda tested in 4–5 kn wind). Neither waits for the vessel to drift out and then reacts, and neither is framed around energy efficiency (Sarda optimises heading and position accuracy). Either find a geofence / "watch circle" source or reframe this paragraph.
 > - A possible source: Wave Glider spec sheets give a *station-keeping radius* (30 m, met 90% of the time; [Boeing/Liquid Robotics product sheet](https://www.boeing.com/resources/boeingdotcom/defense/autonomous-systems/wave-glider-sharc/wave_glider_product_sheet.pdf)). That is the watch-circle idea, and it's much closer to OOR's 10 nm zone.
+
+Other papers look at feedback closed-loop controllers that hold position (Sarda), while this would be beneficial to employing a autopilot control system which determines commands given the telemetry, this is out of scope for this project.  Though interesting, these papers do not allow for drift and are not framed around energy efficiency, but rather opimize heading and position accuracy.
+
+Though these methods are useful in autonomous piloting, and certain aspects will be useful to consider in our design (such as live telemtry calculating to determine action, considering wind and location as input, general geofencing concepts), our solution aims to reduce human piloting time but not remove it.  
+
+Geofencing limitations ignore when usv is drifting and only act when the usv reaches a limit.  Our solution aims to improve on this by constantly assessing distance.
+
 > - A contrast for the comparison: the control papers work at metres and minutes with no human involved. OOR works at nautical miles and hours, with a pilot.
 > - With your framing (improving station-keeping practice), the geofence/watch-circle rule *is* the current practice you're improving on: the pilot acts when the vessel nears 10 nm. Describe it as current practice, give its limitation (it reacts to distance and ignores where the vessel is drifting), and reuse it as your baseline in §3.
 > - Geofencing and feedback loops overlap: a geofence is a trigger rule, while a feedback loop is a controller. "Threshold/trigger-based" vs. "continuous feedback control" might work better as the two subcategories.
@@ -202,9 +205,11 @@ Other resources:
 
 
 
-
-
 ## 3.  Positioning Project - Rowan
+
+Our problem differs in that we want to employ a hybrid method, combining the benefits of these popular techniques.
+
+> **[Claude]** "We want to employ a hybrid method, combining the benefits of these popular techniques" is a positioning claim, so move it to §3. Here, just introduce the categories and the hierarchy figure. If you keep "hybrid", say what's combined: you aren't merging a control law into the model (see overall note 2).
 
 1. propose a data driven model that mines historical telemetry (GPS, wind, current vectors) to predict boundary exceedance $t$ seconds into the future.
 2.Real time risk scoring shifts operations from reactive thrusting to early, power-efficient drift mitigation.
