@@ -1,50 +1,29 @@
 # Predicting Pilot Intervention for Station-Keeping USVs: A Brief Review
 
-> 2. **Station-keeping framing (updated):** your framing works: station-keeping literature belongs in the review, and its gaps motivate your system. Be precise about *which part* you improve, though. Your model doesn't issue commands (proposal: it "predicts only whether intervention is required"), so the improvement is to station-keeping *supervision* (when a human must act), not to the *control law* that holds position. The proposal's intro calls control-law work "a different problem", so add one sentence in this document that bridges the two (control = how the vessel holds station; this project = supervising station keeping) so a marker doesn't see a contradiction.
+> **[Claude] Station-keeping framing:** resolved by the intro's control vs. supervision sentence. Keep the later sections consistent with it: the model alerts a pilot, it doesn't issue commands.
 
-> 4. **Graded items still missing:** abstract, hierarchy figure, comparison table, Venn diagram.
+> **[Claude] Graded items:** hierarchy drafted as Table 1 in §2. Still missing: comparison table and Venn diagram (Rowan, §3).
+>
+> **[Claude] Length:** Jake's drafted sections come to about 1,000 words (intro 215, history 230, related work 560). Two ACM pages hold roughly 1,000–1,200 words of body text once the abstract, three tables/figures and the references are in, and Rowan's sections still need room, so plan to cut about a third. The note under each draft lists what to cut first.
 
 
 ## Abstract -jake
 
-This paper is a brief overview of the history and current state of human monitored, and autonomous methods for station keeping using an Uncrewed Surface Vehicle (USV), and more specifically looking at the determining if we can automate the decision of *When human intervention is needed* while utilizing common semi-autonomous station keeping methods.  Open Ocean Robotics (OOR) DataXplorer(^tm) holds within 10nm of a retired NOAA buoy station, with a pilot on 24/7 watch.  By analyzing current methods, we hope to develop a more efficient method to reduce the labor necessary to complete this task.  The review covers a brief history of USV's and relevent methods: control methods like Geo-fencing, drift prediction, dynamic risk assesment, and autnomous control vs operator supervision.  
-
-None of these methods explore the problem of hybrid station keeping, which asks the question of determining *When* human interaction is needed. Control methods hold position, but dont predict when a human is needed.  Drift or risk prediction algorithms give early warnings, which is a benficial method in predicting when a human would be needed.  If we can combine the outcomes from all of these we can start to think of a superior solution which would could save lots of money in labor.
-
-by using methods in used in control methods, drift prediction, and risk assesment, we could build a probability based solution, considering all of these factors, to determine when human interaction is needed, effectively combining all methods to create a hybrid usv monitoring system.  Using live telemetry to predict when a pilot is needed.  You can find code and more documents relating to this subject at https://github.com/jakecush1/autonomous-pilot-ML
+This paper gives a brief overview of the history and current state of human-monitored and autonomous station keeping for Uncrewed Surface Vehicles (USVs), focusing on whether the decision of *when human intervention is needed* can be automated. The Open Ocean Robotics (OOR) DataXplorer™ holds its position within 10 nm of a retired NOAA buoy station, with a pilot on 24/7 watch. The review covers a brief history of USVs and the relevant methods: control methods such as geofencing, drift prediction, dynamic risk assessment, and autonomous control versus operator supervision. Control methods hold position but do not predict when a human is needed. Drift and risk prediction methods give early warnings, but do not use past data to learn the probability that human intervention is needed. We propose a probability-based solution that uses live telemetry to predict when a pilot is needed. Code and related documents are available at https://github.com/jakecush1/autonomous-pilot-ML.
 
 
-keywords: unmanned surface vehicles, station keeping, human-in-the-loop, dynamic risk assessment, drift prediction.
+keywords: uncrewed surface vehicles, station keeping, human-in-the-loop, dynamic risk assessment, drift prediction.
 
-> **[Claude] Abstract vs. Introduction.** Below are your own sentences sorted into the two places, with the wording unchanged. `[…]` marks a suggested cut.
->
-> **Abstract** (make it one paragraph; it's currently about 260 words, so aim for roughly 120):
-> This paper is a brief overview of the history and current state of human monitored, and autonomous methods for station keeping using an Uncrewed Surface Vehicle (USV), and more specifically looking at the determining if we can automate the decision of *When human intervention is needed* […]. Open Ocean Robotics (OOR) DataXplorer(^tm) holds within 10nm of a retired NOAA buoy station, with a pilot on 24/7 watch. The review covers a brief history of USV's and relevent methods: control methods like Geo-fencing, drift prediction, dynamic risk assesment, and autnomous control vs operator supervision. Control methods hold position, but dont predict when a human is needed. Drift or risk prediction algorithms give early warnings […]. […] we could build a probability based solution […] to determine when human interaction is needed […]. Using live telemetry to predict when a pilot is needed. You can find code and more documents relating to this subject at https://github.com/jakecush1/autonomous-pilot-ML
->
-> **Introduction** (motivation and the term you're introducing):
-> By analyzing current methods, we hope to develop a more efficient method to reduce the labor necessary to complete this task. None of these methods explore the problem of hybrid station keeping, which asks the question of determining *When* human interaction is needed. […] If we can combine the outcomes from all of these we can start to think of a superior solution which would could save lots of money in labor.
->
-> **§3 Positioning, not the abstract:** the full "by using methods in used in control methods, drift prediction, and risk assesment … hybrid usv monitoring system" sentence. The abstract keeps only its core (above).
->
-> **Why these moves and what to fix:**
-> - **What the abstract is for:** saying what the paper covers and what it concludes. Motivation (labour cost), defining a new term, and the detailed plan belong in the Introduction and Positioning.
-> - **Sentence 1:** I cut "while utilizing common semi-autonomous station keeping methods" because the sentence is already long and the station-keeping context is in the next sentences. "Looking at the determining if we can automate" doesn't parse, so rephrase it.
-> - **"None of these methods explore…"** is too strong given Kristensen 2022, whose risk model is meant to show when the operator should pay attention. Narrow it (for example, none *learn* this from telemetry). "Hybrid station keeping" is your own term, so define it in the Introduction before using it.
-> - **The early-warning sentence** needs its second half for the abstract to state a gap: what limits drift and risk methods (physics- or expert-based, each validated on a single voyage or mission).
-> - **"Superior solution" and "lots of money"** are informal and unsupported. Your proposal has the actual figure (about 1,095 eight-hour pilot shifts a year), so use that in the Introduction.
-> - **Repo sentence:** keep it. Manual §1.6.2 requires the repo to be linked in the abstract.
-> - **Keywords:** in LaTeX these go in `\keywords{}`, separate from the abstract text, as in the example template.
-> - **Typos:** relevent, assesment, autnomous, benficial, dont, "would could", "methods in used in". For "DataXplorer(^tm)", use `DataXplorer\texttrademark{}` or drop the ™.
+
+>*Positioning* - by using methods in used in control methods, drift prediction, and risk assesment, we could build a probability based solution, considering all of these factors, to determine when human interaction is needed, effectively combining all methods to create a hybrid usv monitoring system.  Using live telemetry to predict when a pilot is needed. 
+
 
 ## 1. Introduction - Both read and research
-Our problem is exploring the idea of "if we can determine *When* a human interaction is needed, while station keeping with a USV".  In exploring this topic we found it import to first explore the most popular methods of station keeping used in the industry.
 
-- what approaches have been used to address OUR problem: while station keeping with a USV, when is human interaction needed?
-
-Here is our specific problem at the company. we care because - having to pay someone is expensive
+*Station keeping* is the task of holding a vessel inside a bounded region around a fixed point despite wind, waves and current. On large ships it is solved by *dynamic positioning*: a closed-loop controller adjusts thrust continuously to hold position within metres [sorensen2011survey], and the same control approach has been applied to small Uncrewed Surface Vehicles (USVs) [sarda2016station]. USVs that replace moored weather buoys keep station far more loosely. The DataXplorer only has to stay within 10 nm of a retired buoy's position, and a shore-based pilot on 24/7 watch issues a course correction when needed, usually when wind pushes it toward the edge. Station keeping therefore has two layers: a *control* layer that decides *how* the vessel holds position, and a *supervision* layer that decides *when* a human must step in. **This work addresses the supervision layer: predicting from live telemetry whether a pilot will need to intervene within a future time window.** Related work comes from three directions: station-keeping control (§2.1); drift prediction, which estimates where wind and current will carry a vessel and how soon it will reach a boundary (§2.2); and dynamic risk assessment and operator supervision, which estimate when a mission is at risk and how to alert the human (§2.3). We first trace how the problem arose (§1.1), then compare these approaches and position our project among them (§3).
 
 
-3 methods used in automated marine station keeping, and USV station keeping which are relevant to our problem.  These are current popular methods which are researched, simulated, tested and used.  Ideally our method or solution would combine all of these methods, considering all research and creating a probability rating which considers geofencing and usv location relative to its station, calcualtes a drift prediction based on current telemetry, and considers other data to influence the probabilty encompassing risk assessment.
+> **[Claude]** Every source cited in the drafts is now in [bibliography.bib](bibliography.bib) under the same key. In LaTeX, swap each `[key]` for `\cite{key}`.
 
 
 ### 1.1 History - jake
@@ -72,16 +51,22 @@ USV's have been in development for over 100 years, but the ability for them to b
 
 
 
-> **[Claude]** History notes:
-> - The manual asks for the earliest roots of the *problem*. The example starts from the problem itself (1927 voting blocs), not the technology. Your timeline is a history of unmanned boats, but the proposal's problem is *keeping a vessel on station and knowing when a human needs to step in*. 
-
-> Your notes on weather reporting and captains' decisions are closer to that root. Consider leading with them, then the remote-control timeline, then where ML enters.
-
-> - "1914: WW1 - german army…": the Fernlenkboote were built for the Imperial German *Navy*, not the army, and I believe they were used in combat around 1916–17. Check "1914".
-> - "1940s - 1990s" covers 50 years. The "USV Development last 15 year" paper is the source to split it up.
-> - "1990-2010": Saildrone was founded in 2012, which is outside that range.
-> - "USV Development last 15 year" is **Manley, J., "Unmanned surface vehicles, 15 years of development", MTS/IEEE OCEANS 2008** (doi:10.1109/OCEANS.2008.5152052). It's ref [1] in Sarda et al. Cite it instead of the Wikipedia links; the manual asks for textbooks, surveys, influential papers or reliable technical sources. (scispace blocked me, so I haven't read the body.)
-> - "Most people think humanoid…" is off-topic for a 2-page limit. The new self-driving-car sentence is a better hook, but it needs a citation, and it connects nicely to the takeover-prediction work noted under Operator supervision. Use the space for *when and why this became a CS/ML problem* (manual question 4).
+> **[Claude] Draft History** (about 230 words)
+>
+> Holding a vessel on station for weather reporting is far older than autonomy. In 1940 the U.S. Coast Guard began posting crewed cutters at fixed ocean stations to report weather. Each station was a grid of 10-mile squares, and the ship normally occupied the centre square [dinsmore1996alpha], close to the DataXplorer's 10 nm limit. From 1970, moored buoys took over this role, holding station passively on an anchor with no crew [ndbc_history], and in 1977 the last U.S. weather ship was replaced by a buoy [dinsmore1996alpha]. Offshore drilling, meanwhile, automated *active* station keeping in the 1960s with dynamic positioning [sorensen2011survey].
+>
+> Uncrewed boats followed a separate path. Tesla demonstrated a radio-controlled boat in 1898, the Imperial German Navy used wire-guided explosive boats in the First World War, and by 1945 the U.S. Navy used remote-controlled boats for minesweeping and as targets, all within a short range of their operator [everett2015unmanned]. GPS and onboard computing made autonomy practical: MIT Sea Grant's ARTEMIS (1993) was among the first autonomous surface craft [manley2008usv], and long-endurance USVs can now stand in for retired buoys, as the DataXplorer does for Station 46012. The station is once again held actively, so the old watchkeeper's question returns for a remote pilot.
+>
+> Sheridan and Verplank's levels of automation [sheridan1978human] framed this choice: automation is not all-or-nothing, and a computer can act on its own while still informing a human. The question became a data-mining problem once vehicles logged telemetry alongside human actions. Automated-driving work now learns to predict driver takeovers [pakdamanian2021deeptake], and reviews of autonomous marine vehicles call for dynamic risk analysis that copes with limited historical data [chen2021review].
+>
+> **[Claude] Why it's built this way, and notes on your timeline:**
+> - **Roots of the problem, not the technology.** The manual asks for the earliest form of the *problem*, as the example's 1927 voting blocs do. The problem here is keeping a vessel on station and knowing when a human must act, so the draft opens with crewed weather ships (humans hold station) → buoys (an anchor holds it, no human) → USVs (held actively again, with a human supervising). Your remote-control timeline becomes the second paragraph.
+> - **The 10-mile square** comes straight from Dinsmore: "A 'station' was a 210-mile grid of 10-mile squares… The center square, which the ship usually occupied, was 'OS' (for 'on-station')." It's a good hook, so keep it if you cut elsewhere.
+> - **Fernlenkboote (your "1914" line):** they belonged to the Imperial German *Navy* and were steered from shore through a trailing wire up to 20 km long, not by radio. They were used against British monitors off Flanders. The draft says "First World War" to avoid a contested year.
+> - **"1940s - 1990s"** collapses into the WWII line plus ARTEMIS. **Saildrone** (founded 2012) and **Wave Glider** are cut for space. The Wikipedia links are replaced by Everett (an MIT Press history) and Manley.
+> - **"Most people think humanoid…"** is cut. Your self-driving-car point survives as the DeepTake sentence, which now has a citation.
+> - **To check before submitting:** I haven't read Everett's book or Manley's full text. Confirm Everett covers Tesla's boat, the FL-boats and the WWII U.S. drone boats (otherwise cite Manley if his history section does), and that Sørensen's introduction dates the first DP systems to the 1960s.
+> - **If space is tight:** cut the Tesla/WWI sentence first, then the drilling sentence. Keep the weather-ship → buoy → USV arc and the last paragraph (manual question 4: when it became a computing problem).
 
 ## 2. Related Work
 
@@ -99,14 +84,48 @@ Organize existing approaches into meaningful categories and subcategories by:
 Purpose of this section is to help reader understand existing approaches
 ``
 
-> **[Claude]** This section needs the **hierarchy figure** (20%). Manual §1.3: pick one perspective for level 1 and one for level 2. Your 2.1/2.2/2.3 split is "what question the method answers" (how to hold position / where it will drift / when a human should act). A level-2 split that works across all three is **physics- or expert-knowledge-based vs. data-driven**, which is also the axis your project sits on. Here's where your linked sources currently fall (check this against your own reading):
+> **[Claude] Draft Section 2 opening** (about 80 words)
 >
-> | | physics / expert-knowledge | data-driven / hybrid |
+> Work related to supervised station keeping answers one of three questions (Table 1): *how* to hold a vessel on station (station-keeping control, §2.1), *where and how soon* wind and current will carry it (drift prediction, §2.2), and *when* a mission is at risk and a human should act (risk assessment and operator supervision, §2.3). Within each, methods are either *model-based*, built from physics or expert judgement, or *data-driven*, learned from logged observations. Marine work is overwhelmingly model-based.
+>
+> **[Claude] Draft Table 1 (hierarchy)**
+>
+> | Question (level 1) | Model-based: physics or expert judgement | Data-driven or hybrid |
 > |---|---|---|
-> | 2.1 control | Sarda 2016; Qu & Cai 2022 | (none linked) |
-> | 2.2 drift | Dugan & Utne 2024 (TTG) | Song et al. 2024 (LEEWAY + FCNN) |
-> | 2.3 risk / supervision | Kristensen 2022 (DBN); Li 2024 (FTA-FBN); Na 2025; Chen 2021 (review) | **empty, which is where your project sits** |
+> | **How to hold station** (§2.1) | *Trigger rule:* watch circle [liquidrobotics_waveglider]. *Feedback control:* dynamic positioning [sorensen2011survey]; PD, backstepping and sliding-mode control [sarda2016station]; heading into the disturbance [qu2022nonlinear] | ML-based control [sinisterra2020ml] |
+> | **Where and how soon it will drift** (§2.2) | Time to grounding [dugan2024drifting] | Physics model + neural correction [song2024drift] |
+> | **When a human should act** (§2.3) | Qualitative hazard ID [na2025qualitative]; fault tree + fuzzy BN [li2024collision]; dynamic BN [kristensen2022dynamic] | Takeover prediction, cars only [pakdamanian2021deeptake]; **marine: none found (this project)** |
 >
+> LaTeX version (single column; needs `\usepackage{booktabs}`, which acmart already loads):
+> ```latex
+> \begin{table}[t]
+>   \caption{Related work by the question each method answers (rows) and how its model is built (columns).}
+>   \label{tab:hierarchy}
+>   \small
+>   \begin{tabular}{@{}p{0.22\columnwidth}p{0.42\columnwidth}p{0.28\columnwidth}@{}}
+>     \toprule
+>     & Model-based (physics / expert) & Data-driven / hybrid \\
+>     \midrule
+>     How to hold station (\S\ref{sec:control})
+>       & Watch circle~\cite{liquidrobotics_waveglider}; DP~\cite{sorensen2011survey}; feedback control~\cite{sarda2016station,qu2022nonlinear}
+>       & ML control~\cite{sinisterra2020ml} \\
+>     Where it will drift (\S\ref{sec:drift})
+>       & Time to grounding~\cite{dugan2024drifting}
+>       & Neural correction~\cite{song2024drift} \\
+>     When a human should act (\S\ref{sec:risk})
+>       & Hazard ID~\cite{na2025qualitative}; FTA--FBN~\cite{li2024collision}; DBN~\cite{kristensen2022dynamic}
+>       & Cars~\cite{pakdamanian2021deeptake}; \textbf{marine: this work} \\
+>     \bottomrule
+>   \end{tabular}
+> \end{table}
+> ```
+>
+> **[Claude] Notes on the hierarchy:**
+> - **Level 1** is your own 2.1/2.2/2.3 split ("what question the method answers"). **Level 2** (model-based vs. data-driven) is the axis your project moves along, so the empty marine cell makes the positioning argument by itself.
+> - **Not in the table:** Bogg & Birrell [bogg2026alert] is a user study of how an alert is *shown*, not a way of computing risk, so it doesn't fit either column. It stays in the §2.3 text. Chen et al. [chen2021review] is a review; cite it in §2.3 rather than placing it in a cell.
+> - **Sinisterra 2020** (from your proposal bib) is the only data-driven control entry, and I know it by title only. Skim it before citing, or leave that cell as "—".
+> - **Table vs. figure:** the marking scheme says "Hierarchy + Figure". This table carries the same two levels as the manual's tree (Fig. 1) and is more compact. If you'd rather draw a tree, use the same rows and columns.
+> - **Cut first if short on space:** the opening's last sentence.
 
 
 ### 2.1 station keeping control
@@ -115,17 +134,13 @@ Purpose of this section is to help reader understand existing approaches
 A popular approach is *Geofencing*  - radius threshold - essentially once the USV drifts outside of some geofence - do something.
 Geofencing is the most popular approach to station keeping with a USV.  The focus is often centered around energy efficiency, and what are the best methods.  Simple feedback loops are are a common implemnetation to combat different marine weather (winds, currents).  This could encorporate wind sensors, water current sensors, or simply drift COG speed over time of the location.
 
-> - A possible source: Wave Glider spec sheets give a *station-keeping radius* (30 m, met 90% of the time; [Boeing/Liquid Robotics product sheet](https://www.boeing.com/resources/boeingdotcom/defense/autonomous-systems/wave-glider-sharc/wave_glider_product_sheet.pdf)). That is the watch-circle idea, and it's much closer to OOR's 10 nm zone.
+> - **[Claude]** A possible source: Wave Glider spec sheets give a *station-keeping radius* of 30 m ([Boeing/Liquid Robotics product sheet](https://www.boeing.com/resources/boeingdotcom/defense/autonomous-systems/wave-glider-sharc/wave_glider_product_sheet.pdf)). That is the watch-circle idea, and it's much closer to OOR's 10 nm zone. (An earlier note said "met 90% of the time"; I couldn't re-confirm that figure, so the draft leaves it out.)
 
 Other papers look at feedback closed-loop controllers that hold position (Sarda), while this would be beneficial to employing a autopilot control system which determines commands given the telemetry, this is out of scope for this project.  Though interesting, these papers do not allow for drift and are not framed around energy efficiency, but rather opimize heading and position accuracy.
 
 Though these methods are useful in autonomous piloting, and certain aspects will be useful to consider in our design (such as live telemtry calculating to determine action, considering wind and location as input, general geofencing concepts), our solution aims to reduce human piloting time but not remove it.  
 
 Geofencing limitations ignore when usv is drifting and only act when the usv reaches a limit.  Our solution aims to improve on this by constantly assessing distance.
-
-> - A contrast for the comparison: the control papers work at metres and minutes with no human involved. OOR works at nautical miles and hours, with a pilot.
-> - With your framing (improving station-keeping practice), the geofence/watch-circle rule *is* the current practice you're improving on: the pilot acts when the vessel nears 10 nm. Describe it as current practice, give its limitation (it reacts to distance and ignores where the vessel is drifting), and reuse it as your baseline in §3.
-> - Geofencing and feedback loops overlap: a geofence is a trigger rule, while a feedback loop is a controller. "Threshold/trigger-based" vs. "continuous feedback control" might work better as the two subcategories.
 
 #### Feedback loops
 
@@ -136,6 +151,17 @@ Another interesting approach to saving energy while geofencing is using Weather 
 > - **"Paper"** is **Qu & Cai, "Nonlinear station keeping control for underactuated unmanned surface vehicles to resist environmental disturbances", Ocean Engineering 246 (2022)**, doi:10.1016/j.oceaneng.2022.110603. It's paywalled, so I only read the abstract. An update law slowly turns the heading until it faces *against the combined disturbance* (unknown magnitude and direction). That's "into the disturbance", not specifically "into the wind to minimise aerodynamic drag", and the abstract doesn't mention energy.
 > - **"(another)"** is arXiv 1702.04941, which is **Sarda et al. 2016**: the same paper as `sarda2016station`, already in your proposal bib. It isn't a weather-optimal positioning paper. It compares PD, backstepping and sliding-mode controllers, with and without wind feedforward, on a 4 m, 180 kg WAM-V in 4–5 kn wind. Sliding mode did best, and feedforward only helped PD and backstepping in cross-wind. For a real weather-optimal positioning source, see its ref [53]: Kjerstad et al., "Weather Optimal Positioning Control for Marine Surface Vessels", IFAC CAMS 2010.
 > - The markdown link is reversed: `(another)[url]` should be `[another](url)`.
+
+> **[Claude] Draft 2.1 Station-keeping control** (about 170 words)
+>
+> The simplest practice is a *trigger rule*: the vessel may wander inside a watch circle and is corrected only when it nears the edge. Commercial wave-propelled USVs quote such a radius (e.g. 30 m [liquidrobotics_waveglider]), and OOR's practice of a pilot acting as the DataXplorer nears 10 nm is the same rule at a larger scale. *Feedback control* instead corrects continuously. Dynamic positioning holds large ships within metres by automatic thruster control [sorensen2011survey]. Sarda et al. [sarda2016station] applied this to a 4 m USV, comparing PD, backstepping and sliding-mode controllers with wind feedforward; all held mean position error under about 3 m in 12-minute trials on sheltered water. Underactuated USVs, which cannot thrust sideways, instead turn their bow into the combined wind, wave and current disturbance [qu2022nonlinear]. Feedback controllers work over metres and minutes with no human involved, and none predicts whether a correction will be needed later. Trigger rules are cheap and transparent, but they react to distance alone and ignore where the vessel is heading.
+>
+> **[Claude] Notes on 2.1:**
+> - **Two subcategories instead of three:** your Geofencing / Feedback loops / Weather-optimal headings become *trigger rule* vs. *feedback control*. A geofence is a rule for when to act, while a feedback loop is a controller, and weather-optimal positioning is one kind of feedback controller.
+> - **Your points that made it in:** live telemetry with wind and location as input (Sarda), geofence limits that only act at the boundary (last sentence), and "out of scope because we don't issue commands" (implied by "no human involved"; the intro already states the scope).
+> - **Dropped:** "energy efficiency" as the focus of geofencing. None of the linked papers frames it that way, and the proposal's motivation is pilot cost.
+> - **The watch-circle rule is your baseline.** Say so again in Rowan's §3: the model should beat "alert when distance > *k* nm".
+> - **Cut first if short on space:** the Qu & Cai sentence.
 
 ### 2.2 Drift prediction
 
@@ -168,6 +194,15 @@ largest take away : "All equate the drift direction with the direction of the wi
 
 Assessing other work [Drift prediction with a neural-network correction](https://www.mdpi.com/2077-1312/12/12/2262) shows how using ML can greatly improve the accuracy of things like drift prediction, and consequently in our case would improve accuracy of probability in v2.  here is improved "the mean distance between predicted and actual track fell from **5.75 km to 0.41 km*" ~10x improvement in accuracy, using physics, simulations and ML.  Shows the benefit of data driven prediction models.
 
+> **[Claude] Draft 2.2 Drift prediction** (about 150 words)
+>
+> Drift models estimate where wind and current will carry a vessel that is not being steered. Early grounding-risk studies assumed a fixed drift speed (e.g. 1–3 m/s) in the direction of the wind [dugan2024drifting]. Dugan and Utne [dugan2024drifting] replace this with a force-balance model driven by forecast wind, waves and current, treat drift direction as uncertain, and recompute the expected *time to grounding* (TTG) along a voyage as an early warning. They argue that distance to a hazard is a weak risk signal because it ignores the expected drift. TTG is physics-based, though, and was shown on a single research-ship voyage with no real groundings to validate against. Song et al. [song2024drift] keep a physics drift model but let a small neural network re-fit its wind and current coefficients each time the drifting vessel reports its position, cutting mean track error from 5.75 km to 0.41 km. Both methods predict a trajectory or a time; neither predicts whether a human will need to act.
+>
+> **[Claude] Notes on 2.2:**
+> - **Your points that made it in:** drift direction equated with wind direction (your "largest takeaway"), currents in the Sørgård & Vada model, the need for historical forecast data, TTG as "time to reach a boundary", and the 5.75 → 0.41 km result.
+> - **"Exact same process as drift to the 10 nm boundary"** is left for Rowan's §3, where it's a "build on" point. Here it would read as positioning.
+> - **Cite Dugan for the older fixed-speed models**, not FriisHansen or Kystverket directly, since you've read them only through Dugan's review.
+> - **Cut first if short on space:** the "They argue…" sentence (but move it to §3, where it supports replacing the distance baseline).
 
 ### 2.3 Dynamic Risk assessment & supervision
 #### DRA
@@ -187,7 +222,7 @@ Consider other risks, DRA, opertator alerting systems, forecast consideration?
 
 bogg2026alert
 
-> **[Claude]** This is empty, but your proposal already cites `bogg2026alert` (a visual alert reduced unnecessary human intervention in an automated vehicle), and it belongs here. A related data-driven line of work is driver takeover prediction for self-driving cars. One example is **DeepTake** (Pakdamanian et al., CHI 2021, [arXiv:2012.15441](https://arxiv.org/abs/2012.15441)), which predicts whether and how quickly a driver will respond to a takeover request (96% accuracy on intention). It answers a different question (the driver's *response*, not *whether* intervention is needed), but it's a useful contrast in the table.
+> **[Claude]** Both `bogg2026alert` and DeepTake (Pakdamanian et al., CHI 2021, [arXiv:2012.15441](https://arxiv.org/abs/2012.15441)) are now in the 2.3 draft below. DeepTake predicts whether, how quickly and how well a driver takes over (96% accuracy on intention). That's the driver's *response*, not *whether* intervention is needed, so it's a contrast, not a competitor.
 
 Other resources:
 [The Prediction and Dynamic Correction of Drifting Trajectory for Unmanned Maritime Equipmen](https://www.mdpi.com/2077-1312/12/12/2262)
@@ -200,7 +235,18 @@ Other resources:
 > - **"Prediction and Dynamic Correction of Drifting Trajectory":** move to 2.2 (see the note there).
 > - **"Qualitative Risk Assessment Methodology…":** **Na et al., "Qualitative Risk Assessment Methodology for Maritime Autonomous Surface Ships: Cognitive Model-Based Functional Analysis and Hazard Identification" (COFA-HAZID), JMSE 13(5):970, 2025** (Korean Register). Design-phase and qualitative, with no numeric risk. It gives you a citable argument for dynamic over static assessment: systems that "drastically reduce human intervention" may require "real-time risk assessment methodologies". It also reports that STPA is the most-used qualitative method for MASS.
 > - **"Review of Risk analysis":** **Chen, Bose, Brito, Khan, Thanyamanta & Zou, "A Review of Risk Analysis Research for the Operations of Autonomous Underwater Vehicles", Reliability Engineering & System Safety 216 (2021)** (abstract only; the PDF link blocked me). It reviews 42 papers, sorts methods into qualitative / semi-quantitative / quantitative, and recommends dynamic risk analysis and work on limited historical data. Its taxonomy could be your level-2 split for 2.3, and citing it backs up your hierarchy.
-> - **Possibly useful for between 2.1 and 2.2:** Clark et al., "Station-Keeping Underwater Gliders Using a Predictive Ocean Circulation Model and Applications to SWOT Calibration and Validation", IEEE JOE, 2020 ([PDF](https://ai.jpl.nasa.gov/public/papers/clark-joe2019-station.pdf)). It does *predictive* station keeping from an ocean-current forecast, with simulation and field results. I only saw the abstract.
+> - **Possibly useful for between 2.1 and 2.2:** Clark et al., "Station-Keeping Underwater Gliders Using a Predictive Ocean Circulation Model and Applications to SWOT Calibration and Validation", IEEE JOE, 2020 ([PDF](https://ai.jpl.nasa.gov/public/papers/clark-joe2019-station.pdf)). It does *predictive* station keeping from an ocean-current forecast, with simulation and field results. I only saw the abstract. (Not in the drafts or the bib.)
+
+> **[Claude] Draft 2.3 Risk assessment and operator supervision** (about 190 words)
+>
+> Risk methods for autonomous marine vehicles range from qualitative to quantitative [chen2021review]. Qualitative hazard identification lists what could go wrong before a trial and produces no numbers [na2025qualitative]. Its authors note that systems which drastically reduce human intervention may need real-time risk assessment. Quantitative models such as a fault tree mapped into a fuzzy Bayesian network estimate collision probability, using expert surveys because failure data for autonomous ships is scarce [li2024collision]. Kristensen et al. [kristensen2022dynamic] make the estimate *dynamic*: a Bayesian network updated every two hours gives the probability of mission failure for a 5 m USV, which the authors suggest could tell a shore operator when to pay more attention. Its probabilities, however, come from experts and assumptions, and it was checked against a single mission. On the human side, Bogg and Birrell [bogg2026alert] found that remote operators of automated cars made fewer unnecessary interventions when shown a status alert, and DeepTake [pakdamanian2021deeptake] learns from vehicle and driver data to predict whether and how quickly a driver will take over. We found no marine work that learns when a human must intervene from logged telemetry.
+>
+> **[Claude] Notes on 2.3:**
+> - **Order** runs static → dynamic → learned, which is the "how the field evolved" story manual §1.4 asks for, and it ends on the empty cell in Table 1.
+> - **Kristensen is the closest prior work.** The draft gives it the most space and states its limits plainly (expert-set probabilities, one mission). That's what lets Rowan's gap claim be narrow and still true.
+> - **Li 2024 (collision)** stays as the expert-elicited quantitative example. Grey it out in the Venn diagram as out of scope.
+> - **The last sentence** is the gap, hedged with "we found". Rowan's §3 should repeat it in the narrowed form: learned from telemetry, about position/boundary risk, validated against real pilot interventions.
+> - **Cut first if short on space:** the Na sentence about real-time assessment, then Li.
 
 
 
@@ -209,7 +255,7 @@ Other resources:
 
 Our problem differs in that we want to employ a hybrid method, combining the benefits of these popular techniques.
 
-> **[Claude]** "We want to employ a hybrid method, combining the benefits of these popular techniques" is a positioning claim, so move it to §3. Here, just introduce the categories and the hierarchy figure. If you keep "hybrid", say what's combined: you aren't merging a control law into the model (see overall note 2).
+> **[Claude]** "We want to employ a hybrid method, combining the benefits of these popular techniques" is a positioning claim, so move it to §3. Here, just introduce the categories and the hierarchy figure. If you keep "hybrid", say what's combined: you aren't merging a control law into the model (see the framing note at the top).
 
 1. propose a data driven model that mines historical telemetry (GPS, wind, current vectors) to predict boundary exceedance $t$ seconds into the future.
 2.Real time risk scoring shifts operations from reactive thrusting to early, power-efficient drift mitigation.
@@ -236,7 +282,8 @@ Our problem differs in that we want to employ a hybrid method, combining the ben
   - put relevent research in each circle, we are in the union of all of them
 
 > **[Claude]**
-> - Keeping this as its own section is fine, but it needs to come *before* Positioning (as 2.4 or section 3), not inside it (overall note 1).
+> - Keeping this as its own section is fine, but it needs to come *before* Positioning (as 2.4 or section 3), not inside it. The marking scheme grades them separately (30% vs. 10%) and the manual orders them §1.4 then §1.5.
+> - Jake's 2.1–2.3 drafts already explain each representative method briefly. This section should compare *across* them (the table and Venn) rather than re-describe each paper.
 > - "Union" should be **intersection** (being in the union only means you're in at least one circle). With station keeping as one circle, the centre (station keeping ∩ drift prediction ∩ risk/supervision) is a defensible place for your project. Consider renaming circle C to "risk & operator supervision" so Kristensen 2022 and `bogg2026alert` both fit. Grey out what's out of scope, such as collision risk (Li 2024), like Fig. 2 in the manual.
 > - Possible **table** columns, one row per representative paper: vehicle (ship / USV / AUV), inputs (position, wind, current, expert judgement), physics vs. data-driven, output (control command / trajectory / time-to-event / risk probability), real-time?, human in the loop?, evaluated on (simulation / one voyage / sea trials). The example uses ✓/✗ cells, which stay compact in two columns.
 
