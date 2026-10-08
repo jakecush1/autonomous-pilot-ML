@@ -3,6 +3,11 @@
 % were checked against the publisher or repository record, except where a
 % comment above the entry says otherwise.
 % Grouped by the section of the background doc that uses them.
+%
+% Trimmed for the 2-page limit (Claude, Oct 2026): 4+ authors shortened to
+% "and others" (prints "et al."), journal names abbreviated (ISO 4),
+% proceedings names shortened, and address/publisher/series/access-date
+% fields removed. Titles, years, DOIs and URLs are unchanged.
 
 % ---------------------------------------------------------------------------
 % Introduction / 2.1 Station-keeping control
@@ -11,7 +16,7 @@
 @article{sorensen2011survey,
   author  = {S{\o}rensen, Asgeir J.},
   title   = {A Survey of Dynamic Positioning Control Systems},
-  journal = {Annual Reviews in Control},
+  journal = {Annu. Rev. Control},
   volume  = {35},
   number  = {1},
   pages   = {123--136},
@@ -19,12 +24,12 @@
   doi     = {10.1016/j.arcontrol.2011.03.008}
 }
 
+% Full author list: Sarda, Qu, Bertaska, von Ellenrieder.
 @article{sarda2016station,
-  author  = {Sarda, Edoardo I. and Qu, Huajin and Bertaska, Ivan R. and
-             von Ellenrieder, Karl D.},
+  author  = {Sarda, Edoardo I. and others},
   title   = {Station-Keeping Control of an Unmanned Surface Vehicle Exposed to
              Current and Wind Disturbances},
-  journal = {Ocean Engineering},
+  journal = {Ocean Eng.},
   volume  = {127},
   pages   = {305--324},
   year    = {2016},
@@ -36,7 +41,7 @@
   author  = {Qu, Yang and Cai, Lilong},
   title   = {Nonlinear Station Keeping Control for Underactuated Unmanned
              Surface Vehicles to Resist Environmental Disturbances},
-  journal = {Ocean Engineering},
+  journal = {Ocean Eng.},
   volume  = {246},
   pages   = {110603},
   year    = {2022},
@@ -52,8 +57,6 @@
   author    = {Manley, Justin E.},
   title     = {Unmanned Surface Vehicles, 15 Years of Development},
   booktitle = {OCEANS 2008},
-  address   = {Quebec City, QC, Canada},
-  publisher = {IEEE},
   year      = {2008},
   doi       = {10.1109/OCEANS.2008.5152052}
 }
@@ -70,12 +73,11 @@
   url     = {https://www.whoi.edu/?p=21599}
 }
 
-% Source for the first experimental moored buoy (1970).
+% Source for the first experimental moored buoy (1970). Accessed Oct 2026.
 @misc{ndbc_history,
   author       = {{NOAA National Data Buoy Center}},
   title        = {The National Data Buoy Center: A History},
-  howpublished = {\url{https://www.ndbc.noaa.gov/ndbc-history.shtml}},
-  note         = {Accessed October 2026}
+  howpublished = {\url{https://www.ndbc.noaa.gov/ndbc-history.shtml}}
 }
 
 % Not read in full: check it covers Tesla's 1898 boat, the WWI FL-boats and
@@ -83,22 +85,41 @@
 @book{everett2015unmanned,
   author    = {Everett, H. R.},
   title     = {Unmanned Systems of World Wars {I} and {II}},
-  series    = {Intelligent Robotics and Autonomous Agents},
   publisher = {MIT Press},
-  address   = {Cambridge, MA},
   year      = {2015}
 }
 
-% Modern explosive USV example in 1.1 History.
+% Modern explosive USV example in 1.1 History. Published 13 July 2026.
 @misc{lariosa2026corsair,
   author       = {Lariosa, Aaron-Matthew},
   title        = {{CENTCOM} Deploys {Saronic Corsair} {USV} Against Iranian
                   Submarine at {Bandar Abbas}},
   howpublished = {Naval News},
   year         = {2026},
-  month        = jul,
-  note         = {13 July 2026},
   url          = {https://www.navalnews.com/naval-news/2026/07/centcom-saronic-corsair-usv-strike-iran-submarine-bandar-abbas/}
+}
+
+% Long-endurance USV examples in 1.1 History. Details checked against the
+% Crossref record; neither paper read in full.
+@inproceedings{manley2010waveglider,
+  author    = {Manley, Justin and Willcox, Scott},
+  title     = {The {Wave Glider}: A Persistent Platform for Ocean Science},
+  booktitle = {OCEANS'10 Sydney},
+  year      = {2010},
+  doi       = {10.1109/OCEANSSYD.2010.5603614}
+}
+
+% 14 authors; full list is on the Crossref record for the DOI.
+@article{meinig2019saildrone,
+  author  = {Meinig, Christian and others},
+  title   = {Public--Private Partnerships to Advance Regional Ocean-Observing
+             Capabilities: A {Saildrone} and {NOAA-PMEL} Case Study and Future
+             Considerations to Expand to Global Scale Observing},
+  journal = {Front. Mar. Sci.},
+  volume  = {6},
+  pages   = {448},
+  year    = {2019},
+  doi     = {10.3389/fmars.2019.00448}
 }
 
 @techreport{sheridan1978human,
@@ -114,24 +135,23 @@
 % 2.2 Drift prediction
 % ---------------------------------------------------------------------------
 
+% Full venue: 17th Int. Conf. on Probabilistic Safety Assessment and
+% Management and Asian Symposium on Risk Assessment and Management, Sendai.
 @inproceedings{dugan2024drifting,
   author    = {Dugan, Spencer August and Utne, Ingrid Bouwer},
   title     = {Development of a Risk Indicator for Ship Drifting Groundings},
-  booktitle = {Proceedings of the 17th International Conference on
-               Probabilistic Safety Assessment and Management and Asian
-               Symposium on Risk Assessment and Management (PSAM17 \& ASRAM2024)},
-  address   = {Sendai, Japan},
+  booktitle = {Proc. PSAM17 \& ASRAM2024},
   year      = {2024},
   url       = {https://www.iapsam.org/PSAM17/program/Papers/PSAM17&ASRAM2024-1377.pdf}
 }
 
+% Full author list: Song, Wang, Xiong, Cheng, Huang, Zhang.
 @article{song2024drift,
-  author  = {Song, Yuxuan and Wang, Dezhi and Xiong, Xiaodan and Cheng, Xinghua
-             and Huang, Lingzhi and Zhang, Yichao},
+  author  = {Song, Yuxuan and others},
   title   = {The Prediction and Dynamic Correction of Drifting Trajectory for
              Unmanned Maritime Equipment Based on Fully Connected Neural
              Network ({FCNN}) Embedding Model},
-  journal = {Journal of Marine Science and Engineering},
+  journal = {J. Mar. Sci. Eng.},
   volume  = {12},
   number  = {12},
   pages   = {2262},
@@ -143,12 +163,12 @@
 % 2.3 Dynamic risk assessment & operator supervision
 % ---------------------------------------------------------------------------
 
+% Full venue: 16th Probabilistic Safety Assessment and Management
+% Conference, Honolulu.
 @inproceedings{kristensen2022dynamic,
   author    = {Kristensen, Susanna Dybwad and Liu, Yiliu and Utne, Ingrid Bouwer},
   title     = {Dynamic Risk Analysis of Maritime Autonomous Surface Ships},
-  booktitle = {Proceedings of the 16th Probabilistic Safety Assessment and
-               Management Conference (PSAM 16)},
-  address   = {Honolulu, HI, USA},
+  booktitle = {Proc. PSAM 16},
   year      = {2022},
   url       = {https://www.iapsam.org/PSAM16/papers/SU247-PSAM16.pdf}
 }
@@ -158,20 +178,20 @@
   author  = {Li, P. and Wang, Y. and Yang, Z.},
   title   = {Risk Assessment of Maritime Autonomous Surface Ships Collisions
              Using an {FTA-FBN} Model},
-  journal = {Ocean Engineering},
+  journal = {Ocean Eng.},
   volume  = {309},
   pages   = {118444},
   year    = {2024},
   doi     = {10.1016/j.oceaneng.2024.118444}
 }
 
+% Full author list: Na, Lee, Baek, Kim, Choung.
 @article{na2025qualitative,
-  author  = {Na, Seong and Lee, Dongjun and Baek, Jaeha and Kim, Seonjin and
-             Choung, Choungho},
+  author  = {Na, Seong and others},
   title   = {Qualitative Risk Assessment Methodology for Maritime Autonomous
              Surface Ships: Cognitive Model-Based Functional Analysis and
              Hazard Identification},
-  journal = {Journal of Marine Science and Engineering},
+  journal = {J. Mar. Sci. Eng.},
   volume  = {13},
   number  = {5},
   pages   = {970},
@@ -180,66 +200,57 @@
 }
 
 % Read from the abstract only.
+% Full author list: Chen, Bose, Brito, Khan, Thanyamanta, Zou.
 @article{chen2021review,
-  author  = {Chen, Xi and Bose, Neil and Brito, Mario and Khan, Faisal and
-             Thanyamanta, Bo and Zou, Ting},
+  author  = {Chen, Xi and others},
   title   = {A Review of Risk Analysis Research for the Operations of
              Autonomous Underwater Vehicles},
-  journal = {Reliability Engineering \& System Safety},
+  journal = {Reliab. Eng. Syst. Saf.},
   volume  = {216},
   pages   = {108011},
   year    = {2021},
   doi     = {10.1016/j.ress.2021.108011}
 }
 
+% Full venue: AHFE International: Intelligent Human Systems Integration
+% (IHSI 2026), vol. 200, AHFE Open Access.
 @inproceedings{bogg2026alert,
   author    = {Bogg, Adam and Birrell, Stewart},
   title     = {Do Not Adjust Your Set! How a Visual Alert Reduced Unnecessary
                Human Intervention in an Automated Vehicle},
-  booktitle = {Applied Human Factors and Ergonomics International: Intelligent
-               Human Systems Integration (IHSI 2026)},
-  volume    = {200},
+  booktitle = {Proc. IHSI 2026},
   pages     = {657--666},
-  publisher = {AHFE Open Access},
   year      = {2026},
   doi       = {10.54941/ahfe1007124}
 }
 
+% Full author list: Pakdamanian, Sheng, Baee, Heo, Kraus, Feng.
 @inproceedings{pakdamanian2021deeptake,
-  author    = {Pakdamanian, Erfan and Sheng, Shili and Baee, Sonia and
-               Heo, Seongkook and Kraus, Sarit and Feng, Lu},
+  author    = {Pakdamanian, Erfan and others},
   title     = {{DeepTake}: Prediction of Driver Takeover Behavior using
                Multimodal Data},
-  booktitle = {Proceedings of the 2021 CHI Conference on Human Factors in
-               Computing Systems (CHI '21)},
-  address   = {Yokohama, Japan},
-  publisher = {ACM},
+  booktitle = {Proc. CHI '21},
   year      = {2021},
   doi       = {10.1145/3411764.3445563}
 }
 
-% Cited in 2.1 and Table 1 for the 30 m station-keeping radius.
-% The live Boeing URL returned 404 in Oct 2026; this is the Wayback copy.
+% Cited in Table 1 for the geofence (30 m station-keeping radius).
+% The live Boeing URL returned 404 in Oct 2026; this is the Wayback copy
+% (archived 22 August 2023), published by Boeing Defense, Space & Security.
 @misc{liquidrobotics_waveglider,
   author       = {{Liquid Robotics}},
   title        = {Wave Glider Product Sheet},
-  howpublished = {Boeing Defense, Space \& Security},
-  url          = {https://web.archive.org/web/20230822211102/https://www.boeing.com/resources/boeingdotcom/defense/autonomous-systems/wave-glider-sharc/wave_glider_product_sheet.pdf},
-  note         = {Archived 22 August 2023}
+  url          = {https://web.archive.org/web/20230822211102/https://www.boeing.com/resources/boeingdotcom/defense/autonomous-systems/wave-glider-sharc/wave_glider_product_sheet.pdf}
 }
 
 % Cited in Table 1 (control x data-driven) but known by title only;
 % skim before relying on it. Carried over from the proposal bib.
+% Full author list: Sinisterra, Barker, Verma, Dhanak.
 @inproceedings{sinisterra2020ml,
-  author    = {Sinisterra, Armando J. and Barker, Alexandrea and
-               Verma, Siddhartha and Dhanak, Manhar R.},
+  author    = {Sinisterra, Armando J. and others},
   title     = {Nonlinear and Machine-Learning-Based Station-Keeping Control of
                an Unmanned Surface Vehicle},
-  booktitle = {ASME International Conference on Ocean, Offshore and Arctic
-               Engineering (OMAE)},
-  volume    = {84386},
-  pages     = {V06BT06A027},
-  publisher = {ASME},
+  booktitle = {Proc. OMAE 2020},
   year      = {2020},
   doi       = {10.1115/OMAE2020-19276}
 }

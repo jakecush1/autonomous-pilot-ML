@@ -1,7 +1,5 @@
 # Predicting Pilot Intervention for Station-Keeping USVs: A Brief Review
 
-> **Station-keeping framing:** resolved by the intro's control vs. supervision sentence. Keep the later sections consistent with it: the model alerts a pilot, it doesn't issue commands.
-
 > **Graded items:** hierarchy drafted as Table 1 in §2. Still missing: comparison table and Venn diagram (Rowan, §3).
 
 > **Length:** Jake's drafted sections come to about 1,000 words (intro 215, history 230, related work 560). Two ACM pages hold roughly 1,000–1,200 words of body text once the abstract, three tables/figures and the references are in, and Rowan's sections still need room, so plan to cut about a third. The note under each draft lists what to cut first.
@@ -19,32 +17,22 @@ keywords: uncrewed surface vehicles, station keeping, human-in-the-loop, dynamic
 
 ## 1. Introduction - Both read and research
 
-*Station keeping* is the task of holding a vessel inside a bounded region around a fixed point despite wind, waves and current. On large ships it is solved by *dynamic positioning*: a closed-loop controller adjusts thrust continuously to hold position within metres (1), and the same control approach has been applied to small Uncrewed Surface Vehicles (USVs) (2). USVs that replace moored weather buoys keep station far more loosely. The DataXplorer only has to stay within 10 nm of a retired buoy's position, and a shore-based pilot on 24/7 watch issues a course correction when needed, usually when wind pushes it toward the edge. Station keeping therefore has two layers: a *control* layer that decides *how* the vessel holds position, and a *supervision* layer that decides *when* a human must step in. **This work addresses the supervision layer: predicting from live telemetry whether a pilot will need to intervene within a future time window.** Related work comes from three directions: station-keeping control (§2.1); drift prediction, which estimates where wind and current will carry a vessel and how soon it will reach a boundary (§2.2); and dynamic risk assessment and operator supervision, which estimate when a mission is at risk and how to alert the human (§2.3). We first trace how the problem arose (§1.1), then compare these approaches and position our project among them (§3).
+*Station keeping* is the task of holding a vessel inside a bounded region despite wind, waves and current. On large ships it is solved by *dynamic positioning*: a closed-loop controller adjusts thrust continuously to hold position (1). The same control approach has been applied to small USVs (2). The DataXplorer has looser constraints: only has to stay within 10 nm of a retired buoy's position while a shore-based pilot on 24/7 watch issues a course correction when needed, usually when wind pushes it toward the edge. Here, Station keeping has two layers: a *control* layer that decides *how* the vessel holds position, and a *supervision* layer that decides *when* a human must step in. 
 
-1- ([A Survey of Dynamic Positioning Control Systems](https://doi.org/10.1016/j.arcontrol.2011.03.008))
-2- ([Station-Keeping Control of an Unmanned Surface Vehicle Exposed to Current and Wind Disturbances](https://doi.org/10.1016/j.oceaneng.2016.09.037))
+This research addresses the supervision layer: predicting from live telemetry whether a pilot will need to intervene within a future time window. Related work comes from three directions: station-keeping control (§2.1); drift prediction, which estimates where and when wind and current will carry a vessel to some boundary (§2.2); and dynamic risk assessment, which estimate when a mission is at risk and when to alert the human (§2.3). We first trace how the problem arose (§1.1), then compare these approaches and position our project among them (§3).
 
 ### 1.1 History - jake
 
-1993 first ASC created called ARTEMIS at MIT. only in the past few years have USV's been developed to a level to have impact in mission areas. (3)
+U.S Coast Guard have been station keeping with crewed vessels collecting meterological data since 1940. (5) In 1970s this program was replaced by moored buoys, holding station passively on an anchor with no crew (6), reporting via satellites. Offshore drilling, meanwhile, automated *active* station keeping in the 1960s with dynamic positioning (1).
 
-"integrating machine learning to emulate human decision making to used to pilot marine vessels" -
-(4)
+*Active station keeping means using power to hold station, passive station keeping is connected via static physical connection like anchor*
 
-USV's have been in development for over 100 years, but the ability for them to be driven autonomously is a relatively new concept.  This topic of autonomous driving, humanless piloting, is popular and new.  Autonomous Robotics is a huge topic in ML and CS.  Most people think autonomous cars, but the development of autonomous pilot development are all closely related.  Methods in autonmous driving cars have been largely explored and developed likely due to the demand in market, where USV autonmous piloting market lags behind this as its a more niche market.
+USV's have been in development for over 100 years, but the ability for them to be driven autonomously is a relatively new concept.  
 
--- Humans holding weather stations
-> Holding a vessel on station for weather reporting is far older than autonomy. In 1940 the U.S. Coast Guard began posting crewed cutters at fixed ocean stations to report weather. Each station was a grid of 10-mile squares, and the ship normally occupied the centre square (5), close to the DataXplorer's 10 nm limit. From 1970, moored buoys took over this role, holding station passively on an anchor with no crew (6), and in 1977 the last U.S. weather ship was replaced by a buoy (5). Offshore drilling, meanwhile, automated *active* station keeping in the 1960s with dynamic positioning (1).
+Tesla demonstrated a radio-controlled boat in 1898, the Imperial German Navy used wire-guided explosive boats in the First World War, and by 1945 the U.S. Navy used remote-controlled boats for minesweeping and as targets, all within a short range of their operator (becuase they were radio)(7). In 1993 the first autonomous surface Craft (ASC) was created called ARTEMIS at MIT. only in the past few years have USV's been developed to a level to have impact in mission areas. (4) All these uncrewed boats were radio controlled, until MIT Sea Grant's ARTEMIS (1993) was among the first autonomous surface craft , this was a game changer(3), and then long-endurance USVs showed progression with the Wave glider and sail drone.  now USV's can now stand in for retired buoys, as the DataXplorer does for Station 46012. Military use has advanced in parallel: a century after the FL-boats, U.S. forces used three Saronic Corsair one-way attack USVs to strike a docked submarine at Iran's Bandar Abbas naval base in July 2026, the first U.S. combat use of sea drones (8).
 
-This progression sees the task of weather keeping go crewed marine vessels to uncrewed marine vessels.  Active monitoring to hybrid or passive monitoring.  We also see a path of progression in the uncrewed vessels.  As the technology progresses, so do their use cases.
+"integrating machine learning to emulate human decision making, used to pilot marine vessels is a new concept."
 
--- remote controlled boats
-> Uncrewed boats followed a separate path. Tesla demonstrated a radio-controlled boat in 1898, the Imperial German Navy used wire-guided explosive boats in the First World War, and by 1945 the U.S. Navy used remote-controlled boats for minesweeping and as targets, all within a short range of their operator (7). All these uncrewed boats were radio controlled, until MIT Sea Grant's ARTEMIS (1993) was among the first autonomous surface craft (3), and long-endurance USVs showed progression with the Wave glider and sail drone.  now USV's can now stand in for retired buoys, as the DataXplorer does for Station 46012. Military use has advanced in parallel: a century after the FL-boats, U.S. forces used three Saronic Corsair one-way attack USVs to strike a docked submarine at Iran's Bandar Abbas naval base in July 2026, the first U.S. combat use of sea drones (8).
-
-
-> - **To check before submitting:** I haven't read Everett's book or Manley's full text. Confirm Everett covers Tesla's boat, the FL-boats and the WWII U.S. drone boats (otherwise cite Manley if his history section does), and that Sørensen's introduction dates the first DP systems to the 1960s.
-
-3- [history](https://scispace.com/pdf/unmanned-surface-vehicles-15-years-of-development-4nxzuv0wq9.pdf)
 4- [USV Development last 15 year](https://scispace.com/pdf/unmanned-surface-vehicles-15-years-of-development-4nxzuv0wq9.pdf)
 5- [Alpha, Bravo, Charlie…](https://www.whoi.edu/?p=21599)
 6- [The National Data Buoy Center: A History](https://www.ndbc.noaa.gov/ndbc-history.shtml)
@@ -53,23 +41,16 @@ This progression sees the task of weather keeping go crewed marine vessels to un
 
 ## 2. Related Work
 
-Station keeping with a USV is not a new problem.  Many other companies actively research and perform this in different capacities.  
-
 In the following sections we explore some of the most common methods and research done in field.  other reaserch (TTG's paper) explore time to run aground which can be looked as time until vessel crosses the 10nm boundary and the solution is virtually the same.  The paper also argues that distance alone (geofencing) is a weaker warning signal that a time-to-event estimation, accounting for drift.  this is an inspiration or userful reasearch information for our problem
 
-``
-Organize existing approaches into meaningful categories and subcategories by: 
-- type of algorithm
-- information or features used
-- type of data
-- learning technique
+Work related to supervised station keeping answers one of three questions (Table 1): 
+- *how* to hold a vessel on station (station-keeping control, §2.1)
+- *where and how soon* wind and current will carry it (drift prediction, §2.2)
+- and *when* a mission is at risk and a human should act (risk assessment and operator supervision, §2.3). 
 
-Purpose of this section is to help reader understand existing approaches
-``
+Within each, methods are either *model-based*, built from physics or expert judgement, or *data-driven*, learned from logged observations. Marine work is mostly model-based.
 
-> Work related to supervised station keeping answers one of three questions (Table 1): *how* to hold a vessel on station (station-keeping control, §2.1), *where and how soon* wind and current will carry it (drift prediction, §2.2), and *when* a mission is at risk and a human should act (risk assessment and operator supervision, §2.3). Within each, methods are either *model-based*, built from physics or expert judgement, or *data-driven*, learned from logged observations. Marine work is overwhelmingly model-based.
->
->
+
 > | Question (level 1) | Model-based: physics or expert judgement | Data-driven or hybrid |
 > |---|---|---|
 > | **How to hold station** (§2.1) | *Trigger rule:* watch circle (9). *Feedback control:* dynamic positioning (1); PD, backstepping and sliding-mode control (2); heading into the disturbance (10) | ML-based control (11) |
@@ -123,20 +104,14 @@ Purpose of this section is to help reader understand existing approaches
 #### Geofencing
 
 > **[Claude] Draft 2.1 Station-keeping control** (about 170 words)
->
-> The simplest practice is a *trigger rule*: the vessel may wander inside a watch circle and is corrected only when it nears the edge. Commercial wave-propelled USVs quote such a radius, e.g. 30 m for the Wave Glider (9), and OOR's practice of a pilot acting as the DataXplorer nears 10 nm is the same rule at a larger scale, with a few more factors in. *Feedback control* instead corrects continuously. Dynamic positioning holds large ships within metres by automatic thruster control (1). Sarda et al. (2) applied this to a 4 m USV, comparing PD, backstepping and sliding-mode controllers with wind feedforward; all held mean position error under about 3 m in 12-minute trials on sheltered water. Underactuated USVs, which cannot thrust sideways, instead turn their bow into the combined wind, wave and current disturbance (10). Feedback controllers work over metres and minutes with no human involved, and none predicts whether a correction will be needed later. Trigger rules are cheap and transparent, but they react to distance alone and ignore where the vessel is heading.
->
-> **[Claude] Notes on 2.1:**
-> - **Two subcategories instead of three:** your Geofencing / Feedback loops / Weather-optimal headings become *trigger rule* vs. *feedback control*. A geofence is a rule for when to act, while a feedback loop is a controller, and weather-optimal positioning is one kind of feedback controller.
-> - **Your points that made it in:** live telemetry with wind and location as input (Sarda), geofence limits that only act at the boundary (last sentence), and "out of scope because we don't issue commands" (implied by "no human involved"; the intro already states the scope).
-> - **Dropped:** "energy efficiency" as the focus of geofencing. None of the linked papers frames it that way, and the proposal's motivation is pilot cost.
-> - **The watch-circle rule is your baseline.** Say so again in Rowan's §3: the model should beat "alert when distance > *k* nm".
-> - **Cut first if short on space:** the Qu & Cai sentence.
 
-hreshold - essentially once the USV drifts outside of some geofence - do something.
-Geofencing is the most popular approach to station keeping with a USV.  The focus is often centered around energy efficiency, and what are the best methods.  Simple feedback loops are are a common implemnetation to combat different marine weather (winds, currents).  This could encorporate wind sensors, water current sensors, or simply drift COG speed over time of the location.
+The simplest practice is a trigger rule: the vessel may drift freely inside some radius and is corrected only when it nears the edge- this is known as geofencing. OOR's pilots apply a similar practice at a large scale, correcting the DataXplorers navigation as it nears its 10 nm boundary. 
 
-> - **[Claude]** A possible source: Wave Glider spec sheets give a *station-keeping radius* of 30 m ([Boeing/Liquid Robotics product sheet, archived copy](https://web.archive.org/web/20230822211102/https://www.boeing.com/resources/boeingdotcom/defense/autonomous-systems/wave-glider-sharc/wave_glider_product_sheet.pdf); the live Boeing link now returns 404). That is the watch-circle idea, and it's much closer to OOR's 10 nm zone. Footnote 3 of the same sheet says that on past missions it stayed on station 90% of the time, subject to sea state and navigation mode.
+Feedback control instead corrects continuously. Dynamic positioning adjusts thrust to hold large ships within metres of a set point (1). Sarda et al. (2) applied the same idea to a 4 m USV, testing three controllers (proportional–derivative, backstepping and sliding mode), with and without wind measurements as an extra input. All three kept the average position error under about 3 m in 12-minute trials on sheltered water.  USVs that cannot thrust sideways instead point their bow into the combined push of wind, waves and current (10). 
+
+Feedback controllers hold position with no human involved, but none predicts whether a correction will be needed later. Geofences are cheap and easy to understand, but they react to distance alone and ignore where the vessel is heading.
+
+
 
 Other papers look at feedback closed-loop controllers that hold position (Sarda), while this would be beneficial to employing a autopilot control system which determines commands given the telemetry, this is out of scope for this project.  Though interesting, these papers do not allow for drift and are not framed around energy efficiency, but rather opimize heading and position accuracy.
 
@@ -176,25 +151,15 @@ largest take away : "All equate the drift direction with the direction of the wi
 [Development of Risk indicator for ship drifting ](https://www.iapsam.org/PSAM17/program/Papers/PSAM17&ASRAM2024-1377.pdf)
 
 > - **Output:** *time to grounding* (TTG), the expected time until a ship that loses propulsion would drift aground. It's recomputed along the voyage as an early warning.
-> - **Method (physics-based):** drift velocity = sea current + wind/wave-forced drift (the Sørgård & Vada model). Drift direction is modelled as a normal distribution; at sampled angles, distance-to-ground ÷ drift speed gives a time, and the times are combined in a probability-weighted sum.
-> - **Data:** ship position, historical forecast wind/wave/current (NorKyst model) and water depth. Demonstrated on one research-ship voyage in Norway. No learning and no real groundings to validate against.
-> - **Limitations (their §5.2):** the drift model was only validated on 250–270 m tankers, and it assumes constant weather, so it's less reliable beyond a few hours.
-
-> Replace "ground" with "the 10 nm boundary" and that's close to your problem. It's a strong anchor for both the comparison and the positioning. Your differences: a small USV, learned from logged telemetry, with pilot intervention as the label.
-
-> - "Predictive Drift Models - calculate probability of exceeding boundary in next *t*" isn't what TTG computes: TTG is an expected time, not a probability within a window. Your project is the probability-within-a-window version.
 
 Assessing other work (13) shows how using ML can greatly improve the accuracy of things like drift prediction, and consequently in our case would improve accuracy of probability in v2.  here is improved "the mean distance between predicted and actual track fell from **5.75 km to 0.41 km*" ~10x improvement in accuracy, using physics, simulations and ML.  Shows the benefit of data driven prediction models.
 
-> **[Claude] Draft 2.2 Drift prediction** (about 150 words)
+> - **Limitations (their §5.2):** the drift model was only validated on 250–270 m tankers, and it assumes constant weather, so it's less reliable beyond a few hours.
+
+> Drift prediction estimates where wind and current will carry a vessel that is not being steered, such as a ship that has lost propulsion. Dugan and Utne (12) use it to compute time to grounding (TTG), the expected time until such a ship drifts aground, and update it along the voyage as an early warning. They note that earlier models assumed a fixed drift speed (e.g. 1–3 m/s) in the direction of the wind. Their model adds ocean current and wave forces from historical forecast data, and treats drift direction as uncertain. If the hazard is the DataXplorer's 10 nm boundary instead of shallow water, TTG becomes the time until the vessel leaves its station. TTG is purely physics-based, though, and was tested on one research-ship voyage with no real groundings. Song et al. (13) show the value of learning from data: a small neural network corrects a physics drift model each time the vessel reports its position, cutting mean track error from 5.75 km to 0.41 km. Both methods predict a path or a time; neither predicts whether a human will need to act.
+
+
 >
-> Drift models estimate where wind and current will carry a vessel that is not being steered. Early grounding-risk studies assumed a fixed drift speed (e.g. 1–3 m/s) in the direction of the wind (12). Dugan and Utne (12) replace this with a force-balance model driven by forecast wind, waves and current, treat drift direction as uncertain, and recompute the expected *time to grounding* (TTG) along a voyage as an early warning. They argue that distance to a hazard is a weak risk signal because it ignores the expected drift. TTG is physics-based, though, and was shown on a single research-ship voyage with no real groundings to validate against. Song et al. (13) keep a physics drift model but let a small neural network re-fit its wind and current coefficients each time the drifting vessel reports its position, cutting mean track error from 5.75 km to 0.41 km. Both methods predict a trajectory or a time; neither predicts whether a human will need to act.
->
-> **[Claude] Notes on 2.2:**
-> - **Your points that made it in:** drift direction equated with wind direction (your "largest takeaway"), currents in the Sørgård & Vada model, the need for historical forecast data, TTG as "time to reach a boundary", and the 5.75 → 0.41 km result.
-> - **"Exact same process as drift to the 10 nm boundary"** is left for Rowan's §3, where it's a "build on" point. Here it would read as positioning.
-> - **Cite Dugan for the older fixed-speed models**, not FriisHansen or Kystverket directly, since you've read them only through Dugan's review.
-> - **Cut first if short on space:** the "They argue…" sentence (but move it to §3, where it supports replacing the distance baseline).
 
 ### 2.3 Dynamic Risk assessment & supervision
 #### DRA
@@ -244,13 +209,7 @@ Other resources:
 > - **Cut first if short on space:** the Na sentence about real-time assessment, then Li.
 
 
-
-
 ## 3.  Positioning Project - Rowan
-
-Our problem differs in that we want to employ a hybrid method, combining the benefits of these popular techniques.
-
-> **[Claude]** "We want to employ a hybrid method, combining the benefits of these popular techniques" is a positioning claim, so move it to §3. Here, just introduce the categories and the hierarchy figure. If you keep "hybrid", say what's combined: you aren't merging a control law into the model (see the framing note at the top).
 
 1. propose a data driven model that mines historical telemetry (GPS, wind, current vectors) to predict boundary exceedance $t$ seconds into the future.
 2.Real time risk scoring shifts operations from reactive thrusting to early, power-efficient drift mitigation.
