@@ -50,21 +50,17 @@ origin and evolution of the problem, context for those not familiar. where the p
 USV's have been in development for over 100 years, but the ability for them to be driven autonomously is a relatively new concept.  This topic of autonomous driving, humanless piloting, is popular and new.  Autonomous Robotics is a huge topic in ML and CS.  Most people think humanoid, but the development of autonomous piloting and robotics development are all closely related.  Methods in autonmous driving cars have been largely explored and developed likely due to the demand in market, where USV autonmous piloting market lags behind this as its a more niche market.
 
 
-
-> **[Claude] Draft History** (about 230 words)
->
 > Holding a vessel on station for weather reporting is far older than autonomy. In 1940 the U.S. Coast Guard began posting crewed cutters at fixed ocean stations to report weather. Each station was a grid of 10-mile squares, and the ship normally occupied the centre square [dinsmore1996alpha], close to the DataXplorer's 10 nm limit. From 1970, moored buoys took over this role, holding station passively on an anchor with no crew [ndbc_history], and in 1977 the last U.S. weather ship was replaced by a buoy [dinsmore1996alpha]. Offshore drilling, meanwhile, automated *active* station keeping in the 1960s with dynamic positioning [sorensen2011survey].
->
-> Uncrewed boats followed a separate path. Tesla demonstrated a radio-controlled boat in 1898, the Imperial German Navy used wire-guided explosive boats in the First World War, and by 1945 the U.S. Navy used remote-controlled boats for minesweeping and as targets, all within a short range of their operator [everett2015unmanned]. GPS and onboard computing made autonomy practical: MIT Sea Grant's ARTEMIS (1993) was among the first autonomous surface craft [manley2008usv], and long-endurance USVs can now stand in for retired buoys, as the DataXplorer does for Station 46012. The station is once again held actively, so the old watchkeeper's question returns for a remote pilot.
->
-> Sheridan and Verplank's levels of automation [sheridan1978human] framed this choice: automation is not all-or-nothing, and a computer can act on its own while still informing a human. The question became a data-mining problem once vehicles logged telemetry alongside human actions. Automated-driving work now learns to predict driver takeovers [pakdamanian2021deeptake], and reviews of autonomous marine vehicles call for dynamic risk analysis that copes with limited historical data [chen2021review].
->
+
+This progression sees the task of weather keeping go crewed marine vessels to uncrewed marine vessels.  Active monitoring to hybrid or passive monitoring.  We also see a path of progression in the uncrewed vessels.  As the technology progresses, so do their use cases.
+
+> Uncrewed boats followed a separate path. Tesla demonstrated a radio-controlled boat in 1898, the Imperial German Navy used wire-guided explosive boats in the First World War, and by 1945 the U.S. Navy used remote-controlled boats for minesweeping and as targets, all within a short range of their operator [everett2015unmanned]. All these uncrewed boats were radio controlled, until MIT Sea Grant's ARTEMIS (1993) was among the first autonomous surface craft [manley2008usv], and long-endurance USVs showed progression with the Wave glider and sail drone.  now USV's can now stand in for retired buoys, as the DataXplorer does for Station 46012.  bomber boat
+
+
 > **[Claude] Why it's built this way, and notes on your timeline:**
 > - **Roots of the problem, not the technology.** The manual asks for the earliest form of the *problem*, as the example's 1927 voting blocs do. The problem here is keeping a vessel on station and knowing when a human must act, so the draft opens with crewed weather ships (humans hold station) → buoys (an anchor holds it, no human) → USVs (held actively again, with a human supervising). Your remote-control timeline becomes the second paragraph.
-> - **The 10-mile square** comes straight from Dinsmore: "A 'station' was a 210-mile grid of 10-mile squares… The center square, which the ship usually occupied, was 'OS' (for 'on-station')." It's a good hook, so keep it if you cut elsewhere.
-> - **Fernlenkboote (your "1914" line):** they belonged to the Imperial German *Navy* and were steered from shore through a trailing wire up to 20 km long, not by radio. They were used against British monitors off Flanders. The draft says "First World War" to avoid a contested year.
-> - **"1940s - 1990s"** collapses into the WWII line plus ARTEMIS. **Saildrone** (founded 2012) and **Wave Glider** are cut for space. The Wikipedia links are replaced by Everett (an MIT Press history) and Manley.
-> - **"Most people think humanoid…"** is cut. Your self-driving-car point survives as the DeepTake sentence, which now has a citation.
+
+
 > - **To check before submitting:** I haven't read Everett's book or Manley's full text. Confirm Everett covers Tesla's boat, the FL-boats and the WWII U.S. drone boats (otherwise cite Manley if his history section does), and that Sørensen's introduction dates the first DP systems to the 1960s.
 > - **If space is tight:** cut the Tesla/WWI sentence first, then the drilling sentence. Keep the weather-ship → buoy → USV arc and the last paragraph (manual question 4: when it became a computing problem).
 
