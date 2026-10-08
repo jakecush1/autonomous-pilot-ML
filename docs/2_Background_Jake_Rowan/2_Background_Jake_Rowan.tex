@@ -109,7 +109,7 @@ Work related to supervised station keeping answers one of three questions (Table
 \subsection{Station Keeping Control}
 \label{sec:control}
 
-{The simplest practice is a trigger rule: the vessel may drift freely inside some radius and is corrected only when it nears the edge; this is known as \emph{geofencing}. OOR's pilots apply a similar practice at a larger scale, correcting the DataXplorer's navigation as it nears its 10~nm boundary. \emph{Feedback control} instead corrects continuously. Dynamic positioning adjusts thrust to hold large ships within metres of a set point~\cite{sorensen2011survey}. Sarda et al.~\cite{sarda2016station} applied the same idea to a 4\,m USV, testing three controllers (proportional--derivative, backstepping and sliding mode), with and without wind measurements as an extra input. USVs that cannot thrust sideways instead point their bow into the combined push of wind, waves and current~\cite{qu2022nonlinear}. Feedback controllers hold position with no human involved, but none predicts whether a correction will be needed later. Geofences are cheap and easy to understand, but they react to distance alone and ignore where the vessel is heading.}
+{The simplest practice is a trigger rule: the vessel may drift freely inside some radius and is corrected only when it nears the edge; this is known as \emph{geofencing}. OOR's pilots apply a similar practice at a larger scale, correcting the DataXplorer's navigation as it nears its 10~nm boundary. \emph{Feedback control} instead corrects continuously. Dynamic positioning adjusts thrust to hold large ships within metres of a set point~\cite{sorensen2011survey}. Sarda et al.~\cite{sarda2016station} applied the same idea to a 4\,m USV, testing three controllers (proportional--derivative, backstepping and sliding mode), with and without wind measurements as an extra input. All three kept the average position error under about 3\,m in 12-minute trials on sheltered water. USVs that cannot thrust sideways instead point their bow into the combined push of wind, waves and current~\cite{qu2022nonlinear}. Feedback controllers hold position with no human involved, but none predicts whether a correction will be needed later. Geofences are cheap and easy to understand, but they react to distance alone and ignore where the vessel is heading.}
 
 \subsection{Drift Prediction}
 \label{sec:drift}
@@ -125,7 +125,7 @@ Qualitative hazard identification lists what could go wrong before a trial but p
 \subsection{Comparative Analysis}
 \label{sec:comparison}
 
-Table~\ref{tab:comparison} and Figure~\ref{fig:venn} compare the representative work. Station-keeping control acts over metres and minutes, with no human and no look-ahead. Drift prediction warns before a boundary is crossed, but needs forecast wind and current fields we do not have. Dynamic risk assessment comes closest, estimating live mission risk for a supervised USV, but from expert-set probabilities. Our project sits where all three meet: a learned, telemetry-driven estimate of when a pilot must act to keep the vessel inside the 10~nm boundary.
+Table~\ref{tab:comparison} and Figure~\ref{fig:venn} compare the representative work. Each approach adds something the previous one lacks. Geofences and feedback controllers react to where the vessel is, not where it is heading. Drift prediction estimates where it will go, but from weather forecasts rather than the vessel's telemetry; learning improves its accuracy~\cite{song2024drift}. Dynamic risk assessment adds a probability and a human operator, but its probabilities are set by experts. Our project sits where all three meet: a learned, telemetry-driven probability that a pilot must act.
 % Rowan's original:
 % Each method helps, but none of them solve our problem. Station keeping
 % control holds the position accurately, but at metres and minutes, with no
@@ -160,7 +160,7 @@ Table~\ref{tab:comparison} and Figure~\ref{fig:venn} compare the representative 
       & Weather, battery, comms & P(mission failure) & No & Yes \\
     \midrule
     \textbf{This work}\newline \emph{DataXplorer}
-      & \textbf{Position, distance to station, wind} & \textbf{P(pilot must act within $\Delta t$)} & \textbf{Yes (V2)} & \textbf{Yes} \\
+      & \textbf{Position, distance to station, wind} & \textbf{P(pilot must act within $\Delta t$)} & \textbf{Yes} & \textbf{Yes} \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -168,19 +168,15 @@ Table~\ref{tab:comparison} and Figure~\ref{fig:venn} compare the representative 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.6\linewidth]{seng474/2/ven_diagram_2.png}
-  \caption{Previous papers relative to proposed project}
+  \caption{Representative work by area. Our project sits where all three overlap.}
   \label{fig:venn}
 \end{figure}
 
 \section{Project Position}
 \label{sec:positioning}
-Our project works only at the supervision level; holding station remains the job of the vessel's existing autopilot~\cite{sarda2016station}. We build on the time-to-event warning of Dugan and Utne~\cite{dugan2024drifting} and the probabilistic risk framing of Kristensen et al.~\cite{kristensen2022dynamic}, adopt the learned-correction idea of Song et al.~\cite{song2024drift}, and take the distance-from-station geofence rule as the baseline our model must beat.
+Our project works only at the supervision level; holding station remains the job of the vessel's existing autopilot. We build on the time-to-event warning of Dugan and Utne~\cite{dugan2024drifting} and the probabilistic risk framing of Kristensen et al.~\cite{kristensen2022dynamic}, and adopt the learned-correction idea of Song et al.~\cite{song2024drift}.
 
-\begin{enumerate}
-\item \textbf{Data-driven prediction.} A model learns from logged telemetry (position, distance to station, wind speed and direction) the probability that the vessel will need a corrective command within a horizon $\Delta t$ of about an hour.
-\item \textbf{Reduced pilot labour.} This turns a continuous 24/7 watch (about 1,095 eight-hour shifts a year) into on-call, alert-driven work.
-\item \textbf{Human integration.} A probability threshold sets when to alert the pilot, trading missed interventions against false alerts. The pilot makes every navigation decision.
-\end{enumerate}
+A model trained on logged telemetry, labelled by whether the pilot intervened, estimates the probability that a correction will be needed within a horizon $\Delta t$ of about an hour. By the pilot's account the vessel needs a navigation decision only every 2--3 hours, yet it is watched 24/7 (about 1,095 eight-hour shifts a year). An alert threshold, trading missed interventions against false alerts, would turn this into on-call work, while the pilot still decides every course correction. We will compare the model with the geofence rule on the share of real interventions it catches and its false alerts per shift.
 % Rowan's original:
 % Our project is a hybrid of the three above, but only at the supervision
 % level: we combine the early warning idea of drift
