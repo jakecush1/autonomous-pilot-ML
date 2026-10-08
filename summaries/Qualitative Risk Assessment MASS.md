@@ -1,10 +1,15 @@
-> | 8 | **Na et al. 2025**, qualitative MASS risk (COFA-HAZID), JMSE 13:970. [MDPI](https://www.mdpi.com/2077-1312/13/5/970) | A one-line citation for "static/design-phase risk isn't enough; real-time assessment is needed" | Abstract + intro | 2.3 |
+# Na et al. 2025: Qualitative risk assessment for autonomous ships (COFA-HAZID)
 
-> [Claude] Written by Claude from the full paper (30 pp). These aren't your own notes, so check them against the paper before using them in the review.
+- **Paper:** Na, Lee, Baek, Kim & Choung, "Qualitative Risk Assessment Methodology for Maritime Autonomous Surface Ships: Cognitive Model-Based Functional Analysis and Hazard Identification", J. Mar. Sci. Eng. 13(5):970, 2025. Korean Register, Busan.
+- **Link:** [MDPI](https://www.mdpi.com/2077-1312/13/5/970) (open access)
+- **Read:** abstract + the first part of §2.1 (where the key quote is). **Priority:** skim.
+- **This summary:** written by Claude from the full paper (30 pp). Not Jake's own notes; check it against the paper before using it in the review.
+- **Used in:** Intro · 2.3 DRA · 2.3 Operator supervision · Existing approaches & limitations
 
-A qualitative risk assessment method for autonomous ships, from the Korean Register (a ship classification society). It's for the design and trial phase and produces no numbers. Useful for one sentence: once humans are taken out of the loop, design-phase risk assessment isn't enough and real-time risk assessment is needed.
+**In one line:** a structured, workshop-style method for listing what could go wrong with an autonomous ship, used before trials and producing no numbers. It's useful mainly for one quote: once humans are taken out of the loop, real-time risk assessment is needed.
 
-- **Citation:** Na, Lee, Baek, Kim & Choung, "Qualitative Risk Assessment Methodology for Maritime Autonomous Surface Ships: Cognitive Model-Based Functional Analysis and Hazard Identification", JMSE 13(5):970, 2025. Korean Register, Busan.
+## Summary
+
 - **Goal:** a structured way to find hazardous scenarios in MASS operations, so MASS can be compared with conventional ships and designs and trials can be approved.
 - **Method (COFA-HAZID):**
   1. **Functional analysis:** break the ship's operation into functions. Each function is a "Functional Block" modelled on a cognitive / intelligent-agent loop (sense → decide → act), and the blocks connect into a Functional Flow Diagram.
@@ -16,31 +21,47 @@ A qualitative risk assessment method for autonomous ships, from the Korean Regis
   - The officer of the watch (OOW) stays in charge and takes control back when the system fails.
   - The key risk is the **handover between autonomous and manual control**.
   - The OOW has to monitor the system *and* carry out normal duties, which adds workload.
-- **Literature note:** the reviews they cite find STPA is the most-used qualitative method for MASS, and Bayesian networks the most-used quantitative one.
+- **Literature note:** the reviews they cite find that STPA is the most-used qualitative method for MASS, and Bayesian networks the most-used quantitative one.
 - **Key quote (§2.1):** "to operate advanced systems that drastically reduce human intervention, one may be required to implement real-time risk assessment methodologies to evaluate various dynamic operational variables and support decision-making (whether by humans or the system)".
 - **Future work:** a prototype real-time risk monitoring system for MASS (R2-MAS).
 
-- Link to us: that quote is our motivation in one line. The OOW's monitoring burden is the same problem as our pilot on 24/7 watch.
+## Strengths and weaknesses
 
-Pros:
+**Strengths**
 - A citable statement that static, design-phase risk assessment isn't enough for systems with less human involvement.
-- Recent (2025) and from a classification society. Also confirms STPA and BNs as the common methods.
+- Recent (2025) and from a classification society. It also confirms STPA and BNs as the common methods.
 - Names the human-handover problem directly.
 
-Cons:
+**Weaknesses**
 - Qualitative only: no numbers and no probabilities.
 - Done before operation (for approval), not in real time. The real-time part is only proposed.
 - Focused on navigation and collision for a large container ship, not on station keeping.
 
-> **[Claude] Differences to our situation** (could become a row in your comparison table):
->
-> | | Na et al. 2025 | Our project |
-> |---|---|---|
-> | Vessel | 1800 TEU container ship with an autonomous navigation system (trial) | OOR DataXplorer |
-> | When | Design / before the trial | Live, during operation |
-> | Output | List of hazardous scenarios and risk controls (qualitative) | P(pilot must intervene within Δt) |
-> | Method | Functional analysis + expert HAZID workshop | V1: pilot-rule grid; V2: learned from logged interventions |
-> | Data | Expert judgement | Telemetry + logged interventions |
-> | Human role | OOW supervises the system and takes over on failure | Pilot moves from 24/7 watch to on-call alerts |
->
-> **Where it goes in the background doc:** 2.3, in one line, as the qualitative / static example and the motivation for real-time assessment. It's also the "qualitative" leaf under Chen's taxonomy.
+## How it relates to our paper
+
+**The link:** the §2.1 quote is our motivation in one line. The OOW's monitoring burden is the same problem as our pilot on 24/7 watch.
+
+| Section | How to use it |
+|---|---|
+| Abstract / 1. Introduction | Motivation: systems that "drastically reduce human intervention" may need real-time risk assessment. |
+| 2.3 DRA | The qualitative / static example, in contrast with Kristensen's dynamic model. The STPA/BN finding can back up a sentence on which methods are common. |
+| 2.3 Operator supervision | Supporting point: in real trials the human must monitor the system and take over, and the handover is a key risk. |
+| Hierarchy figure | Risk & supervision × expert-based (the qualitative leaf if you use Chen's split). |
+| Comparative analysis: Venn (Rowan) | Circle C (risk). |
+| Comparative analysis: table (Rowan) | Optional row; see the table below. |
+| Existing approaches & limitations (Rowan) | Static, design-phase assessments can't follow conditions as they change. |
+
+## Compared with our project
+
+| | Na et al. 2025 | Our project |
+|---|---|---|
+| Vessel | 1800 TEU container ship with an autonomous navigation system (trial) | OOR DataXplorer |
+| When | Design / before the trial | Live, during operation |
+| Output | List of hazardous scenarios and risk controls (qualitative) | P(pilot must intervene within Δt) |
+| Method | Functional analysis + expert HAZID workshop | V1: pilot-rule grid; V2: learned from logged interventions |
+| Data | Expert judgement | Telemetry + logged interventions |
+| Human role | OOW supervises the system and takes over on failure | Pilot moves from 24/7 watch to on-call alerts |
+
+## To fix in the background doc
+
+- It's listed under "Other resources" at the end of 2.3. Move it into the DRA subsection.

@@ -107,7 +107,7 @@ Purpose of this section is to help reader understand existing approaches
 > | 2.2 drift | Dugan & Utne 2024 (TTG) | Song et al. 2024 (LEEWAY + FCNN) |
 > | 2.3 risk / supervision | Kristensen 2022 (DBN); Li 2024 (FTA-FBN); Na 2025; Chen 2021 (review) | **empty, which is where your project sits** |
 >
-> The empty bottom-right cell lets you show your position without claiming to do everything.
+
 
 ### 2.1 station keeping control
 
@@ -138,19 +138,36 @@ Another interesting approach to saving energy while geofencing is using Weather 
 > - The markdown link is reversed: `(another)[url]` should be `[another](url)`.
 
 ### 2.2 Drift prediction
-Another similar algorithm would be drift prediction:
-Predictive Drift Models - calculate probability of exceeding boundary in next *t* time:
-Drift prediction Algorithm looks similar to "Drifting Grounding" Algorithms - [Development of Risk indicator for ship drifting - Monte Carlo](https://www.iapsam.org/PSAM17/program/Papers/PSAM17&ASRAM2024-1377.pdf)
 
-> **[Claude]** Read in full: **Dugan & Utne, "Development of a risk indicator for ship drifting groundings", PSAM17 & ASRAM 2024 (NTNU).** It does **not** use Monte Carlo, so fix the label.
+Drifting trajectory is a difficult thing to do, but can be very beneficial in preventing accidents in the case of loss of propulsion.
+
+Dugan presents the method used to calculate TTG - time to ground.  Though this paper surveys techniques to determine a drifting vessels TTG, the principles are the exact same for determining the time it would take for a vessel to drift k distance.  However all of these methods equate the drift time to be relative to wind. Note its simplified in their models
+
+"FriisHansen [19] and Kystverket [20] use a uniform drift speed distribution between 1 and 3 m/s. Fowler and Sørgård [18] models the drift speed as 0.3 m/s in calm wind conditions and 0.9 m/s in stormy conditions. All equate the drift direction with the direction of the wind."
+
+ocean currents are also considered "Sørgård and Vada [25] developed a drift trajectory prediction tool using two primary components: 1) estimating ocean current velocities, and 2) predicting the forced drift on a ship caused by wind and wave forces." when predicting drift.
+
+accurately predicting these things require past data sets of "historical ocean forecast models to obtain wind speed, wind direction, wave height, wave period, wave direction, and sea-water velocity and direction"
+
+We may want to follow a similar method if we are predicting drift.  this may be out of scope, however would be very useful.  Old data sets of the usv in the location could be used for this.
+
+Conclusion - this paper predicts TTG which is the same process as drift prediction to outside of a operational zone which would be useful in a probability or more in depth prediction system.
+
+largest take away : "All equate the drift direction with the direction of the wind."
+
+[Development of Risk indicator for ship drifting ](https://www.iapsam.org/PSAM17/program/Papers/PSAM17&ASRAM2024-1377.pdf)
+
 > - **Output:** *time to grounding* (TTG), the expected time until a ship that loses propulsion would drift aground. It's recomputed along the voyage as an early warning.
 > - **Method (physics-based):** drift velocity = sea current + wind/wave-forced drift (the Sørgård & Vada model). Drift direction is modelled as a normal distribution; at sampled angles, distance-to-ground ÷ drift speed gives a time, and the times are combined in a probability-weighted sum.
 > - **Data:** ship position, historical forecast wind/wave/current (NorKyst model) and water depth. Demonstrated on one research-ship voyage in Norway. No learning and no real groundings to validate against.
 > - **Limitations (their §5.2):** the drift model was only validated on 250–270 m tankers, and it assumes constant weather, so it's less reliable beyond a few hours.
-> - **Why it matters to you:** their main argument is that *distance to shore* (what geofence-style systems use) is a worse risk signal than TTG because it ignores drift. Replace "ground" with "the 10 nm boundary" and that's close to your problem. It's a strong anchor for both the comparison and the positioning. Your differences: a small USV, learned from logged telemetry, with pilot intervention as the label.
+
+> Replace "ground" with "the 10 nm boundary" and that's close to your problem. It's a strong anchor for both the comparison and the positioning. Your differences: a small USV, learned from logged telemetry, with pilot intervention as the label.
+
 > - "Predictive Drift Models - calculate probability of exceeding boundary in next *t*" isn't what TTG computes: TTG is an expected time, not a probability within a window. Your project is the probability-within-a-window version.
->
-> **The "Prediction and Dynamic Correction of Drifting Trajectory" link under Other resources also belongs here:** **Song et al., "The Prediction and Dynamic Correction of Drifting Trajectory for Unmanned Maritime Equipment Based on Fully Connected Neural Network (FCNN) Embedding Model", JMSE 12(12):2262, 2024.** It's a hybrid: the US Coast Guard LEEWAY physics model predicts the drift trajectory, and an FCNN corrects it using the drifting object's own position reports. In sea trials, mean deviation fell from 5.75 km to 0.41 km. Limitations: it's for *unpowered* lost equipment (search and rescue), it ignores waves, and it depends on interpolated forecast wind and current. It's your best example of data-driven drift prediction.
+
+Assessing other work [Drift prediction with a neural-network correction](https://www.mdpi.com/2077-1312/12/12/2262) shows how using ML can greatly improve the accuracy of things like drift prediction, and consequently in our case would improve accuracy of probability in v2.  here is improved "the mean distance between predicted and actual track fell from **5.75 km to 0.41 km*" ~10x improvement in accuracy, using physics, simulations and ML.  Shows the benefit of data driven prediction models.
+
 
 ### 2.3 Dynamic Risk assessment & supervision
 #### DRA
