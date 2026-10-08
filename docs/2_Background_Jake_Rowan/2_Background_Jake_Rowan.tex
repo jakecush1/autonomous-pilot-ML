@@ -30,23 +30,14 @@
 \usepackage{mdwlist}
 \usepackage{amsmath}
 \usepackage{graphicx}
-\usepackage{booktabs} % [Claude] \toprule etc.; harmless if acmart already loads it
-\usepackage{array}    % [Claude] needed for >{\raggedright\arraybackslash} in the tables
+\usepackage{booktabs} % \toprule etc.; harmless if acmart already loads it
+\usepackage{array}    %  needed for >{\raggedright\arraybackslash} in the tables
 
 % ---------------------------------------------------------------------------
-% [Claude] Edits in this version, all marked inline with % [Claude]:
-%  - typed citation numbers like "(16)" replaced with \cite (they pointed at
-%    the wrong references), Markdown *...* replaced with \emph
-%  - missing labels added (sec:positioning, fig:venn), duplicate label removed
-%  - running header removed, Table 1 compacted, Venn shrunk to 0.6
-%  - cuts for the 2-page limit; every cut sentence is kept in a comment
-%    labelled "cut for length" so it can be restored if the paper runs short
-% ---------------------------------------------------------------------------
+
 
 
 \begin{document}
-% [Claude] shortened so it fits on one line (saves ~4 lines); the course sample uses "A Brief Review".
-% Original: Predicting Pilot Intervention for a Station-Keeping USV: A Brief History
 \title{Predicting Pilot Intervention for Station-Keeping USVs: A Review}
 \author{Jake Cushway}
 \affiliation{
@@ -74,59 +65,23 @@
 % [Claude] shortened for length
 This paper reviews the history and current state of human-monitored and autonomous station keeping for Uncrewed Surface Vehicles (USVs), focusing on whether the decision of \textit{when human intervention is needed} can be automated. The Open Ocean Robotics (OOR) DataXplorer\texttrademark{} holds its position within 10~nm of a retired NOAA buoy station, with a pilot on 24/7 watch. Station-keeping control holds position but does not predict when a human is needed. Drift prediction and dynamic risk assessment give early warnings, but do not learn from past data when a human must act. We propose a probability-based solution that uses live telemetry to predict when a pilot is needed. Code and related documents are available at \url{https://github.com/jakecush1/autonomous-pilot-ML}.
 \end{abstract}
-% [Claude] cut for length (original abstract sentences):
-% This paper gives a brief overview of the history and current state of ...
-% The review covers a brief history of USVs and the relevant methods: control
-% methods such as geofencing, drift prediction, dynamic risk assessment, and
-% autonomous control versus operator supervision. Control methods hold position
-% but do not predict when a human is needed. Drift and risk prediction methods
-% give early warnings, but do not use past data to learn the probability that
-% human intervention is needed.
-
-% [Claude] keywords removed for length at Jake's request; original:
-% \keywords{uncrewed surface vehicles, station keeping, human-in-the-loop, dynamic risk assessment, drift prediction}
 
 \maketitle
-\pagestyle{empty} % [Claude] removes the "Conference'17" running header newer acmart adds on pages 2+
+\pagestyle{empty} 
 
 \section{Introduction}\label{sec:intro}
-% [Claude] dynamic-positioning sentence and three-directions roadmap cut for length (both repeated in Sec. 2)
 \textit{Station keeping} is the task of holding a vessel inside a bounded region around a fixed point despite wind, waves and current. The DataXplorer, which replaces a retired weather buoy, need only stay within 10~nm of the buoy's position; a shore-based pilot on 24/7 watch issues a course correction when needed, usually when wind pushes it toward the edge. Station keeping here has two layers: a \textit{control} layer that decides \textit{how} the vessel holds position, and a \textit{supervision} layer that decides \textit{when} a human must step in. \textbf{This work addresses the supervision layer: predicting from live telemetry whether a pilot will need to intervene within a future time window.}
-% [Claude] cut for length (round 3): We trace how the problem arose (\S\ref{sec:history}), review related work (\S\ref{sec:related}) and position our project (\S\ref{sec:positioning}).
-% [Claude] cut for length:
-% On large ships it is solved by \textit{dynamic positioning}: a closed-loop
-% controller adjusts thrust continuously to hold position within
-% metres~\cite{sorensen2011survey}, and the same control approach has been
-% applied to small Uncrewed Surface Vehicles (USVs)~\cite{sarda2016station}.
-% Related work comes from three directions: station-keeping control
-% (\S\ref{sec:control}); drift prediction, which estimates where wind and
-% current will carry a vessel and how soon it will reach a boundary
-% (\S\ref{sec:drift}); and dynamic risk assessment and operator supervision,
-% which estimate when a mission is at risk and how to alert the human
-% (\S\ref{sec:risk}). We first trace how the problem arose
-% (\S\ref{sec:history}), then compare these approaches and position our
-% project among them (\S\ref{sec:positioning}).
 
 \subsection{History}\label{sec:history}
 {The U.S. Coast Guard began holding station with crewed vessels to collect meteorological data in 1940~\cite{dinsmore1996alpha}. In the 1970s these ships were replaced by moored buoys, which hold station \textit{passively}, on an anchor with no power or crew~\cite{dinsmore1996alpha}. Offshore drilling, meanwhile, had automated \textit{active} station keeping, using thrusters, with dynamic positioning in the 1960s~\cite{sorensen2011survey}.}
-% [Claude] footnote folded into the text (saves the footnote rule and ~2 lines); NDBC reference dropped,
-% Dinsmore already covers the buoy replacement. Original footnote:
-% \footnote{Active station keeping uses power to hold station; passive station keeping relies on a static physical connection, such as an anchor.}
+
 
 {USVs have been in development for over 100 years, but the ability to drive them autonomously is relatively new. Tesla demonstrated a radio-controlled boat in 1898, the Imperial German Navy used wire-guided explosive boats in the First World War, and by 1945 the U.S. Navy used remote-controlled boats for minesweeping and as targets, all within a short range of their operator~\cite{everett2015unmanned}. These boats were all remotely controlled until MIT Sea Grant's ARTEMIS (1993), among the first autonomous surface craft, and by the mid-2000s USVs had matured enough to have an impact in mission areas~\cite{manley2008usv}. Long-endurance USVs such as the Wave Glider~\cite{manley2010waveglider} followed, and USVs can now stand in for retired buoys, as the DataXplorer does for Station 46012. Using machine learning to emulate a human's decisions when piloting marine vessels, however, is still a new concept.}
-% [Claude] cut for length: "and Saildrone~\cite{meinig2019saildrone}" after the Wave Glider cite.
-% [Claude] cut for length (also removes one reference):
-% Military use has advanced in parallel: a century after the FL-boats, U.S.
-% forces used three Saronic Corsair one-way attack USVs to strike a docked
-% submarine at Iran's Bandar Abbas naval base in July 2026, the first U.S.
-% combat use of sea drones~\cite{lariosa2026corsair}.
 
 \section{Related Work}
 \label{sec:related}
 Work related to supervised station keeping answers one of three questions (Table~\ref{tab:hierarchy}): \emph{how} to hold a vessel on station (station-keeping control, \S\ref{sec:control}); \emph{where and how soon} wind and current will carry it (drift prediction, \S\ref{sec:drift}); and \emph{when} a mission is at risk and a human should act (risk assessment and operator supervision, \S\ref{sec:risk}). Within each question, methods are either \emph{model-based}, built from physics or expert judgement, or \emph{data-driven}, learned from logged observations. Most marine work is model-based. One finding shapes our approach: distance from a boundary is a weak warning signal on its own, because it ignores where wind and current are pushing the vessel~\cite{dugan2024drifting}.
 
-% [Claude] compact version of Table 1; Li 2024 (FT + fuzzy BN) cut for length;
-% Wave Glider product-sheet cite on "Geofence" dropped to save a reference (2.1 describes the practice)
 \begin{table}[t]
   \caption{Related work by question and model type. DP: dynamic positioning; BN: Bayesian network; NN: neural network.}
   \label{tab:hierarchy}
@@ -153,37 +108,25 @@ Work related to supervised station keeping answers one of three questions (Table
 
 \subsection{Station Keeping Control}
 \label{sec:control}
-% [Claude] citations and typos fixed; one sentence cut for length; wording otherwise Jake's
+
 {The simplest practice is a trigger rule: the vessel may drift freely inside some radius and is corrected only when it nears the edge; this is known as \emph{geofencing}. OOR's pilots apply a similar practice at a larger scale, correcting the DataXplorer's navigation as it nears its 10~nm boundary. \emph{Feedback control} instead corrects continuously. Dynamic positioning adjusts thrust to hold large ships within metres of a set point~\cite{sorensen2011survey}. Sarda et al.~\cite{sarda2016station} applied the same idea to a 4\,m USV, testing three controllers (proportional--derivative, backstepping and sliding mode), with and without wind measurements as an extra input. USVs that cannot thrust sideways instead point their bow into the combined push of wind, waves and current~\cite{qu2022nonlinear}. Feedback controllers hold position with no human involved, but none predicts whether a correction will be needed later. Geofences are cheap and easy to understand, but they react to distance alone and ignore where the vessel is heading.}
-% [Claude] cut for length (goes after the Sarda sentence):
-% All three kept the average position error under about 3\,m in 12-minute
-% trials on sheltered water.
 
 \subsection{Drift Prediction}
 \label{sec:drift}
-% [Claude] citations fixed; two sentences merged for length
+
 {Drift prediction estimates where wind and current will carry a vessel that is not being steered, such as a ship that has lost propulsion. Dugan and Utne~\cite{dugan2024drifting} use it to compute \emph{time to grounding} (TTG), the expected time until such a ship drifts aground, and update it along the voyage as an early warning. Unlike earlier models, which assumed a fixed drift speed in the direction of the wind, theirs adds ocean current and wave forces from historical forecast data and treats drift direction as uncertain. If the hazard is the DataXplorer's 10~nm boundary instead of shallow water, TTG becomes the time until the vessel leaves its station. TTG is purely physics-based, though, and was tested on one research-ship voyage with no real groundings. Song et al.~\cite{song2024drift} show the value of learning from data: a small neural network corrects a physics drift model each time the vessel reports its position, cutting mean track error from 5.75\,km to 0.41\,km. Both methods predict a path or a time; neither predicts whether a human will need to act.}
-% [Claude] original of the merged sentences:
-% They note that earlier models assumed a fixed drift speed (e.g.\ 1--3\,m/s)
-% in the direction of the wind. Their model adds ocean current and wave forces
-% from historical forecast data, and treats drift direction as uncertain.
+
 
 \subsection{Dynamic Risk Assessment \& Supervision}
 \label{sec:risk}
-% [Claude] citations fixed, Bogg sentence matched to the paper's title; Chen and Li sentences cut for length
+
 Qualitative hazard identification lists what could go wrong before a trial but produces no numbers; its authors note that systems which drastically reduce human intervention may need real-time risk assessment~\cite{na2025qualitative}. Kristensen et al.~\cite{kristensen2022dynamic} make risk assessment \emph{dynamic}: a Bayesian network updated every two hours gives the probability of mission failure for a 5\,m USV, which the authors suggest could tell a shore operator when to pay more attention. Its probabilities, however, come from experts and assumptions, and it was checked against a single mission. On the human side, Bogg and Birrell~\cite{bogg2026alert} found that a visual alert reduced unnecessary human intervention in an automated vehicle, and DeepTake~\cite{pakdamanian2021deeptake} learns from vehicle and driver data to predict whether and how quickly a driver will take over. We found no marine work that learns when a human must intervene from logged telemetry.
-% [Claude] cut for length (each also removes one reference):
-% Risk methods for autonomous underwater vehicles range from qualitative to
-% quantitative~\cite{chen2021review}.
-% Quantitative models such as a fault tree mapped into a fuzzy Bayesian network
-% estimate collision probability, using expert surveys because failure data for
-% autonomous ships is scarce~\cite{li2024collision}.
 
 \subsection{Comparative Analysis}
 \label{sec:comparison}
-% [Claude] Rowan's paragraph tightened for length; Kristensen's output is mission-failure risk, not an intervention probability
+
 Table~\ref{tab:comparison} and Figure~\ref{fig:venn} compare the representative work. Station-keeping control acts over metres and minutes, with no human and no look-ahead. Drift prediction warns before a boundary is crossed, but needs forecast wind and current fields we do not have. Dynamic risk assessment comes closest, estimating live mission risk for a supervised USV, but from expert-set probabilities. Our project sits where all three meet: a learned, telemetry-driven estimate of when a pilot must act to keep the vessel inside the 10~nm boundary.
-% [Claude] Rowan's original:
+% Rowan's original:
 % Each method helps, but none of them solve our problem. Station keeping
 % control holds the position accurately, but at metres and minutes, with no
 % human and no look-ahead. Drift prediction warns before a boundary is crossed,
@@ -195,9 +138,9 @@ Table~\ref{tab:comparison} and Figure~\ref{fig:venn} compare the representative 
 % contrasts the representative work, and Figure 1 places each paper relative
 % to our project.
 
-% [Claude] trimmed from Rowan's comparison table
+
 \begin{table}[t]
-  \caption{Representative work compared with our project. HIL: human in the loop.} % [Claude] shortened (round 3); was: ... Learned: fitted to logged data. HIL: a human is in the loop. Only our project (V2) is both.
+  \caption{Representative work compared with our project. HIL: human in the loop.} 
   \label{tab:comparison}
   \footnotesize
   \setlength{\tabcolsep}{3pt}
@@ -224,22 +167,21 @@ Table~\ref{tab:comparison} and Figure~\ref{fig:venn} compare the representative 
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.6\linewidth]{seng474/2/ven_diagram_2.png} % [Claude] was 0.8; saves space
+  \includegraphics[width=0.6\linewidth]{seng474/2/ven_diagram_2.png}
   \caption{Previous papers relative to proposed project}
   \label{fig:venn}
 \end{figure}
 
 \section{Project Position}
 \label{sec:positioning}
-% [Claude] Rowan's section tightened for length: the two "what we build on" paragraphs merged, list items shortened
 Our project works only at the supervision level; holding station remains the job of the vessel's existing autopilot~\cite{sarda2016station}. We build on the time-to-event warning of Dugan and Utne~\cite{dugan2024drifting} and the probabilistic risk framing of Kristensen et al.~\cite{kristensen2022dynamic}, adopt the learned-correction idea of Song et al.~\cite{song2024drift}, and take the distance-from-station geofence rule as the baseline our model must beat.
 
 \begin{enumerate}
-\item \textbf{Data-driven prediction.} A model learns from logged telemetry (position, distance to station, wind speed and direction) the probability that the vessel will need a corrective command within a horizon $\Delta t$ of about an hour. % [Claude] round 3: dropped ``to stay inside the 10~nm boundary''
+\item \textbf{Data-driven prediction.} A model learns from logged telemetry (position, distance to station, wind speed and direction) the probability that the vessel will need a corrective command within a horizon $\Delta t$ of about an hour.
 \item \textbf{Reduced pilot labour.} This turns a continuous 24/7 watch (about 1,095 eight-hour shifts a year) into on-call, alert-driven work.
 \item \textbf{Human integration.} A probability threshold sets when to alert the pilot, trading missed interventions against false alerts. The pilot makes every navigation decision.
 \end{enumerate}
-% [Claude] Rowan's original:
+% Rowan's original:
 % Our project is a hybrid of the three above, but only at the supervision
 % level: we combine the early warning idea of drift
 % prediction~\cite{dugan2024drifting} with the intervention-probability output
