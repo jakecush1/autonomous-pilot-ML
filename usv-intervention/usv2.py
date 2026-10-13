@@ -18,7 +18,7 @@ OUTER_NM = 6.0          # past this, wind pushing the USV outward needs action
 LANE_X_NM = 6.5         # traffic lane starts about 6.8nm east of center; 6nm leaves a buffer
 WIND_MEDIUM = 10        # kn
 
-# DOWNWIND_WIDTH = 45     # degrees either side of where the wind is pushing (a quarter of the circle)
+WINDWARD_WIDTH = 60     # degrees either side of where the wind is pushing (a quarter of the circle)
 
 # Using UTM zones so that this can be more reusable and is not stuck to the one location in Half Moon Bay
 # instead of having preset squares, use the USV's distance and direction from the center
@@ -50,25 +50,29 @@ def wind_sector(deg):
     return SECTORS[slice_number]
 
 def wind_strength(knots):
-    wind_strength = float(knots)              # text -> number, so it can be compared to 10 and 20
+    wind_strength = float(knots)
     return wind_strength
 
-# # is the USV on the side of the zone that the wind is pushing it toward?
-# def is_downwind(x, y, wind_deg):
-#     distance = math.hypot(x, y)
-#     if distance < 1:
-#         return False    # if close to center theres no downwind
+# windward is upwind from point of reference (being the center), returns T if within 45 deg width
+def is_windward(x, y, wind_deg):
+    distance = math.hypot(x, y)
+    if distance < 1:
+        return False    # if close to center direction of wind not important
 
-#     usv_bearing = math.degrees(math.atan2(x, y)) % 360    # compass direction from center to USV (0 = north, 90 = east)
-#     push_toward = (wind_deg + 180) % 360                  # wind FROM the north pushes the USV TOWARD the south
+    # compass direction from center to USV
+    usv_bearing = math.degrees(math.atan2(x, y)) % 360 
 
-#     gap = abs(usv_bearing - push_toward)                  # how far apart the two directions are
-#     if gap > 180:
-#         gap = 360 - gap                                   # go the short way round: 350 and 10 are 20 degrees apart
+    # opposite of wind_deg -> direction wind is pushing
+    pushing_toward = (wind_deg) % 360
 
-#     return gap <= DOWNWIND_WIDTH
+    # print(f"bearing:{usv_bearing}; toward:{pushing_toward}")
 
-# rates the USV's position: green (safe), yellow (medium safe) or red (needs action)
+    gap = abs(usv_bearing - pushing_toward)
+    if gap > 180:
+        gap = 360 - gap 
+
+    return gap <= WINDWARD_WIDTH
+
 # checks the USV's position and wind; returns what's wrong, or None if it's safe to drift
 # def check_usv(x, y, wind_deg, wind_kn):
 def check_usv_location(x, y):
@@ -83,11 +87,8 @@ def check_usv_location(x, y):
         return "Close to the 10nm limit!"
     if distance > OUTER_NM:
         return "Greater than 6nm from center"
-    
-    # if distance > OUTER_NM and wind_kn >= WIND_MEDIUM and is_downwind(x, y, wind_deg):
-    #     return "Wind is pushing the USV toward the edge!"
 
-    return None                               # nothing wrong
+    return None
 
 def prompt_user():
     text = input("Input USV lat, lon: ")
@@ -95,9 +96,9 @@ def prompt_user():
     lat, lon = float(lat), float(lon)
 
     # print(f"---Step 2: Drift Prediction---")
-    # input_angle = input("input wind degree: ").strip()
-    # wind_deg = float(input_angle)
-    # wind_letter = wind_sector(wind_deg)
+    input_angle = input("input wind degree: ").strip()
+    wind_deg = float(input_angle)
+    wind_letter = wind_sector(wind_deg)
     # input_kn = input("input wind strength: ").strip()
     # wind_kn = wind_strength(input_kn)
 
@@ -105,6 +106,11 @@ def prompt_user():
     distance = math.hypot(x, y)
     print(f"USV is {distance:.1f}nm from center ({x:.1f}nm east, {y:.1f}nm north)")
     # print(f"Wind: {wind_letter}{wind_kn}")
+
+    if is_windward(x, y, wind_deg):
+        print("USV is windward = good")
+    else:
+        print("USV is leeward = bad")
 
     # warning = check_usv(x, y, wind_deg, wind_kn)
     warning = check_usv_location(x, y)
