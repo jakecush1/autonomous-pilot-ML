@@ -12,16 +12,16 @@ from pyproj import Transformer
 # ---- input files: add a new block for each new export ----
 EXPORTS = [
     {   # Oct 3 - 12, 2026 (hourly motor power)
-        "power": "raw/torqeedo_motor_power_2026-10-03_to_2026-10-12.csv",
-        "wind_speed": "raw/wind_speed_2026-10-03_to_2026-10-12.csv",
-        "wind_angle": "raw/wind_angle_2026-10-03_to_2026-10-12.csv",
-        "gps": "raw/gps_location_2026-10-03_to_2026-10-12.csv",
+        "power": "Torqeedo_Motor_Power-data-2026-10-13_14_24_28.csv",
+        "wind_speed": "True_Wind_Speed-data-as-joinbyfield-2026-10-13_14_24_04.csv",
+        "wind_angle": "True_Wind_Angle-data-2026-10-13_14_23_47.csv",
+        "gps": "Coordinates_gps_location-data-2026-10-13_14_28_46.csv",
     },
-    {   # Aug 6 - 12, 2026 (hourly motor power)
-        "power": "raw/torqeedo_motor_power_2026-08-06_to_2026-08-12.csv",
-        "wind_speed": "raw/wind_speed_2026-08-06_to_2026-08-12.csv",
-        "wind_angle": "raw/wind_angle_2026-08-06_to_2026-08-12.csv",
-        "gps": "raw/gps_location_2026-08-06_to_2026-08-12.csv",
+    {   # Aug 6 - 12, 2026 (10-minute motor power)
+        "power": "Motor_Power_consumption-data-2026-10-13_14_33_06.csv",
+        "wind_speed": "True_Wind_Speed-data-as-joinbyfield-2026-10-13_14_33_20.csv",
+        "wind_angle": "True_Wind_Angle-data-2026-10-13_14_33_39.csv",
+        "gps": "Coordinates_gps_location-data-2026-10-13_14_33_32.csv",
     },
 ]
 
@@ -193,10 +193,8 @@ for i in range(len(table) - 1):
     moved_east = later["x_nm"] - now["x_nm"]          # nm moved east in the hour
     moved_north = later["y_nm"] - now["y_nm"]         # nm moved north in the hour
 
-    # push_east = (now["wind_push_east_kn"] + later["wind_push_east_kn"]) / 2     # average wind over the two readings
-    # push_north = (now["wind_push_north_kn"] + later["wind_push_north_kn"]) / 2
-    push_east = now["wind_push_east_kn"]       # wind at the START of the hour only:
-    push_north = now["wind_push_north_kn"]     # in live use, that's all we know when predicting
+    push_east = now["wind_push_east_kn"]              # wind at the START of the hour only:
+    push_north = now["wind_push_north_kn"]            # in live use, that's all we know when predicting
 
     samples.append({
         "start_time": now["time"],
@@ -205,8 +203,8 @@ for i in range(len(table) - 1):
         "start_lon": now["longitude"],
         "end_lat": later["latitude"],
         "end_lon": later["longitude"],
-        "wind_speed_kn": round((now["wind_speed_kn"] + later["wind_speed_kn"]) / 2, 2),
-        "wind_from_deg": round((compass_direction(push_east, push_north) + 180) % 360, 1),
+        "wind_speed_kn": now["wind_speed_kn"],
+        "wind_from_deg": now["wind_from_deg"],
         "wind_push_east_kn": round(push_east, 3),
         "wind_push_north_kn": round(push_north, 3),
         "moved_east_nm": round(moved_east, 4),
@@ -216,6 +214,19 @@ for i in range(len(table) - 1):
         "drift_stretch": now["drift_stretch"],
     })
 drift = pd.DataFrame(samples)
+
+# last hour's drift: filled in when the previous sample is the hour right before this one (blank otherwise)
+last_east = []
+last_north = []
+for i in range(len(drift)):
+    if i > 0 and drift["start_time"][i] == drift["end_time"][i - 1]:
+        last_east.append(drift["moved_east_nm"][i - 1])
+        last_north.append(drift["moved_north_nm"][i - 1])
+    else:
+        last_east.append(None)
+        last_north.append(None)
+drift["last_moved_east_nm"] = last_east
+drift["last_moved_north_nm"] = last_north
 
 # ---- 4. save ----
 table.to_csv(ALL_HOURS_FILE, index=False)
