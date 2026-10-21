@@ -1,0 +1,1 @@
+logisitic regression// lstm - (multiple layers nuertal network )recurrent neural network/ transformer archetecture(work better because ) experiment try all 3, try changing parameters , chage prior data , timeframe,  deff logidstic regression as baseline , then lstm, transformer if want to 
