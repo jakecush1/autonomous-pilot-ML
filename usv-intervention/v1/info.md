@@ -1,0 +1,3 @@
+V1 checks location based on a grid system
+the idea is focused on determining quality of location
+...
