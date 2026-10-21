@@ -4,26 +4,25 @@
 # one row per hour of drifting, with the wind and how far the USV moved.
 #
 # Each hourly row covers the hour STARTING at its time: "01:00" = 01:00 to 02:00.
+import glob
 import math
+import os
 import numpy as np
 import pandas as pd
 from pyproj import Transformer
 
-# ---- input files: add a new block for each new export ----
-EXPORTS = [
-    {   # Oct 3 - 12, 2026 (hourly motor power)
-        "power": "Torqeedo_Motor_Power-data-2026-10-13_14_24_28.csv",
-        "wind_speed": "True_Wind_Speed-data-as-joinbyfield-2026-10-13_14_24_04.csv",
-        "wind_angle": "True_Wind_Angle-data-2026-10-13_14_23_47.csv",
-        "gps": "Coordinates_gps_location-data-2026-10-13_14_28_46.csv",
-    },
-    {   # Aug 6 - 12, 2026 (10-minute motor power)
-        "power": "Motor_Power_consumption-data-2026-10-13_14_33_06.csv",
-        "wind_speed": "True_Wind_Speed-data-as-joinbyfield-2026-10-13_14_33_20.csv",
-        "wind_angle": "True_Wind_Angle-data-2026-10-13_14_33_39.csv",
-        "gps": "Coordinates_gps_location-data-2026-10-13_14_33_32.csv",
-    },
-]
+# ---- input files: every export in raw/, found by the names rename_raw.py gives them ----
+# (run rename_raw.py first; each date range needs all four files)
+RAW_DIR = "raw"
+EXPORTS = []
+for power_file in sorted(glob.glob(os.path.join(RAW_DIR, "torqeedo_motor_power_*.csv"))):
+    dates = os.path.basename(power_file)[len("torqeedo_motor_power_"):]      # "2026-08-06_to_2026-08-12.csv"
+    EXPORTS.append({
+        "power": power_file,
+        "wind_speed": os.path.join(RAW_DIR, "wind_speed_" + dates),
+        "wind_angle": os.path.join(RAW_DIR, "wind_angle_" + dates),
+        "gps": os.path.join(RAW_DIR, "gps_location_" + dates),
+    })
 
 # ---- output files ----
 ALL_HOURS_FILE = "usv_hourly.csv"
