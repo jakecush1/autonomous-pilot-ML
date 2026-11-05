@@ -92,7 +92,12 @@ df["y_m"] = np.radians(df["lat"]) * R                              # north
 
 # ---------------------------------------------------------------- speed
 # Distance moved since the previous row = speed in m/min (rows are 1 min apart)
-df["speed"] = np.hypot(df["x_m"].diff(), df["y_m"].diff())
+
+# can tune minutes 1-60, larger time frame could reduce gps noise
+N = 10
+print("time: ", N, "mins")
+df["speed"] = np.hypot(df["x_m"].diff(N), df["y_m"].diff(N)) / N   # still m/min
+# df["speed"] = np.hypot(df["x_m"].diff(), df["y_m"].diff())
 
 # If two rows aren't exactly 1 minute apart (file boundary, telemetry gap),
 # that "speed" is wrong -> blank it out
@@ -144,4 +149,13 @@ ax2 = ax.secondary_yaxis(
 )
 ax2.set_ylabel("Drift speed (kn)")
 
+w = model.coef_[0]
+b = model.intercept_
+r2 = model.score(X, y)
+ax.text(0.02, 0.98,
+        f"w = {w:.3f}\nb = {b:.2f}\nR² = {r2:.3f}\nN = {N} min",
+        transform=ax.transAxes, va="top",
+        bbox=dict(facecolor="white", alpha=0.8))
+
+plt.savefig(f"{N}min-drift_plot.png", dpi=150)
 plt.show()
