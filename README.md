@@ -4,96 +4,98 @@ Predict, from live telemetry, whether a remote pilot will need to intervene with
 
 Course project for SENG 474, University of Victoria.
 
-## Quick start
+## Overview
 
-Two scripts run all the code. Each one sets up its own Python environment the first time it runs, so nothing needs to be installed by hand.
+Open Ocean Robotics (OOR) operates the DataXplorer, a USV that must stay within 10 nautical miles (nm) of a retired weather buoy's position. It mostly drifts with its motor off, and a pilot watches it 24/7 although a course correction is needed only every two to three hours.
+
+The project so far:
+
+- **V1: Location check (complete).** A rule-based check of the USV's current position.
+- **V2: One-hour drift prediction (Milestone 3).** Given the last hour of a drifting USV's movement and wind, predict where it will be in one hour. Linear regressions show what drives the drift; four models (persistence, linear regression, LSTM, transformer) are then compared on a deployment they never saw.
+- **Next (Milestone 4).** Turn the predicted position into an alert for the pilot.
+
+One command runs everything: see [Quick start](#quick-start). The longer description is under [Project background](#project-background).
+
+## Illustrative sample
+
+**Input:** the last 60 minutes of a drifting USV, one row per minute: metres moved east, metres moved north, and the wind's push east and north.
+
+**Output:** how far it will move east and north over the next 60 minutes. The predicted position is the position now plus that movement.
+
+An example from the test deployment, Oct 19 at 21:15. In the past hour the USV had moved 774 m east and 555 m north, and it was slowing down.
+
+| | Movement over the next hour (east, north) | Distance from the real position |
+|---|---|---|
+| Persistence (next hour = last hour) | (774, 555) m | 609 m |
+| LSTM | (460, 353) m | 238 m |
+| What really happened | (283, 194) m | |
+
+The LSTM reads the hour minute by minute, so it noticed the slowdown. Persistence assumes the last hour repeats.
+
+## Prerequisites
+
+- Python 3.13 (other recent versions may work; PyTorch does not always support the newest one)
+- `bash` (macOS or Linux; on Windows use Git Bash or WSL)
+- An internet connection the first time, to install the packages
+- No GPU is needed
+
+The packages are pinned in `requirements.txt`: numpy, pandas, scikit-learn, matplotlib, torch and pyproj.
+
+## Installation
 
 ```bash
 git clone https://github.com/jakecush1/autonomous-pilot-ML.git
 cd autonomous-pilot-ML
-
-bash usv-intervention/solution/jake/quickstart.sh     # linear regressions, about 2 minutes
-bash usv-intervention/solution/rowan/quickstart.sh    # four-model comparison, about 5 minutes
 ```
 
-| Script | What it runs | What you should see |
+The quick start below creates the Python environment and installs the packages by itself. To do it by hand instead:
+
+```bash
+python3.13 -m venv .venv
+source .venv/bin/activate            # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## Quick start
+
+```bash
+bash quickstart.sh
+```
+
+This sets up the environment the first time, then runs every step in order. It takes about 5 minutes on a laptop CPU.
+
+| Step | What it runs | What you should see |
 |---|---|---|
-| `jake/quickstart.sh` | Both linear regressions, for every window N (1, 5, 10, 30, 60 min) and every horizon H (1, 30, 60 min) | Each fit printed with its R², and a plot saved next to each script. These are the numbers under [What drives the drift?](#what-drives-the-drift-linear-regression) |
-| `rowan/quickstart.sh` | Data preparation, the baselines, linear regression, the LSTM, the transformer and the comparison | The results table printed, and the chart `outputs/comparison.png`. These are the numbers under [Four models on an unseen deployment](#four-models-on-an-unseen-deployment) |
+| `fits` | Both linear regressions, for every window N (1, 5, 10, 30, 60 min) and every horizon H (1, 30, 60 min) | Each fit printed with its R², and the plots in `evaluation/results/linear_fits/`. These are the numbers under [What drives the drift?](#what-drives-the-drift-linear-regression) |
+| `prep` | Cuts the telemetry in `data/raw/` into 60-minute motor-off windows | The number of windows in each split |
+| `baselines` | No drift, persistence and linear regression | Their error on the validation and test deployments |
+| `lstm`, `transformer` | Trains and scores each neural network | The loss per epoch, then the error; the trained models go to `output/` |
+| `compare` | Puts all the scores together | The results table, and the chart `evaluation/results/comparison.png`. These are the numbers under [Four models on an unseen deployment](#four-models-on-an-unseen-deployment) |
 
-Both need an internet connection the first time, to install their packages. They look for `python3.13`; to use another version, put `PYTHON=` in front of the command, for example `PYTHON=python3.12 bash usv-intervention/solution/rowan/quickstart.sh`.
+To use another Python version, put `PYTHON=` in front, for example `PYTHON=python3.12 bash quickstart.sh`.
 
-## File structure
+**Running one part.** Name the steps you want:
 
-- `docs` - written documents for each stage of the project
-- `summaries` - summaries of related literature
-- `usv-intervention`
-  - `solution` - our learned ML models, which test and run multiple different models
-  - `v1_location_check` - a checker for the quality of a drifting USV's position
-
-```
-autonomous-pilot-ML/
-├── docs/
-│   ├── 1_Proposal_Jake_Rowan/      # Milestone 1 report (LaTeX + PDF)
-│   ├── 2_Background_Jake_Rowan/    # Milestone 2 report (LaTeX + PDF)
-│   ├── 3_Solution_Jake_Rowan/      # Milestone 3 report (LaTeX + PDF)
-│   └── examples/                   # course manuals and sample reports
-├── summaries/                      # notes on the papers we reviewed
-├── usv-intervention/
-│   ├── v1_location_check/          # V1: rule-based check of the current position
-│   └── solution/                   # V2: one-hour drift prediction (Milestone 3)
-│       ├── data/                   # five deployments of 1-minute telemetry (Apr-Oct 2026)
-│       ├── data_holdout/           # a sixth deployment (Nov 2-9), kept unseen for the final test
-│       ├── jake/                   # linear regressions: what drives drift, and the effect of the horizon H
-│       │   ├── quickstart.sh       # runs every fit
-│       │   └── linear-reg/         # the two scripts, their notes and plots
-│       └── rowan/                  # pipeline: data prep, baselines, LSTM, transformer, comparison
-│           ├── quickstart.sh       # runs the whole pipeline
-│           └── docs/3/             # first draft of the Milestone 3 report
-├── requirements.txt
-└── update.sh                       # commit-and-push helper
+```bash
+bash quickstart.sh fits              # only the linear regressions
+bash quickstart.sh prep lstm         # rebuild the windows, then train the LSTM
 ```
 
-## Background
+**One linear regression with your own horizon or window.** The number is in minutes. Each script prints its fit, saves its plot, and opens the plot in a window; close the window to finish.
 
-Open Ocean Robotics (OOR) operates the DataXplorer, a USV that reports marine weather data for NOAA in place of the discontinued Station 46012 buoy. The vessel's only hard operating constraint is to remain within 10 nautical miles (nm) of the buoy's former position.
+```bash
+source .venv/bin/activate
+python src/linear_fits/drift_prediction.py 30    # past drift + wind -> movement over the next 30 minutes (default 60)
+python src/linear_fits/drift_vs_wind.py 5        # wind speed -> drift speed over 5 minutes (default 10)
+```
 
-A remote pilot currently watches the vessel 24/7, roughly 1,095 eight-hour shifts per year, even though a corrective navigation command is needed only every two to three hours. This project asks whether that decision can be predicted from telemetry, turning a continuous watch into an on-call, alert-driven one.
+**V1 location check.** It asks for the USV's latitude and longitude and the wind direction.
 
-The model is **advisory only**. It decides *whether* a pilot is needed, never *what* the pilot should do, and all navigation decisions stay with a human.
+```bash
+python src/location_check/location_check.py
+```
 
-## Problem Definition
-
-Let $p_0$ be the station point and $p$ the vehicle's reported position, each a latitude–longitude pair. Local wind is given by speed $v \ge 0$ (knots) and direction $\theta \in [0^\circ, 360^\circ)$, measured clockwise from true North as the direction the wind blows *from*.
-
-A state is $\mathbf{s} = (p, p_0, v, \theta)$. Let $d(\mathbf{s})$ be the geodesic distance from $p$ to $p_0$; the operating constraint is $d(\mathbf{s}) \le R = 10$ nm.
-
-For a horizon $\Delta t > 0$, the goal is a decision function
-
-$$f: \mathcal{S} \rightarrow \{0, 1\}$$
-
-where $f(\mathbf{s}) = 1$ if a pilot must issue a corrective command within $[t, t + \Delta t]$ to keep the vehicle inside $R$, and $0$ otherwise.
-
-**Building block: drift prediction.** Before deciding *when* a pilot must act, we predict *where* the drifting vessel will be. Given the last $H$ minutes of its movement and the wind (motor off), a function
-
-$$g: \mathbb{R}^{H \times 4} \rightarrow \mathbb{R}^{2}$$
-
-predicts how far it will move east and north over the next $H$ minutes. We use $H = 60$. The predicted position can then be checked against the 10 nm limit.
-
-## Approach
-
-**V1: Location check (complete).** A rule-based check of the USV's current position. It converts latitude and longitude to nautical miles east and north of the station and flags a position that is outside 10 nm, in the traffic lane (more than 6.5 nm east), within 1 nm of the limit, or more than 6 nm from the centre. It also reports whether the wind is pushing the USV toward the centre or away from it. It looks only at the present position and makes no prediction. Code: `usv-intervention/v1_location_check/usv2.py`.
-
-**V2: One-hour drift prediction (Milestone 3).** Code: `usv-intervention/solution`. It has two parts:
-
-1. **Linear regressions** (`jake/linear-reg`): simple fits that show what drives the drift and how the prediction horizon $H$ changes the result.
-2. **Model comparison** (`rowan`): persistence ("next hour = last hour"), linear regression, an LSTM and a transformer, trained on three deployments and tested on a deployment they never saw.
-
-**Next (Milestone 4): from predicted position to an alert.** Turn the predicted position into a time until the vessel reaches the 10 nm limit and a probability that the pilot must act, and score the models once on the held-out November deployment.
-
-**Out of scope:** reinforcement learning for direct navigation control. A V2 model could later serve as a safety monitor for such an agent.
-
-## Results so far
+## Results
 
 ### What drives the drift? (linear regression)
 
@@ -111,7 +113,7 @@ predicts how far it will move east and north over the next $H$ minutes. We use $
 - The slope is about 2.3% of the wind speed.
 - With no wind the USV still drifts at about 8 m/min (0.26 kn), so current matters at least as much as wind.
 
-![Drift speed against wind speed, N = 10 minutes](usv-intervention/solution/jake/linear-reg/drift-vs-wind/10min-drift_plot.png)
+![Drift speed against wind speed, N = 10 minutes](evaluation/results/linear_fits/10min-drift_plot.png)
 
 **Past drift plus wind predicts much better, and the horizon H matters.** The fit predicts the movement east and north over the next H minutes from the movement over the past H minutes and the wind vector.
 
@@ -127,15 +129,15 @@ predicts how far it will move east and north over the next $H$ minutes. We use $
 
 H = 1 minute:
 
-![Predicted against actual drift, H = 1 minute](usv-intervention/solution/jake/linear-reg/drift-prediction/1min_drift_r2_0.93.png)
+![Predicted against actual drift, H = 1 minute](evaluation/results/linear_fits/1min_drift_r2_0.93.png)
 
 H = 30 minutes:
 
-![Predicted against actual drift, H = 30 minutes](usv-intervention/solution/jake/linear-reg/drift-prediction/30min_drift_r2_0.91.png)
+![Predicted against actual drift, H = 30 minutes](evaluation/results/linear_fits/30min_drift_r2_0.91.png)
 
 H = 60 minutes:
 
-![Predicted against actual drift, H = 60 minutes](usv-intervention/solution/jake/linear-reg/drift-prediction/60min_drift_r2_0.83.png)
+![Predicted against actual drift, H = 60 minutes](evaluation/results/linear_fits/60min_drift_r2_0.83.png)
 
 These numbers are measured on the same data the fits were trained on, so they are optimistic. The next table is the test on unseen data.
 
@@ -155,11 +157,52 @@ Position error after 60 minutes on the test deployment (Oct 16–23), which no m
 - Linear regression does not beat persistence on unseen data: its R² of 0.83 on training data falls to 0.77.
 - The LSTM and transformer both beat persistence by about 16%, and are tied with each other.
 
-![Median and 90th-percentile error by model](usv-intervention/solution/rowan/outputs/comparison.png)
+![Median and 90th-percentile error by model](evaluation/results/comparison.png)
 
-More detail is in `usv-intervention/solution/rowan/README.md` and in the Milestone 3 report in `docs/3_Solution_Jake_Rowan`.
+More detail is in the write-ups in `evaluation/reports/` and in the Milestone 3 report in `docs/3_Solution_Jake_Rowan`.
 
-## Evaluation
+## Project background
+
+### Background
+
+Open Ocean Robotics (OOR) operates the DataXplorer, a USV that reports marine weather data for NOAA in place of the discontinued Station 46012 buoy. The vessel's only hard operating constraint is to remain within 10 nautical miles (nm) of the buoy's former position.
+
+A remote pilot currently watches the vessel 24/7, roughly 1,095 eight-hour shifts per year, even though a corrective navigation command is needed only every two to three hours. This project asks whether that decision can be predicted from telemetry, turning a continuous watch into an on-call, alert-driven one.
+
+The model is **advisory only**. It decides *whether* a pilot is needed, never *what* the pilot should do, and all navigation decisions stay with a human.
+
+### Problem Definition
+
+Let $p_0$ be the station point and $p$ the vehicle's reported position, each a latitude–longitude pair. Local wind is given by speed $v \ge 0$ (knots) and direction $\theta \in [0^\circ, 360^\circ)$, measured clockwise from true North as the direction the wind blows *from*.
+
+A state is $\mathbf{s} = (p, p_0, v, \theta)$. Let $d(\mathbf{s})$ be the geodesic distance from $p$ to $p_0$; the operating constraint is $d(\mathbf{s}) \le R = 10$ nm.
+
+For a horizon $\Delta t > 0$, the goal is a decision function
+
+$$f: \mathcal{S} \rightarrow \{0, 1\}$$
+
+where $f(\mathbf{s}) = 1$ if a pilot must issue a corrective command within $[t, t + \Delta t]$ to keep the vehicle inside $R$, and $0$ otherwise.
+
+**Building block: drift prediction.** Before deciding *when* a pilot must act, we predict *where* the drifting vessel will be. Given the last $H$ minutes of its movement and the wind (motor off), a function
+
+$$g: \mathbb{R}^{H \times 4} \rightarrow \mathbb{R}^{2}$$
+
+predicts how far it will move east and north over the next $H$ minutes. We use $H = 60$. The predicted position can then be checked against the 10 nm limit.
+
+### Approach
+
+**V1: Location check (complete).** A rule-based check of the USV's current position. It converts latitude and longitude to nautical miles east and north of the station and flags a position that is outside 10 nm, in the traffic lane (more than 6.5 nm east), within 1 nm of the limit, or more than 6 nm from the centre. It also reports whether the wind is pushing the USV toward the centre or away from it. It looks only at the present position and makes no prediction. Code: `src/location_check`.
+
+**V2: One-hour drift prediction (Milestone 3).** It has two parts:
+
+1. **Linear regressions** (`src/linear_fits`): simple fits that show what drives the drift and how the prediction horizon $H$ changes the result.
+2. **Model comparison** (`src/cmn`, `src/models`, `src/evaluate`): persistence ("next hour = last hour"), linear regression, an LSTM and a transformer, trained on three deployments and tested on a deployment they never saw.
+
+**Next (Milestone 4): from predicted position to an alert.** Turn the predicted position into a time until the vessel reaches the 10 nm limit and a probability that the pilot must act, and score the models once on the held-out November deployment.
+
+**Out of scope:** reinforcement learning for direct navigation control. A V2 model could later serve as a safety monitor for such an agent.
+
+### Evaluation
 
 Drift predictions are scored by endpoint error: the distance in metres between the predicted and the real position after 60 minutes, reported as the median and the 90th percentile.
 
@@ -171,32 +214,43 @@ The intervention model will be compared against the V1 location check on:
 
 Errors are asymmetric. A missed intervention risks the station-keeping constraint, while a false alert costs one page, so recall on real interventions is weighted above alert precision.
 
-## Running one part at a time
+## File structure
 
-The [quick start](#quick-start) at the top runs everything. The steps below run a single piece.
+- `src` - the code: our learned ML models, which test and run multiple different models, and the location checker
+- `data` - the telemetry the models learn from
+- `output` - the trained models
+- `evaluation` - results (scores and charts) and write-ups
+- `docs` - written documents for each stage of the project, and summaries of related literature
+- `legacy` - earlier work that the code in `src` replaced
 
-**One linear regression.** Run each script from its own folder, after `jake/quickstart.sh` has created the environment. The number is the horizon H or the window N in minutes. Each script prints its fit, saves its plot, and opens the plot in a window; close the window to finish.
-
-```bash
-cd usv-intervention/solution/jake
-source .venv/bin/activate            # Windows: .venv\Scripts\activate
-
-cd linear-reg/drift-prediction
-python future.py 30                  # past drift + wind -> movement over the next 30 minutes (default 60)
-
-cd ../drift-vs-wind
-python linear-reg.py 5               # wind speed -> drift speed over 5 minutes (default 10)
 ```
-
-**One step of the model comparison.** The steps are listed in `usv-intervention/solution/rowan/README.md`.
-
-**V1 location check.** It asks for the USV's latitude and longitude and the wind direction. Run it from the top folder of the repository.
-
-```bash
-python -m venv .venv
-source .venv/bin/activate            # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-python usv-intervention/v1_location_check/usv2.py
+autonomous-pilot-ML/
+├── README.md
+├── requirements.txt                # the packages, pinned
+├── quickstart.sh                   # one command: set up, then run everything
+├── data/
+│   ├── raw/                        # five deployments of 1-minute telemetry (Apr-Oct 2026)
+│   ├── preprocessed/               # the 60-minute windows built from them (made by the `prep` step)
+│   └── holdout/                    # a sixth deployment (Nov 2-9), kept unseen for the final test
+├── src/
+│   ├── main.py                     # runs every step, or the ones you name
+│   ├── cmn/                        # shared: loading, cleaning, windows, split, error in metres
+│   ├── linear_fits/                # linear regressions: what drives drift, and the effect of the horizon H
+│   ├── models/                     # persistence, linear regression, LSTM, transformer
+│   ├── evaluate/                   # results table and chart
+│   └── location_check/             # V1: rule-based check of the current position
+├── output/                         # trained LSTM and transformer
+├── evaluation/
+│   ├── results/                    # scores (results.json), comparison chart, linear-fit plots
+│   └── reports/                    # write-ups of the linear fits and of the model comparison
+├── docs/
+│   ├── 1_Proposal_Jake_Rowan/      # Milestone 1 report (LaTeX + PDF)
+│   ├── 2_Background_Jake_Rowan/    # Milestone 2 report (LaTeX + PDF)
+│   ├── 3_Solution_Jake_Rowan/      # Milestone 3 report (LaTeX + PDF), and its first draft
+│   ├── summaries/                  # notes on the papers we reviewed
+│   ├── notes/                      # planning notes
+│   └── examples/                   # course manuals and sample reports
+└── legacy/                         # the earlier hourly drift model and templates
 ```
 
 ## Milestones
@@ -214,6 +268,18 @@ python usv-intervention/v1_location_check/usv2.py
 - Rowan Hall, University of Victoria
 
 Individual contributions are tracked through assigned issues and commit history in this repository. AI use for Milestone 3 is declared in the report's footnote.
+
+## Citation
+
+```bibtex
+@misc{cushway2026usvdrift,
+  author = {Cushway, Jake and Hall, Rowan},
+  title  = {Predicting One-Hour Drift for a Station-Keeping USV},
+  year   = {2026},
+  note   = {SENG 474 course project, University of Victoria},
+  url    = {https://github.com/jakecush1/autonomous-pilot-ML}
+}
+```
 
 ## License
 

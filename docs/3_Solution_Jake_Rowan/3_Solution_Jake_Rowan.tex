@@ -1,15 +1,14 @@
-% Combined version of Rowan's first draft, which is kept unchanged in
-% usv-intervention/solution/rowan/docs/3/3_Solution_Jake_Rowan.tex.
-% It adds Jake's linear-regression findings (jake/linear-reg/) as Section 3.2 and lines the
+% Combined version of Rowan's first draft, which is kept unchanged in first_draft/ next to this file.
+% It adds Jake's linear-regression findings (src/linear_fits/) as Section 3.2 and lines the
 % notation up with Milestones 1 and 2. Passages added or reworded here are marked "% [Claude]";
 % the rest is as in Rowan's file.
 %
-% PAGE LIMIT (exactly 2 pages). The version without keywords compiled to 2 pages with about 3 lines to spare.
-%   Keywords were added after that, and this version has not been compiled yet. To make room, four lines were
-%   taken out of the first column of page 1 (the "In words" sentence, and tighter wording in the abstract and
-%   introduction), so that everything from Section 3.1 onwards stays where it was.
-%   If it runs onto a 3rd page: shorten the abstract or the introduction by one more line. The first column of
-%   page 1 is what matters; cutting text on page 2 will not help as much.
+% PAGE LIMIT (exactly 2 pages). The version with keywords compiled to 2 pages with about 3 lines to spare
+%   at the end of page 2. After that, the repository was reorganized (src/, data/, output/, evaluation/),
+%   and the folder names in the abstract and in Section 4 were updated to match. That adds about one line
+%   to Section 4 and has not been compiled yet.
+%   If it runs onto a 3rd page: shorten Section 4 (Implementation) by one line.
+%   The first column of page 1 must not get longer: adding text there pushes headings onto page 2.
 %   If there is room left at the end: ADD-BACK 2 and ADD-BACK 3 (one line each) fit there.
 \documentclass[sigconf]{acmart}
 % Cleaning
@@ -65,9 +64,9 @@
 \email{rowanhall@uvic.ca}
 
 \begin{abstract}
-% [Claude] one sentence added on the linear fits; repo path updated to the renamed folder; wording tightened by one
-% line to make room for the keywords ("define the task as regression" is now covered by the keyword list)
-Between course corrections, the DataXplorer\texttrademark{} USV drifts with its motor off, and a pilot must step in before wind and current carry it out of its 10~nm station. We predict where it will be in one hour, using only its last hour of GPS track and wind. Linear fits show wind speed explains under 15\% of drift, and past drift most of it. We compare four models (persistence, linear regression, LSTM, transformer) on an unseen deployment. Code: \url{https://github.com/jakecush1/autonomous-pilot-ML} (\texttt{usv-intervention/solution}).\footnote{AI use (Guideline D): the code and a first draft of this paper were generated with Claude (Anthropic) and reviewed, run and edited by the authors.}
+% [Claude] one sentence added on the linear fits; wording tightened by one line to make room for the keywords
+% ("define the task as regression" is now covered by the keyword list); the code now starts at the top of the repository
+Between course corrections, the DataXplorer\texttrademark{} USV drifts with its motor off, and a pilot must step in before wind and current carry it out of its 10~nm station. We predict where it will be in one hour, using only its last hour of GPS track and wind. Linear fits show wind speed explains under 15\% of drift, and past drift most of it. We compare four models (persistence, linear regression, LSTM, transformer) on an unseen deployment. Code: \url{https://github.com/jakecush1/autonomous-pilot-ML}.\footnote{AI use (Guideline D): the code and a first draft of this paper were generated with Claude (Anthropic) and reviewed, run and edited by the authors.}
 \end{abstract}
 
 % [Claude] Rowan's keywords, with "Uncrewed surface vehicle" shortened to "USV" so that they fit on one line.
@@ -105,15 +104,15 @@ Figure~\ref{fig:pipeline} shows the pipeline and Algorithm~\ref{alg:drift} gives
 \textbf{Input window.} For each minute we keep its movement $\Delta\mathbf{p}_\tau=\mathbf{p}_\tau-\mathbf{p}_{\tau-1}$ and the wind push, giving
 $\mathbf{X}_t=[\,(\Delta\mathbf{p}_\tau,\mathbf{w}_\tau)\,]_{\tau=t-H+1}^{t}$, a table of 60 rows by 4 columns.
 
-% [Claude] new subsection with Jake's findings. Sources: jake/linear-reg/drift-vs-wind/notes.md
-% (wind-speed fit, window sweep) and jake/linear-reg/drift-prediction/notes.md (past drift + wind,
+% [Claude] new subsection with Jake's findings. Sources: evaluation/reports/drift_vs_wind.md
+% (wind-speed fit, window sweep) and evaluation/reports/drift_prediction.md (past drift + wind,
 % R^2 by H). Every number was re-run from his two scripts on the five deployments and matches.
 \subsection{What Drives the Drift?}\label{sec:explore}
 On the motor-off data, \textbf{wind speed alone} explains little: a linear fit, drift speed $=0.72\,v+8.1$ (m/min, $v$ in kn), has $R^2\le0.15$ for speed measured over any window from 1 to 60 minutes, best at 10 (shorter adds GPS noise, longer blurs changes). The slope is 2.3\% of the wind speed, and the 0.26\,kn of drift left with no wind shows that current matters at least as much as wind. \textbf{Adding wind direction and the past $H$ minutes of drift} raises $R^2$ to 0.83 at $H=60$: the next hour is 0.84--0.92 of the last, turned slightly clockwise. Past drift captures current and tide without measuring them, so every model takes it as input. The fit weakens as $H$ grows ($R^2=0.93$, 0.91, 0.83 at $H=1$, 30, 60), since wind and current have longer to change, but a pilot needs an hour of warning, so we keep $H=60$. These $R^2$ are on training data; \S\ref{sec:impl} tests on an unseen deployment.
 
 % OPTIONAL TABLE (about 7 lines; only fits if something else of that size goes, e.g. the worked example).
 % To use it, uncomment it and point to it from the paragraph above with Table~\ref{tab:explore}.
-% The H = 5 and H = 10 values in the second row are from a re-run of future.py, not from Jake's notes.
+% The H = 5 and H = 10 values in the second row are from a re-run of src/linear_fits/drift_prediction.py, not from Jake's notes.
 % \begin{table}[t]
 % \caption{Linear fits: training $R^2$ by window/horizon (min).}
 % \label{tab:explore}
@@ -205,12 +204,12 @@ We score each prediction by its \textbf{endpoint error} $e_t=\|\hat{\mathbf{p}}_
 \end{figure}
 
 \section{Implementation}\label{sec:impl}
-% [Claude] Jake's scripts added; folder is now solution/
-The code is in Python (scikit-learn, PyTorch). The fits of \S\ref{sec:explore} are in \texttt{jake/linear-reg/}; the pipeline is in \texttt{rowan/}, one file per stage, matching Algorithm~\ref{alg:drift}: \texttt{data\_prep.py} (representation, cleaning, split, endpoint error; lines 1--6), \texttt{linear\_reg.py} (persistence, linear regression), \texttt{nn\_models.py} (LSTM, transformer, training loop; lines 7--13) and \texttt{compare.py} (results table, chart). Outputs go to \texttt{outputs/}. The README covers the project, installation, quick start and results; dependencies are pinned in \texttt{requirements.txt} and the data are in the repository. The quick-start script \texttt{quickstart.sh} creates the environment on first use and runs all five steps in order (about 5 minutes on a laptop CPU):
+% [Claude] Jake's scripts added; folder names follow the reorganized repository (src/, data/, output/, evaluation/)
+The code is in Python (scikit-learn, PyTorch) under \texttt{src/}. The fits of \S\ref{sec:explore} are in \texttt{linear\_fits/}; the pipeline has one file per stage, matching Algorithm~\ref{alg:drift}: \texttt{cmn/data\_prep.py} (representation, cleaning, split, endpoint error; lines 1--6), \texttt{models/linear\_reg.py} (persistence, linear regression), \texttt{models/nn\_models.py} (LSTM, transformer, training loop; lines 7--13) and \texttt{evaluate/compare.py} (results table, chart); \texttt{main.py} runs them all. Outputs go to \texttt{output/} and \texttt{evaluation/}. The README covers the project, installation, quick start and results; dependencies are pinned in \texttt{requirements.txt} and the data are in \texttt{data/}. The quick-start script \texttt{quickstart.sh} creates the environment on first use and runs every step in order (about 5 minutes on a laptop CPU):
 {\footnotesize
 \begin{verbatim}
 git clone https://github.com/jakecush1/autonomous-pilot-ML
-cd autonomous-pilot-ML/usv-intervention/solution/rowan
+cd autonomous-pilot-ML
 bash quickstart.sh
 \end{verbatim}}
 \textbf{Reproducibility.} Seeds are fixed to 0 and the split is fixed by deployment, so the quick start on CPU reproduces Table~\ref{tab:results} exactly (confirmed on three runs).
