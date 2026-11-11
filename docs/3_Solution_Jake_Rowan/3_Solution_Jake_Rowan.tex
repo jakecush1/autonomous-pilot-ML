@@ -4,9 +4,13 @@
 % notation up with Milestones 1 and 2. Passages added or reworded here are marked "% [Claude]";
 % the rest is as in Rowan's file.
 %
-% PAGE LIMIT (exactly 2 pages). Compiled on Nov 11: 2 pages, with about 3 lines to spare.
-%   There is room for ADD-BACK 2 and ADD-BACK 3 (one line each), but not for ADD-BACK 1 (keywords).
-%   If a later edit pushes it onto a 3rd page, delete in this order:  TRIM 1, TRIM 2 (search for "TRIM").
+% PAGE LIMIT (exactly 2 pages). The version without keywords compiled to 2 pages with about 3 lines to spare.
+%   Keywords were added after that, and this version has not been compiled yet. To make room, four lines were
+%   taken out of the first column of page 1 (the "In words" sentence, and tighter wording in the abstract and
+%   introduction), so that everything from Section 3.1 onwards stays where it was.
+%   If it runs onto a 3rd page: shorten the abstract or the introduction by one more line. The first column of
+%   page 1 is what matters; cutting text on page 2 will not help as much.
+%   If there is room left at the end: ADD-BACK 2 and ADD-BACK 3 (one line each) fit there.
 \documentclass[sigconf]{acmart}
 % Cleaning
 \pagestyle{fancy} % removes running headers
@@ -61,23 +65,26 @@
 \email{rowanhall@uvic.ca}
 
 \begin{abstract}
-% [Claude] one sentence added on the linear fits; repo path updated to the renamed folder
-Between course corrections, the DataXplorer\texttrademark{} USV drifts with its motor off, and a pilot must step in before wind and current carry it out of its 10~nm station. We predict where the vessel will be one hour from now, using only its last hour of GPS track and wind. Linear fits show that wind speed explains under 15\% of drift, and past drift most of it. We define the task as regression and compare four models (persistence, linear regression, LSTM, transformer) on a deployment they never saw. Code: \url{https://github.com/jakecush1/autonomous-pilot-ML} (\texttt{usv-intervention/solution}).\footnote{AI use (Guideline D): the code and a first draft of this paper were generated with Claude (Anthropic) and reviewed, run and edited by the authors.}
+% [Claude] one sentence added on the linear fits; repo path updated to the renamed folder; wording tightened by one
+% line to make room for the keywords ("define the task as regression" is now covered by the keyword list)
+Between course corrections, the DataXplorer\texttrademark{} USV drifts with its motor off, and a pilot must step in before wind and current carry it out of its 10~nm station. We predict where it will be in one hour, using only its last hour of GPS track and wind. Linear fits show wind speed explains under 15\% of drift, and past drift most of it. We compare four models (persistence, linear regression, LSTM, transformer) on an unseen deployment. Code: \url{https://github.com/jakecush1/autonomous-pilot-ML} (\texttt{usv-intervention/solution}).\footnote{AI use (Guideline D): the code and a first draft of this paper were generated with Claude (Anthropic) and reviewed, run and edited by the authors.}
 \end{abstract}
 
-% ADD-BACK 1 (about 3 lines): Milestones 1 and 2 had no keywords, so they are left out here to make room.
-% \keywords{USV, drift prediction, time series regression, LSTM, transformer}
+% [Claude] Rowan's keywords, with "Uncrewed surface vehicle" shortened to "USV" so that they fit on one line.
+% Rowan's original: Uncrewed surface vehicle, drift prediction, time series regression, LSTM, transformer
+\keywords{USV, drift prediction, time series regression, LSTM, transformer}
 \maketitle
 \pagestyle{empty}
 
 \section{Introduction}\label{sec:intro}
-% [Claude] reworded to link back to Milestones 1 and 2; contribution list now includes the analysis of Section 3.2
-The Open Ocean Robotics DataXplorer replaces a retired NOAA weather buoy and must stay within 10~nm of the buoy's old position. It mostly drifts with the motor off, and a shore-based pilot watches it 24/7 although a course correction is needed only every 2--3 hours. Milestones~1 and~2 set out to predict \emph{when} the pilot must act. The first building block is predicting \emph{where} the drifting vessel is going: a position predicted an hour ahead can be checked against the 10~nm limit to alert the pilot early. Unlike drift models built on physics and weather forecasts~\cite{dugan2024drifting,song2024drift}, we learn drift directly from the vessel's own logged telemetry. We contribute a formal task definition, an analysis of what drives drift, a leak-free data pipeline, and a comparison of four models.
+% [Claude] reworded to link back to Milestones 1 and 2; contribution list now includes the analysis of Section 3.2;
+% wording tightened by one line to make room for the keywords
+The Open Ocean Robotics DataXplorer replaces a retired NOAA weather buoy and must stay within 10~nm of the buoy's position. It mostly drifts with the motor off, and a pilot watches it 24/7 although a correction is needed only every 2--3 hours. Milestones~1 and~2 set out to predict \emph{when} the pilot must act. The first step is predicting \emph{where} the drifting vessel is going: a position predicted an hour ahead can be checked against the 10~nm limit to alert the pilot early. Unlike drift models built on physics and weather forecasts~\cite{dugan2024drifting,song2024drift}, we learn drift from the vessel's own telemetry. We contribute a formal task definition, an analysis of what drives drift, a leak-free data pipeline, and a comparison of four models.
 
 \section{Problem Definition}\label{sec:problem}
-% TRIM 2 (2 lines): the next sentence
-\emph{In words: given the last hour of a drifting vessel's track and wind, predict how far it will move east and north in the next hour.}
-
+% [Claude] removed to make room for the keywords (2 lines); the abstract says the same thing. Rowan's sentence:
+% \emph{In words: given the last hour of a drifting vessel's track and wind, predict how far it will move east and north in the next hour.}
+%
 % [Claude] the state is written as in Milestone 1 (position, wind speed, wind direction) plus motor power.
 % The drift function is now g, because Milestone 1 already uses f for the intervention decision and R for the 10 nm limit.
 A deployment is a sequence of 1-minute telemetry records $\mathcal{S}=\{s_\tau\}_{\tau=1}^{T}$. As in Milestone~1, $s_\tau=(p_\tau,v_\tau,\theta_\tau,m_\tau)$ holds position (latitude, longitude), wind speed (kn) and the direction the wind blows \emph{from}, plus motor power (W). The vessel is \emph{drifting} at minute $\tau$ if $m_\tau=0$. Let $\mathbf{p}_\tau\in\mathbb{R}^2$ be its position in metres east and north of the station $p_0$ (\S\ref{sec:repr}). For a time $t$ at which the vessel has drifted for the past $H$ minutes, our solution is a function
