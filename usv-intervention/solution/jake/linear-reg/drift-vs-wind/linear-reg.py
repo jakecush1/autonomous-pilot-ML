@@ -77,7 +77,7 @@ def to_knots(m):
     return m / M_PER_MIN_PER_KN
 
 # ---------------------------------------------------------------- load
-files = glob.glob("../../data/*.csv")   # every .csv in the data/ folder
+files = glob.glob("../../../data/*.csv")   # every .csv in the data/ folder
 df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
 
 # Files may load in any order and may overlap -> sort by time, drop repeats
@@ -94,7 +94,9 @@ df["y_m"] = np.radians(df["lat"]) * R                              # north
 # Distance moved since the previous row = speed in m/min (rows are 1 min apart)
 
 # can tune minutes 1-60, larger time frame could reduce gps noise
-N = 10
+# default is 10; to try another window, pass it when running:  python linear-reg.py 30
+import sys
+N = int(sys.argv[1]) if len(sys.argv) > 1 else 10
 print("time: ", N, "mins")
 df["speed"] = np.hypot(df["x_m"].diff(N), df["y_m"].diff(N)) / N   # still m/min
 # df["speed"] = np.hypot(df["x_m"].diff(), df["y_m"].diff())

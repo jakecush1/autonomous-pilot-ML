@@ -4,6 +4,25 @@ Predict, from live telemetry, whether a remote pilot will need to intervene with
 
 Course project for SENG 474, University of Victoria.
 
+## Quick start
+
+Two scripts run all the code. Each one sets up its own Python environment the first time it runs, so nothing needs to be installed by hand.
+
+```bash
+git clone https://github.com/jakecush1/autonomous-pilot-ML.git
+cd autonomous-pilot-ML
+
+bash usv-intervention/solution/jake/quickstart.sh     # linear regressions, about 2 minutes
+bash usv-intervention/solution/rowan/quickstart.sh    # four-model comparison, about 5 minutes
+```
+
+| Script | What it runs | What you should see |
+|---|---|---|
+| `jake/quickstart.sh` | Both linear regressions, for every window N (1, 5, 10, 30, 60 min) and every horizon H (1, 30, 60 min) | Each fit printed with its R², and a plot saved next to each script. These are the numbers under [What drives the drift?](#what-drives-the-drift-linear-regression) |
+| `rowan/quickstart.sh` | Data preparation, the baselines, linear regression, the LSTM, the transformer and the comparison | The results table printed, and the chart `outputs/comparison.png`. These are the numbers under [Four models on an unseen deployment](#four-models-on-an-unseen-deployment) |
+
+Both need an internet connection the first time, to install their packages. They look for `python3.13`; to use another version, put `PYTHON=` in front of the command, for example `PYTHON=python3.12 bash usv-intervention/solution/rowan/quickstart.sh`.
+
 ## File structure
 
 - `docs` - written documents for each stage of the project
@@ -17,6 +36,7 @@ autonomous-pilot-ML/
 ├── docs/
 │   ├── 1_Proposal_Jake_Rowan/      # Milestone 1 report (LaTeX + PDF)
 │   ├── 2_Background_Jake_Rowan/    # Milestone 2 report (LaTeX + PDF)
+│   ├── 3_Solution_Jake_Rowan/      # Milestone 3 report (LaTeX + PDF)
 │   └── examples/                   # course manuals and sample reports
 ├── summaries/                      # notes on the papers we reviewed
 ├── usv-intervention/
@@ -24,9 +44,12 @@ autonomous-pilot-ML/
 │   └── solution/                   # V2: one-hour drift prediction (Milestone 3)
 │       ├── data/                   # five deployments of 1-minute telemetry (Apr-Oct 2026)
 │       ├── data_holdout/           # a sixth deployment (Nov 2-9), kept unseen for the final test
-│       ├── jake/linear-reg/        # linear regressions: what drives drift, and the effect of the horizon H
+│       ├── jake/                   # linear regressions: what drives drift, and the effect of the horizon H
+│       │   ├── quickstart.sh       # runs every fit
+│       │   └── linear-reg/         # the two scripts, their notes and plots
 │       └── rowan/                  # pipeline: data prep, baselines, LSTM, transformer, comparison
-│           └── docs/3/             # Milestone 3 report (LaTeX + PDF)
+│           ├── quickstart.sh       # runs the whole pipeline
+│           └── docs/3/             # first draft of the Milestone 3 report
 ├── requirements.txt
 └── update.sh                       # commit-and-push helper
 ```
@@ -61,7 +84,7 @@ predicts how far it will move east and north over the next $H$ minutes. We use $
 
 **V1: Location check (complete).** A rule-based check of the USV's current position. It converts latitude and longitude to nautical miles east and north of the station and flags a position that is outside 10 nm, in the traffic lane (more than 6.5 nm east), within 1 nm of the limit, or more than 6 nm from the centre. It also reports whether the wind is pushing the USV toward the centre or away from it. It looks only at the present position and makes no prediction. Code: `usv-intervention/v1_location_check/usv2.py`.
 
-**V2: One-hour drift prediction (current work, Milestone 3).** Code: `usv-intervention/solution`. It has two parts:
+**V2: One-hour drift prediction (Milestone 3).** Code: `usv-intervention/solution`. It has two parts:
 
 1. **Linear regressions** (`jake/linear-reg`): simple fits that show what drives the drift and how the prediction horizon $H$ changes the result.
 2. **Model comparison** (`rowan`): persistence ("next hour = last hour"), linear regression, an LSTM and a transformer, trained on three deployments and tested on a deployment they never saw.
@@ -104,15 +127,15 @@ predicts how far it will move east and north over the next $H$ minutes. We use $
 
 H = 1 minute:
 
-![Predicted against actual drift, H = 1 minute](usv-intervention/solution/jake/linear-reg/drift-prediction/1min_drift_r2%3A0.93.png)
+![Predicted against actual drift, H = 1 minute](usv-intervention/solution/jake/linear-reg/drift-prediction/1min_drift_r2_0.93.png)
 
 H = 30 minutes:
 
-![Predicted against actual drift, H = 30 minutes](usv-intervention/solution/jake/linear-reg/drift-prediction/30min_drift_r2%3A0.91.png)
+![Predicted against actual drift, H = 30 minutes](usv-intervention/solution/jake/linear-reg/drift-prediction/30min_drift_r2_0.91.png)
 
 H = 60 minutes:
 
-![Predicted against actual drift, H = 60 minutes](usv-intervention/solution/jake/linear-reg/drift-prediction/v2_H60_r2_0.83.png)
+![Predicted against actual drift, H = 60 minutes](usv-intervention/solution/jake/linear-reg/drift-prediction/60min_drift_r2_0.83.png)
 
 These numbers are measured on the same data the fits were trained on, so they are optimistic. The next table is the test on unseen data.
 
@@ -134,7 +157,7 @@ Position error after 60 minutes on the test deployment (Oct 16–23), which no m
 
 ![Median and 90th-percentile error by model](usv-intervention/solution/rowan/outputs/comparison.png)
 
-More detail is in `usv-intervention/solution/rowan/README.md` and in the Milestone 3 report in `usv-intervention/solution/rowan/docs/3`.
+More detail is in `usv-intervention/solution/rowan/README.md` and in the Milestone 3 report in `docs/3_Solution_Jake_Rowan`.
 
 ## Evaluation
 
@@ -148,30 +171,31 @@ The intervention model will be compared against the V1 location check on:
 
 Errors are asymmetric. A missed intervention risks the station-keeping constraint, while a false alert costs one page, so recall on real interventions is weighted above alert precision.
 
-## Running the code
+## Running one part at a time
 
-**Model comparison (quick start).** The script creates its own environment on first use, then runs data preparation, the baselines, both neural networks and the comparison. It takes about 5 minutes on a laptop CPU and uses Python 3.13 (set `PYTHON=` to use another version).
+The [quick start](#quick-start) at the top runs everything. The steps below run a single piece.
+
+**One linear regression.** Run each script from its own folder, after `jake/quickstart.sh` has created the environment. The number is the horizon H or the window N in minutes. Each script prints its fit, saves its plot, and opens the plot in a window; close the window to finish.
 
 ```bash
-git clone https://github.com/jakecush1/autonomous-pilot-ML.git
-cd autonomous-pilot-ML/usv-intervention/solution/rowan
-bash quickstart.sh
+cd usv-intervention/solution/jake
+source .venv/bin/activate            # Windows: .venv\Scripts\activate
+
+cd linear-reg/drift-prediction
+python future.py 30                  # past drift + wind -> movement over the next 30 minutes (default 60)
+
+cd ../drift-vs-wind
+python linear-reg.py 5               # wind speed -> drift speed over 5 minutes (default 10)
 ```
 
-**Linear regression by horizon.** The horizon `H` (minutes) is set at the top of the file.
+**One step of the model comparison.** The steps are listed in `usv-intervention/solution/rowan/README.md`.
+
+**V1 location check.** It asks for the USV's latitude and longitude and the wind direction. Run it from the top folder of the repository.
 
 ```bash
-cd autonomous-pilot-ML
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt matplotlib
-cd usv-intervention/solution/jake/linear-reg/drift-prediction
-python future.py
-```
-
-**V1 location check.** It asks for the USV's latitude and longitude and the wind direction.
-
-```bash
+source .venv/bin/activate            # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 python usv-intervention/v1_location_check/usv2.py
 ```
 
@@ -180,7 +204,7 @@ python usv-intervention/v1_location_check/usv2.py
 - [x] Milestone 1: project proposal
 - [x] Milestone 2: background and related work
 - [x] V1 location check
-- [ ] Milestone 3: proposed solution (one-hour drift prediction)
+- [x] Milestone 3: proposed solution (one-hour drift prediction)
 - [ ] Milestone 4: evaluation, including the held-out November deployment
 - [ ] Milestone 5: 3-minute talk
 

@@ -3,7 +3,10 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 import glob
 
-H = 30   # horizon: predict 60 minutes ahead (and look 60 minutes back)
+# horizon in minutes: predict H minutes ahead (and look H minutes back)
+# default is 60; to try another horizon, pass it when running:  python future.py 30
+import sys
+H = int(sys.argv[1]) if len(sys.argv) > 1 else 60
 
 # ---------------------------------------------------------------- load
 files = glob.glob("../../../data/*.csv")
@@ -106,5 +109,5 @@ axes[2].legend()
 
 fig.suptitle(f"Drift model v2  |  H = {H} min  |  R² = {r2:.3f}  |  rows = {len(X)}")
 fig.tight_layout()
-plt.savefig(f"{H}min_drift_r2:{r2:.2f}.png", dpi=150)
+plt.savefig(f"{H}min_drift_r2_{r2:.2f}.png", dpi=150)   # no ":" in the name: Windows can't check those files out
 plt.show()
