@@ -1,3 +1,5 @@
 .venv/
 summaries/Hauke Blanken PhD 2023.pdf
 usv-intervention/v-claude
+update.sh
+.ipynb_checkpoints/
