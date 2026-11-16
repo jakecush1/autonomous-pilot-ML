@@ -12,7 +12,7 @@ The project so far:
 
 - **V1: Location check (complete).** A rule-based check of the USV's current position.
 - **V2: One-hour drift prediction (Milestone 3).** Given the last hour of a drifting USV's movement and wind, predict where it will be in one hour. Linear regressions show what drives the drift; four models (persistence, linear regression, LSTM, transformer) are then compared on a deployment they never saw.
-- **Next (Milestone 4).** Turn the predicted position into an alert for the pilot.
+- **Evaluation (Milestone 4).** Evaluate the quality and validity of the prediction models
 
 One command runs everything: see [Quick start](#quick-start). The longer description is under [Project background](#project-background).
 
