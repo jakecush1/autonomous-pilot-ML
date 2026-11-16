@@ -162,19 +162,6 @@ Position error after 60 minutes on the test deployment (Oct 16–23), which no m
 More detail is in the write-ups in `evaluation/reports/` and in the Milestone 3 report in `docs/3_Solution_Jake_Rowan`.
 
 
-### Problem Definition
-
-Let $p_0$ be the station point and $p$ the vehicle's reported position, each a latitude–longitude pair. Local wind is given by speed $v \ge 0$ (knots) and direction $\theta \in [0^\circ, 360^\circ)$, measured clockwise from true North as the direction the wind blows *from*.
-
-A state is $\mathbf{s} = (p, p_0, v, \theta)$. Let $d(\mathbf{s})$ be the geodesic distance from $p$ to $p_0$; the operating constraint is $d(\mathbf{s}) \le R = 10$ nm.
-
-For a horizon $\Delta t > 0$, the goal is a decision function
-
-$$f: \mathcal{S} \rightarrow \{0, 1\}$$
-
-where $f(\mathbf{s}) = 1$ if a pilot must issue a corrective command within $[t, t + \Delta t]$ to keep the vehicle inside $R$, and $0$ otherwise.
-
-
 ## File structure
 
 - `src` - the code: our learned ML models, which test and run multiple different models, and the location checker
