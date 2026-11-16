@@ -1,6 +1,0 @@
-v3 will focus on drift predictin using linear regression.
-forget about to location quality, and assessing location of the usv and instead just try to predict 
-drift in 1 hours
-trained a model on past drift and wind data. give the model location, wind direction, wind speed and the last hour of drift
-to attempt to predict where the usv will be in 1 hour
-

@@ -103,15 +103,15 @@ python src/location_check/location_check.py
 
 | N (min) | w (m/min per kn) | b (m/min) | R² |
 |---|---|---|---|
-| 1 | 0.692 | 8.35 | 0.125 |
-| 5 | 0.728 | 8.08 | 0.144 |
-| **10** | 0.719 | 8.11 | **0.145** |
-| 30 | 0.663 | 8.29 | 0.127 |
-| 60 | 0.582 | 8.56 | 0.104 |
+| 1 | 0.634 | 8.69 | 0.114 |
+| 5 | 0.661 | 8.48 | 0.129 |
+| **10** | 0.656 | 8.45 | **0.131** |
+| 30 | 0.598 | 8.61 | 0.111 |
+| 60 | 0.508 | 8.92 | 0.085 |
 
-- Wind speed explains at most 15% of the variation in drift speed. A 10-minute window is best: shorter windows carry GPS noise, and over longer ones the wind and current change.
-- The slope is about 2.3% of the wind speed.
-- With no wind the USV still drifts at about 8 m/min (0.26 kn), so current matters at least as much as wind.
+- Wind speed explains at most 13% of the variation in drift speed. A 10-minute window is best: shorter windows carry GPS noise, and over longer ones the wind and current change.
+- The slope is about 2.1% of the wind speed.
+- With no wind the USV still drifts at about 8.5 m/min (0.27 kn), so current matters at least as much as wind.
 
 ![Drift speed against wind speed, N = 10 minutes](evaluation/results/linear_fits/10min-drift_plot.png)
 
@@ -119,9 +119,9 @@ python src/location_check/location_check.py
 
 | H (min) | R² | Median error (m) | 90th percentile (m) | Samples |
 |---|---|---|---|---|
-| 1 | 0.93 | 2 | 4 | 35,974 |
-| 30 | 0.91 | 87 | 194 | 27,332 |
-| 60 | 0.83 | 256 | 549 | 21,076 |
+| 1 | 0.93 | 2 | 4 | 48,602 |
+| 30 | 0.91 | 85 | 188 | 36,204 |
+| 60 | 0.82 | 257 | 540 | 27,480 |
 
 - The longer the horizon, the weaker the fit, because wind and current have longer to change.
 - We keep H = 60 because a pilot needs about an hour of warning.
@@ -137,7 +137,7 @@ H = 30 minutes:
 
 H = 60 minutes:
 
-![Predicted against actual drift, H = 60 minutes](evaluation/results/linear_fits/60min_drift_r2_0.83.png)
+![Predicted against actual drift, H = 60 minutes](evaluation/results/linear_fits/60min_drift_r2_0.82.png)
 
 These numbers are measured on the same data the fits were trained on, so they are optimistic. The next table is the test on unseen data.
 
@@ -149,13 +149,14 @@ Position error after 60 minutes on the test deployment (Oct 16–23), which no m
 |---|---|---|---|
 | No drift (stays put) | 586 | 1515 | 0.00 |
 | Persistence (next hour = last hour) | 294 | 570 | 0.80 |
-| Linear regression | 318 | 631 | 0.77 |
-| LSTM | 247 | 497 | 0.85 |
-| **Transformer** | **246** | **477** | **0.86** |
+| Linear regression | 324 | 626 | 0.77 |
+| **LSTM** | **257** | 510 | 0.84 |
+| Transformer | 272 | **489** | **0.85** |
 
 - Persistence already halves the error of assuming no drift.
-- Linear regression does not beat persistence on unseen data: its R² of 0.83 on training data falls to 0.77.
-- The LSTM and transformer both beat persistence by about 16%, and are tied with each other.
+- Linear regression does not beat persistence on unseen data: its R² of 0.82 on training data falls to 0.77.
+- The LSTM and transformer both beat persistence: the LSTM has the lowest median error (13% below persistence), the transformer the lowest 90th percentile.
+- Trained on five deployments (Milestone 3) instead of seven, the LSTM and transformer scored 247 m and 246 m. Adding two training deployments did not lower the test error; with one seed per model, differences of this size may be noise.
 
 ![Median and 90th-percentile error by model](evaluation/results/comparison.png)
 
@@ -229,9 +230,9 @@ autonomous-pilot-ML/
 ├── requirements.txt                # the packages, pinned
 ├── quickstart.sh                   # one command: set up, then run everything
 ├── data/
-│   ├── raw/                        # five deployments of 1-minute telemetry (Apr-Oct 2026)
+│   ├── raw/                        # seven deployments of 1-minute telemetry (Apr-Oct 2026)
 │   ├── preprocessed/               # the 60-minute windows built from them (made by the `prep` step)
-│   └── holdout/                    # a sixth deployment (Nov 2-9), kept unseen for the final test
+│   └── holdout/                    # the two latest deployments (Nov 2-9, Nov 11-16), kept unseen for the final test
 ├── src/
 │   ├── main.py                     # runs every step, or the ones you name
 │   ├── cmn/                        # shared: loading, cleaning, windows, split, error in metres

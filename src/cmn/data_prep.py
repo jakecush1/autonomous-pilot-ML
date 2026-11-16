@@ -28,11 +28,14 @@ CACHE = os.path.join(ROOT, "data", "preprocessed", f"windows_H{H}.npz")   # the 
 OUTPUT_DIR = os.path.join(ROOT, "output")                                 # trained models
 RESULTS_DIR = os.path.join(ROOT, "evaluation", "results")                 # scores and charts
 
-# whole deployments per split; test is the latest deployment, only scored at the end
+# whole deployments per split, in time order: train < val < test.
+# the latest deployments (Nov) are in data/holdout/, unseen until the final score
 SPLITS = {
     "train": ["1min_2026-04-17_to_2026-04-29.csv",
               "1min_2026-05-19_to_2026-06-06.csv",
-              "1min_2026-08-05_to_2026-08-14.csv"],
+              "1min_2026-06-03_to_2026-06-17.csv",      # overlaps the file above on Jun 3-6 (see build)
+              "1min_2026-08-05_to_2026-08-14.csv",
+              "1min_2026-09-10_to_2026-09-22.csv"],
     "val":   ["1min_2026-10-03_to_2026-10-13.csv"],
     "test":  ["1min_2026-10-16_to_2026-10-23.csv"],
 }
@@ -87,9 +90,10 @@ def build():
     out = {}
     for split, files in SPLITS.items():
         parts = [make_windows(load_file(os.path.join(DATA_DIR, f))) for f in files]
-        out[f"{split}_X"] = np.concatenate([p[0] for p in parts])
-        out[f"{split}_y"] = np.concatenate([p[1] for p in parts])
-        out[f"{split}_t"] = np.concatenate([p[2] for p in parts])
+        X, y, t = (np.concatenate([p[i] for p in parts]) for i in range(3))
+        # files that overlap in time give the same window twice: keep one per time
+        t, first = np.unique(t, return_index=True)
+        out[f"{split}_X"], out[f"{split}_y"], out[f"{split}_t"] = X[first], y[first], t
     os.makedirs(os.path.dirname(CACHE), exist_ok=True)
     np.savez_compressed(CACHE, **out)
     return out

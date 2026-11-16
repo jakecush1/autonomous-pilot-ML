@@ -9,38 +9,38 @@ will the USV be in H minutes (motor off)?
 - Targets (y): `future_dx`, `future_dy` (m moved over next H min)
 - Predicted position = current position + (future_dx, future_dy)
 
-**Data:** 1-min telemetry, all files in `data/`, H = 60
+**Data:** 1-min telemetry, all files in `data/raw/`, H = 60
 Kept a row only if:
 - past and future windows are exactly H min (no gaps / file joins)
 - motor off for the whole past hour AND whole next hour
 - past and future movement < 93 m/min × H (no tow/transit)
-→ 21,076 rows (of 85,915)
+→ 27,480 rows (of 117,396)
 
 ### Results (TRAINING data only, not trustworthy yet)
 
-R² = 0.830 (v1, wind speed only: 0.145)
+R² = 0.819 (v1, wind speed only: 0.131)
 
 | feature  | → east | → north |
 |----------|--------|---------|
-| past_dx  | 0.923  | −0.260  |
-| past_dy  | 0.180  | 0.843   |
-| wind_e   | −4.649 | −18.672 |
-| wind_n   | −21.513| −11.131 |
-intercept (east, north): (−20.9, +28.8) m/h
+| past_dx  | 0.918  | −0.271  |
+| past_dy  | 0.176  | 0.845   |
+| wind_e   | −5.077 | −16.517 |
+| wind_n   | −20.594| −10.818 |
+intercept (east, north): (−0.4, +31.4) m/h
 
 ### What it means
 - **Past drift dominates:** next hour ≈ 0.85–0.92 × last hour.
   Captures current/tide/avg wind without measuring them.
-- **Off-diagonal (−0.26, +0.18) = drift turning clockwise.**
+- **Off-diagonal (−0.27, +0.18) = drift turning clockwise.**
   Hypothesis: rotating tidal current / Coriolis (N. Hemisphere). Untested.
-- **Wind:** ~200–250 m/h extra per 10 kn. Read with caution:
+- **Wind:** ~170–210 m/h extra per 10 kn. Read with caution:
   overlaps with past drift (wind was blowing last hour too) and is
   correlated with the tide/daily cycle. Wind from N → south + west
   (right of wind, as expected in N. Hemisphere); wind_e row less clear.
-- **Intercept ~36 m/h toward NW:** small, because past drift now
+- **Intercept ~31 m/h toward N:** small, because past drift now
   carries the current (v1's b was ~480 m/h).
 
-### Why R² = 0.83 can't be trusted yet
+### Why R² = 0.82 can't be trusted yet
 1. Scored on training data
 2. Rows overlap (neighbours share 59/60 min) → near-copies in training
 3. No baseline: "next hour = last hour" may score almost as well

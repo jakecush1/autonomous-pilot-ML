@@ -8,7 +8,7 @@
 - `w` = extra drift per knot of wind
 - `b` = drift at zero wind — mostly current, plus a small GPS-jitter
 
-**Data:** 1-min telemetry, motor-off rows only (~37,000 rows ≈ 26 days).
+**Data:** 1-min telemetry, motor-off rows only (~50,000 rows ≈ 35 days, the 7 deployments in `data/raw/`).
 Removed: rows not exactly N min apart (file boundaries / gaps),
 speeds > 93 m/min (> 3 kn — tow/transit, e.g. 2026-08-14).
 
@@ -16,24 +16,24 @@ speeds > 93 m/min (> 3 kn — tow/transit, e.g. 2026-08-14).
 
 | N (min) | w     | b    | R²        |
 |---------|-------|------|-----------|
-| 1       | 0.692 | 8.35 | 0.125     |
-| 5       | 0.728 | 8.08 | 0.144     |
-| **10**  | 0.719 | 8.11 | **0.145** |
-| 30      | 0.663 | 8.29 | 0.127     |
-| 60      | 0.582 | 8.56 | 0.104     |
+| 1       | 0.634 | 8.69 | 0.114     |
+| 5       | 0.661 | 8.48 | 0.129     |
+| **10**  | 0.656 | 8.45 | **0.131** |
+| 30      | 0.598 | 8.61 | 0.111     |
+| 60      | 0.508 | 8.92 | 0.085     |
 
-**Best: N = 10, R² = 0.145.**
+**Best: N = 10, R² = 0.131.**
 
 ### What the numbers mean (N = 10)
 
-**w ≈ 0.72 m/min per kn:** ÷ 30.87 → drift ≈ **2.3% of wind speed**.
+**w ≈ 0.66 m/min per kn:** ÷ 30.87 → drift ≈ **2.1% of wind speed**.
 Matches the 1–4% "windage" rule of thumb for floating objects.
 
-**b ≈ 8.1 m/min (~0.26 kn):** drift with zero wind → mostly current/tide.
-At 10 kn wind, wind adds ~7 m/min vs the ~8 baseline:
+**b ≈ 8.5 m/min (~0.27 kn):** drift with zero wind → mostly current/tide.
+At 10 kn wind, wind adds ~6.6 m/min vs the ~8.5 baseline:
 **current matters at least as much as wind.**
 
-**R² ≈ 0.145:** wind speed explains at most ~15% of drift variation.
+**R² ≈ 0.13:** wind speed explains at most ~13% of drift variation.
 The rest is things the model can't see:
 - current and tide (change through the day)
 - wind direction (wind with vs. against current looks the same)
@@ -41,16 +41,16 @@ The rest is things the model can't see:
 
 Low R² ≠ wrong model. Wind is a real but small part of drift.
 
-**Predictions** (`0.719 × wind + 8.11`):
+**Predictions** (`0.656 × wind + 8.45`):
 - 5 kn wind → ~11.7 m/min (~0.38 kn, ~700 m/h)
-- 15 kn wind → ~18.9 m/min (~0.61 kn, ~1.1 km/h)
+- 15 kn wind → ~18.3 m/min (~0.59 kn, ~1.1 km/h)
 
 ### Why R² peaks at N = 5–10
 
 Two competing effects:
 - **1 → 10 min: GPS noise drops.** N = 1 plot has scattered jitter
   spikes (40–75 m/min) that disappear by N = 5. b also drops
-  8.35 → 8.08 ≈ the jitter floor (~0.3 m/min).
+  8.69 → 8.48 ≈ the jitter floor (~0.3 m/min).
 - **10 → 60 min: timing mismatch grows.** Currents and drift can change 
   over an hour so this allows too many innacuracies.
 
