@@ -78,7 +78,7 @@
 % The sentence is still \prov (red): 294 m and 257 m are from the Oct 16-23 deployment with default settings.
 % When RQ2 and RQ3 have results, add one clause for each (for example: "Removing the wind inputs raises
 % the error by ...", "the error is lowest with a ...-minute input window").
-DataXplorer, an uncrewed surface vehicle (USV), serves as a marine weather station about 20~nautical miles (nmi) off Half Moon Bay, California, and must stay within 10~nmi of the site of the retired NOAA buoy 46012. To help it hold station, we forecast its drift by predicting its position one hour ahead, comparing two baselines, persistence and linear regression, with an LSTM and a Transformer on 94~days of 1-minute telemetry. \prov{On an unseen deployment, the LSTM reduces the median one-hour position error from 294~m with persistence to 257~m.} The data was collected by Open Ocean Robotics and is publicly available through NOAA. Code and related documents can be obtained at \url{https://github.com/jakecush1/autonomous-pilot-ML}.
+DataXplorer, an uncrewed surface vehicle (USV), serves as a marine weather station about 20~nautical miles (NM) off Half Moon Bay, California, and must stay within 10~NM of the site of the retired NOAA buoy 46012. In an attempt to improve the tools for this project, we forecast its drift by predicting its position one hour ahead, comparing two baselines, persistence and linear regression, with an LSTM and a Transformer on 94~days of 1-minute telemetry. We attempt to do this using only data available onboard the vessel--wind and location.  The data used was collected by Open Ocean Robotics and is publicly available through NOAA. Code and related documents can be obtained at \url{https://github.com/jakecush1/autonomous-pilot-ML}.
 \end{abstract}
 
 \keywords{Uncrewed surface vehicle, drift prediction, time series regression, LSTM, transformer}
@@ -92,22 +92,33 @@ DataXplorer, an uncrewed surface vehicle (USV), serves as a marine weather stati
 %     object's wind-driven drift (leeway) from wind speed with empirically fitted coefficients~\cite{breivik2011leeway}.
 % (2) citations added for the LSTM and the Transformer;
 % (3) a last sentence added, linking to Milestone 3 and to the research questions.
-Holding station currently depends on pilots who monitor DataXplorer's position and reposition it when needed. A reliable drift forecast would let them intervene only when the vessel is about to leave its 10~nmi radius. Operational drift models, such as NOAA's GNOME for oil spills~\cite{zelenke2012gnome} and the leeway models used in search and rescue~\cite{breivik2011leeway}, move an object with the wind at an empirically fitted fraction of the wind speed, on top of forecast currents. We instead learn the USV's drift from its own record, using current and past wind speed, wind direction, and position as inputs. Our baselines are persistence, which assumes future drift equals past drift, and linear regression, which, like a leeway model, is linear in its inputs. We test whether two sequence models, an LSTM~\cite{hochreiter1997lstm} and a Transformer~\cite{vaswani2017attention}, improve on them by learning nonlinear patterns across the input sequence. Milestone~3 defined the task and built the four models; here we evaluate them on telemetry collected over seven months, through three research questions.
+Holding station currently depends on pilots who monitor DataXplorer's position and reposition it when needed. A reliable drift forecast would let them intervene only when the vessel is about to leave its 10~NM radius. Operational drift models, such as NOAA's GNOME for oil spills~\cite{zelenke2012gnome} and the leeway models used in search and rescue~\cite{breivik2011leeway}, move an object with the wind at an empirically fitted fraction of the wind speed, on top of forecast currents. We instead learn the USV's drift from its own record, using current and past wind speed, wind direction, and position as inputs. Our baselines are persistence, which assumes future drift equals past drift, and linear regression, which, like a leeway model, is linear in its inputs. We test whether two sequence models, an LSTM~\cite{hochreiter1997lstm} and a Transformer~\cite{vaswani2017attention}, improve on them by learning nonlinear patterns across the input sequence. Milestone~3 defined the task and built the four models; here we evaluate them on telemetry collected over seven months, through three research questions.
 
 \section{Research Questions}
 % [Claude] research questions, merged from the four drafted. RQ1 is unchanged.
-\noindent\textbf{RQ1.} Do the sequence models predict the USV's position one hour ahead more accurately than the baselines, and which model is best? A more complex model is only worth deploying if it beats simpler ones. In response, we train the learned models on historical data and compare all four on held-out data by the distance between predicted and actual positions.
+\noindent\textbf{RQ1.} Do the sequence models predict the USV's position one hour ahead more accurately than the baselines, and which model is best? 
+
+{\color{red}
+--A more complex model is only worth deploying if it beats simpler ones. In response, we train the learned models on historical data and compare all four on held-out data by the distance between predicted and actual positions.}
 
 % [Claude] RQ2: the reason is rewritten, because our own fits disagree with the previous one
 % (wind speed alone gives R^2 = 0.13 on the development data: evaluation/reports/drift_vs_wind.md).
 % Previous sentence: We expect wind to be the main driver of drift at this site; if position history alone
 % predicts as well, the models do not need wind inputs.
-\noindent\textbf{RQ2.} How much does wind contribute to predicting drift? Leeway models treat wind as the main driver of drift~\cite{breivik2011leeway}, yet in our data wind speed alone explains only 13\% of the variation in drift speed. If position history alone predicts as well, the models do not need wind inputs. In response, we retrain each learned model without wind speed and direction and measure the increase in error.
+\noindent\textbf{RQ2.} How much does wind contribute to predicting drift? 
+{\color{red}
+--Leeway models treat wind as the main driver of drift~\cite{breivik2011leeway}, yet in our data wind speed alone explains only 13\% of the variation in drift speed. If position history alone predicts as well, the models do not need wind inputs. In response, we retrain each learned model without wind speed and direction and measure the increase in error.}
 
 % [Claude] RQ3: "using whole deployments as folds" added (random folds would leak, see the Dataset section).
 % Previous sentence: In response, we vary the input window length and learning rate with cross-validation on
 % the development set and plot the mean validation error for each setting.
-\noindent\textbf{RQ3.} How sensitive are the LSTM and Transformer to their hyperparameters? Answering this identifies their best configurations and how much past data they need. In response, we vary the input window length and learning rate with cross-validation on the development set, using whole deployments as folds, and plot the mean validation error for each setting.
+\noindent\textbf{RQ3.} How sensitive are the LSTM and Transformer to their hyperparameters? 
+{\color{red}
+--Answering this identifies their best configurations and how much past data they need. In response, we vary the input window length and learning rate with cross-validation on the development set, using whole deployments as folds, and plot the mean validation error for each setting.}
+
+\noindent\textbf{RQ4.} How is this method different from widely used methods? 
+{\color{red}
+--Other popular methods will use large predictive current models, and current forecasts to predict the future drift.  Our's is a much lighter approach and uses only data which is readily available onboard the USV, namely, wind speed, wind direction, and location.}
 
 \section{Dataset}
 % [Claude] dataset section completed for the manual's checklist (4.3): source, statistics, features, target,
@@ -149,35 +160,45 @@ Wind direction         & 54\% from the NW \\
 \end{table}
 
 % ===========================================================================
-% [Claude] SKELETON from here to the end: headings and blue \note{}s only. The headings follow the manual
-% (4.4 Baselines, 4.5 Evaluation Strategy and Metrics, 4.6 Results) and the example report.
+% [Claude] LOOSE DRAFT from here to the end: rough text for each section, there to be rewritten.
+% Notes are comments ("% NOTE"). Red text is a provisional number or a blank still to fill.
+% The headings follow the manual (4.4 Baselines, 4.5 Evaluation Strategy and Metrics, 4.6 Results).
 % Marks: baselines 5%, strategy and metrics 5%, results with attribution and discussion 50%, reproducibility 20%.
 % The whole report must be EXACTLY 2 pages including references, so keep most of the space for the results.
 % ===========================================================================
 
 \section{Baselines}
-\note{Manual 4.4, for each one: how it works, why it is a fair competitor, its hyperparameters, the library, a reference. Milestone 3 has the full descriptions, so one or two sentences each.}
+% NOTE (manual 4.4): for each baseline say how it works, why it is a fair competitor, its hyperparameters,
+% the library, and a reference. Milestone 3 has the full descriptions, so a sentence or two each is enough.
+We compare the LSTM and Transformer with two baselines. All four models use the same samples, cleaning and metric.
 
-\textbf{Persistence.} \note{Next hour repeats the last hour. No training and no hyperparameters. The bar every model must beat, because current and tide change slowly.}
+\textbf{Persistence} predicts that the next hour's movement repeats the last hour's. It needs no training and has no hyperparameters. Current and tide change slowly, so it is the bar every model must beat.
 
-\textbf{Linear regression.} \note{scikit-learn \texttt{LinearRegression} on 6 summary numbers (past-hour movement, wind now, mean wind). Linear in its inputs like a leeway model~\cite{breivik2011leeway}. No hyperparameters.}
+\textbf{Linear regression} predicts the movement from six numbers that summarise the past hour: the movement, the wind now and the mean wind, each east and north. Like a leeway model~\cite{breivik2011leeway}, it is linear in its inputs, so it shows what the sequence models gain from nonlinear patterns. We use scikit-learn's \texttt{LinearRegression}, which has no hyperparameters.
 
-\textbf{LSTM and Transformer (proposed).} \note{PyTorch, 2 layers, width 64; trained with Adam~\cite{kingma2015adam} and early stopping. The window length and learning rate are studied in RQ3.}
-
-\note{Fair comparison (4.4.1): the same samples, cleaning, folds and metric for all four; inputs are rescaled with training data only.}
+% NOTE: the two proposed models. Say only what the reader needs to follow RQ3.
+\textbf{LSTM and Transformer.} Both read the past hour minute by minute. Each has 2 layers of width 64 in PyTorch and is trained with Adam~\cite{kingma2015adam} and early stopping. Their input window and learning rate are studied in RQ3.
 
 \section{Evaluation Strategy and Metrics}
-\textbf{Splits.} \note{Development set = 7 deployments (Apr--Oct), used for training, cross-validation and every choice. Final test set = 2 November deployments, scored once, after the settings are fixed. Justify 89/11 by time against the manual's random 80/20. The code does not score \texttt{data/holdout/} yet.}
+% NOTE (manual 4.5.1): justify the 89/11 split by time against the manual's random 80/20 (the Dataset section starts this).
+% NOTE: the code does not score data/holdout/ yet. It also has no cross-validation, no run without wind and no sweep.
+\textbf{Splits.} Every choice is made on the development set. The final test set is scored once, after the settings are fixed.
 
-\textbf{Cross-validation.} \note{Folds are whole deployments: train on all but one, validate on the one left out, and average. May 19--Jun 6 and Jun 3--17 overlap, so they go in the same fold, which gives 6 folds. The same folds for every model. Decide which data stops the training early inside each fold.}
+% NOTE: May 19-Jun 6 and Jun 3-17 overlap, so they must sit in the same fold. That leaves 6 folds.
+% NOTE: decide which data stops the training early inside each fold, and say so here.
+\textbf{Cross-validation.} Folds are whole deployments: we train on all but one, validate on the one left out, and average the error over the \prov{6} folds. Every model uses the same folds.
 
-\textbf{Metric.} \note{Endpoint error: metres between the predicted and the true position after 60 minutes. Report the median (typical miss) and the 90th percentile (bad case, a safety radius), plus $R^2$. Say why not accuracy or F1: the output is a distance, so this is regression.}
+% NOTE: say why not accuracy or F1: the output is a distance, so this is regression.
+\textbf{Metric.} We score a prediction by its endpoint error, the distance in metres between the predicted and the true position after 60 minutes. We report the median as the typical miss, and the 90th percentile as a bad case that a pilot could use as a safety radius.
 
-\textbf{Hyperparameters.} \note{Table~\ref{tab:hyper}: the values are suggestions. A different window length changes which samples exist, so score every setting on the same prediction times. Say how many seeds are run.}
+% NOTE: the values in the table are suggestions. A different window length changes which samples exist,
+% so score every setting on the same prediction times.
+\textbf{Hyperparameters.} Table~\ref{tab:hyper} lists the values we try for the LSTM and Transformer. \prov{Each setting is run with [N] seeds.}
 
 \begin{table}[t]
 \centering\footnotesize
-\caption{Hyperparameters of the LSTM and Transformer (RQ3). \protect\note{Bold the best.}}
+% NOTE: mark the best value of each row in bold once RQ3 is run.
+\caption{Hyperparameters of the LSTM and Transformer (RQ3).}
 \label{tab:hyper}
 \begin{tabular}{@{}ll@{}}
 \toprule
@@ -190,13 +211,18 @@ Learning rate & \prov{$10^{-4}$, $3{\times}10^{-4}$, $10^{-3}$, $3{\times}10^{-3
 \end{table}
 
 \section{Results and Discussion}
-\note{Manual 4.6: one part for each RQ. For each, state the answer, give the numbers, then say why. No result that does not answer an RQ.}
+% NOTE (manual 4.6): one part for each RQ: state the answer, give the numbers, then say why.
+% No result that does not answer an RQ. This section is 50% of the mark, so it gets the most space.
 
-\textbf{RQ1: which model is best?} \note{Table~\ref{tab:results} on the final test set with the best settings from RQ3. Which is best and by how much against persistence; where another model wins (the Transformer has the lower 90th percentile so far); why linear regression does not beat persistence. Give mean $\pm$ std over seeds: the LSTM--Transformer gap of 15~m may be noise. Worth a sentence: training on 7 deployments in place of 5 did not lower the error.}
+% NOTE: the table must end up on the FINAL TEST SET, with the best settings from RQ3.
+% Its red numbers are the current run: Oct 16-23 deployment, default settings, one seed.
+% NOTE: give mean and standard deviation over seeds. The 15 m gap between LSTM and Transformer may be noise.
+% NOTE: worth a sentence: training on 7 deployments in place of 5 did not lower the error.
+\textbf{RQ1: which model is best?} Table~\ref{tab:results} compares the four models. \prov{Both sequence models beat both baselines. The LSTM has the lowest median error, 257~m, which is 13\% below persistence, and the Transformer has the lowest 90th percentile, 489~m. Linear regression does not beat persistence.} \prov{[Why: the wind weights of the linear regression fit the training deployments and do not carry over, while the sequence models see the drift turning or slowing within the hour.]}
 
 \begin{table}[t]
 \centering\footnotesize
-\caption{Endpoint error after 60 minutes. \protect\note{Red: Oct 16--23, default settings, one seed.}}
+\caption{Endpoint error after 60 minutes.}
 \label{tab:results}
 \begin{tabular}{@{}lccc@{}}
 \toprule
@@ -211,19 +237,31 @@ Transformer & \prov{272} & \prov{489} & \prov{0.85} \\
 \end{tabular}
 \end{table}
 
-\textbf{RQ2: how much does wind contribute?} \note{Each learned model with and without the two wind features: a small table or bar chart of the increase in error. Link the answer to the 13\% fit and to the 1--4\% windage that GNOME assumes~\cite{zelenke2012gnome} (our fitted slope is 2.1\% of the wind speed). Past drift may already carry the wind's effect.}
+% NOTE: show the error with and without wind for each learned model, as a small table or a bar chart.
+% NOTE: link the answer to the 13% fit, and to the 1-4% windage that GNOME assumes (zelenke2012gnome);
+% our fitted slope is 2.1% of the wind speed. Past drift may already carry the wind's effect.
+\textbf{RQ2: how much does wind contribute?} We retrain each learned model with the two wind features removed. \prov{Without wind, the median error of the [model] changes from [A]~m to [B]~m.} \prov{[Why.]}
 
-\textbf{RQ3: how sensitive are the models?} \note{One figure: mean cross-validation error against the input window and against the learning rate, one line for each model. Which setting is best, how flat the curve is, and why.}
-% \begin{figure}[t]
-% \centering
+% NOTE: one figure: mean cross-validation error against the input window and against the learning rate,
+% one line for each model. Say which setting is best, how flat the curve is, and why.
+\textbf{RQ3: how sensitive are the models?} Figure~\ref{fig:hyper} shows the mean cross-validation error for each setting. \prov{The error is lowest with a [W]-minute window and a learning rate of [L], and it changes by [D]~m across the settings.} \prov{[Why.]}
+
+\begin{figure}[t]
+\centering
+% NOTE: the box only reserves the space. Delete it and uncomment the next line when the figure exists.
 % \includegraphics[width=\columnwidth]{images/rq3_hyperparameters.pdf}
-% \caption{Mean cross-validation error for each setting.}
-% \label{fig:hyper}
-% \end{figure}
+\fbox{\parbox[c][3cm][c]{0.9\columnwidth}{\centering\prov{[figure: error for each setting]}}}
+\Description{Placeholder for the hyperparameter figure.}
+\caption{Mean cross-validation error for each setting.}
+\label{fig:hyper}
+\end{figure}
 
-\textbf{Reproducibility.} \note{20\% of the mark. The one command that reproduces every table and figure (\texttt{bash quickstart.sh}), the fixed seeds, the run time, and where the results are written.}
+% NOTE: 20% of the mark. Give the one command that reproduces every table and figure, the fixed seeds,
+% the run time, and where the results are written.
+\textbf{Reproducibility.} The command \texttt{bash quickstart.sh} sets up the environment and reruns every step, writing the scores and figures to \texttt{evaluation/results/}. Seeds are fixed, so the numbers repeat exactly. \prov{The full run takes about [T] minutes on a laptop CPU.}
 
-\note{If there is room, close with one sentence: what a pilot can rely on (the 90th-percentile error as a safety radius) and what comes next.}
+% NOTE: if there is room, close with one sentence: what a pilot can rely on, and what comes next.
+\prov{[Closing sentence: the 90th-percentile error as a safety radius for the pilot, and what comes next.]}
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{bibliography.bib}
