@@ -161,15 +161,6 @@ Position error after 60 minutes on the test deployment (Oct 16–23), which no m
 
 More detail is in the write-ups in `evaluation/reports/` and in the Milestone 3 report in `docs/3_Solution_Jake_Rowan`.
 
-## Project background
-
-### Background
-
-Open Ocean Robotics (OOR) operates the DataXplorer, a USV that reports marine weather data for NOAA in place of the discontinued Station 46012 buoy. The vessel's only hard operating constraint is to remain within 10 nautical miles (nm) of the buoy's former position.
-
-A remote pilot currently watches the vessel 24/7, roughly 1,095 eight-hour shifts per year, even though a corrective navigation command is needed only every two to three hours. This project asks whether that decision can be predicted from telemetry, turning a continuous watch into an on-call, alert-driven one.
-
-The model is **advisory only**. It decides *whether* a pilot is needed, never *what* the pilot should do, and all navigation decisions stay with a human.
 
 ### Problem Definition
 
@@ -183,36 +174,6 @@ $$f: \mathcal{S} \rightarrow \{0, 1\}$$
 
 where $f(\mathbf{s}) = 1$ if a pilot must issue a corrective command within $[t, t + \Delta t]$ to keep the vehicle inside $R$, and $0$ otherwise.
 
-**Building block: drift prediction.** Before deciding *when* a pilot must act, we predict *where* the drifting vessel will be. Given the last $H$ minutes of its movement and the wind (motor off), a function
-
-$$g: \mathbb{R}^{H \times 4} \rightarrow \mathbb{R}^{2}$$
-
-predicts how far it will move east and north over the next $H$ minutes. We use $H = 60$. The predicted position can then be checked against the 10 nm limit.
-
-### Approach
-
-**V1: Location check (complete).** A rule-based check of the USV's current position. It converts latitude and longitude to nautical miles east and north of the station and flags a position that is outside 10 nm, in the traffic lane (more than 6.5 nm east), within 1 nm of the limit, or more than 6 nm from the centre. It also reports whether the wind is pushing the USV toward the centre or away from it. It looks only at the present position and makes no prediction. Code: `src/location_check`.
-
-**V2: One-hour drift prediction (Milestone 3).** It has two parts:
-
-1. **Linear regressions** (`src/linear_fits`): simple fits that show what drives the drift and how the prediction horizon $H$ changes the result.
-2. **Model comparison** (`src/cmn`, `src/models`, `src/evaluate`): persistence ("next hour = last hour"), linear regression, an LSTM and a transformer, trained on three deployments and tested on a deployment they never saw.
-
-**Next (Milestone 4): from predicted position to an alert.** Turn the predicted position into a time until the vessel reaches the 10 nm limit and a probability that the pilot must act, and score the models once on the held-out November deployment.
-
-**Out of scope:** reinforcement learning for direct navigation control. A V2 model could later serve as a safety monitor for such an agent.
-
-### Evaluation
-
-Drift predictions are scored by endpoint error: the distance in metres between the predicted and the real position after 60 minutes, reported as the median and the 90th percentile.
-
-The intervention model will be compared against the V1 location check on:
-
-- **Interventions caught:** the fraction of real interventions the model alerts on in advance (recall).
-- **Unnecessary alerts:** false alerts raised per shift.
-- **Watch time removed:** hours of continuous monitoring the alert system replaces.
-
-Errors are asymmetric. A missed intervention risks the station-keeping constraint, while a false alert costs one page, so recall on real interventions is weighted above alert precision.
 
 ## File structure
 
