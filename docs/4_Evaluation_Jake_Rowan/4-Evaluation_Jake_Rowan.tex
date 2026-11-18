@@ -32,6 +32,9 @@
 \usepackage{graphicx}
 \usepackage{booktabs} % \toprule etc.; harmless if acmart already loads it
 \usepackage{array}    %  needed for >{\raggedright\arraybackslash} in the tables
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+
 
 % ---------------------------------------------------------------------------
 % [Claude] two helper macros for the draft stage. Both must be gone from the submitted PDF.
@@ -44,17 +47,8 @@
 \newcommand{\note}[1]{{\footnotesize\color{blue}[#1]}}
 % \newcommand{\note}[1]{}
 % ---------------------------------------------------------------------------
-
-
-
 \begin{document}
-% [Claude] \titlenote added: the manual asks for the repository link in the title's footnote AND in the abstract.
-% It also carries the AI-use statement (Guideline D: "any AI-created content must be cited"), in the wording
-% of the Milestone 3 footnote. Change the wording if it does not describe this milestone.
 \title{Evaluating Ocean Drift Prediction from Wind and Location Data}
-\titlenote{Code, data and instructions: \url{https://github.com/jakecush1/autonomous-pilot-ML}. AI use (Guideline D): the code and a first draft of this report were generated with Claude (Anthropic) and reviewed, run and edited by the authors.}
-% [Claude] CHECK the author order: the manual wants the graduate student listed LAST.
-% [Claude] \city and \country added as in Milestone 3 (recent acmart versions report an error without \country).
 \author{Jake Cushway}
 \affiliation{
   \institution{University of Victoria}
@@ -72,13 +66,7 @@
 \email{rowanhall@uvic.ca }
 
 \begin{abstract}
-% [Claude] abstract completed: the size of the dataset added, and the results sentence filled in with the
-% current numbers. Previous results sentence:
-%   \textcolor{red}{[Best model] reduces the one-hour position error from [Y]~m with persistence to [X]~m.}
-% The sentence is still \prov (red): 294 m and 257 m are from the Oct 16-23 deployment with default settings.
-% When RQ2 and RQ3 have results, add one clause for each (for example: "Removing the wind inputs raises
-% the error by ...", "the error is lowest with a ...-minute input window").
-DataXplorer, an uncrewed surface vehicle (USV), serves as a marine weather station about 20~nautical miles (NM) off Half Moon Bay, California, and must stay within 10~NM of the site of the retired NOAA buoy 46012. In an attempt to improve the tools for this project, we forecast its drift by predicting its position one hour ahead, comparing two baselines, persistence and linear regression, with an LSTM and a Transformer on 94~days of 1-minute telemetry. We attempt to do this using only data available onboard the vessel--wind and location.  The data used was collected by Open Ocean Robotics and is publicly available through NOAA. Code and related documents can be obtained at \url{https://github.com/jakecush1/autonomous-pilot-ML}.
+DataXplorer, an uncrewed surface vehicle (USV), serves as a marine weather station about 20~nautical miles (NM) off Half Moon Bay, California, and must stay within 10~NM of the site of the retired NOAA buoy 46012. In an attempt to improve the tools for this project, we forecast its drift by predicting its position one hour ahead by comparing two baselines, persistence and linear regression, with an LSTM and a Transformer on 94~days of 1-minute telemetry. We attempt to do this using only data available onboard the vessel--wind and location.  The data used was collected by Open Ocean Robotics and is publicly available through NOAA. Code and related documents can be obtained at \url{https://github.com/jakecush1/autonomous-pilot-ML}.
 \end{abstract}
 
 \keywords{Uncrewed surface vehicle, drift prediction, time series regression, LSTM, transformer}
@@ -86,28 +74,26 @@ DataXplorer, an uncrewed surface vehicle (USV), serves as a marine weather stati
 \pagestyle{empty}
 
 \section{Introduction}
-% [Claude] introduction completed. Three changes to the previous version:
-% (1) NOAA's GNOME oil-spill model added next to the leeway models (from docs/notes/pt4-notes.md).
-%     Previous sentence: Operational drift models, such as those used in search and rescue, estimate an
-%     object's wind-driven drift (leeway) from wind speed with empirically fitted coefficients~\cite{breivik2011leeway}.
-% (2) citations added for the LSTM and the Transformer;
-% (3) a last sentence added, linking to Milestone 3 and to the research questions.
 Holding station currently depends on pilots who monitor DataXplorer's position and reposition it when needed. A reliable drift forecast would let them intervene only when the vessel is about to leave its 10~NM radius. Operational drift models, such as NOAA's GNOME for oil spills~\cite{zelenke2012gnome} and the leeway models used in search and rescue~\cite{breivik2011leeway}, move an object with the wind at an empirically fitted fraction of the wind speed, on top of forecast currents. We instead learn the USV's drift from its own record, using current and past wind speed, wind direction, and position as inputs. Our baselines are persistence, which assumes future drift equals past drift, and linear regression, which, like a leeway model, is linear in its inputs. We test whether two sequence models, an LSTM~\cite{hochreiter1997lstm} and a Transformer~\cite{vaswani2017attention}, improve on them by learning nonlinear patterns across the input sequence. Milestone~3 defined the task and built the four models; here we evaluate them on telemetry collected over seven months, through three research questions.
 
 \section{Research Questions}
-% [Claude] research questions, merged from the four drafted. RQ1 is unchanged.
 \noindent\textbf{RQ1.} Do the sequence models predict the USV's position one hour ahead more accurately than the baselines, and which model is best? 
 
-{\color{red}
---A more complex model is only worth deploying if it beats simpler ones. In response, we train the learned models on historical data and compare all four on held-out data by the distance between predicted and actual positions.}
+------------------
 
-% [Claude] RQ2: the reason is rewritten, because our own fits disagree with the previous one
-% (wind speed alone gives R^2 = 0.13 on the development data: evaluation/reports/drift_vs_wind.md).
-% Previous sentence: We expect wind to be the main driver of drift at this site; if position history alone
-% predicts as well, the models do not need wind inputs.
-\noindent\textbf{RQ2.} How much does wind contribute to predicting drift? 
-{\color{red}
---Leeway models treat wind as the main driver of drift~\cite{breivik2011leeway}, yet in our data wind speed alone explains only 13\% of the variation in drift speed. If position history alone predicts as well, the models do not need wind inputs. In response, we retrain each learned model without wind speed and direction and measure the increase in error.}
+% Jake's original:
+% We expected wind to be the main driver of drift, since wind not only applies force to the USV but also
+% influences ocean currents, we hypothesized that wind speed and direction might have a linear relationship
+% to drift speed and direction.  --Leeway models treat wind as the main driver of drift~\cite{breivik2011leeway}.
+% Looking at the relationship between wind speed and dirft speed, the data gives $R^2 = 0.13$
+% (\texttt{evaluation/reports/drift\_vs\_wind.md}).
+% Looking at the relationshp between wind direction and drift direction we get more promising results
+% with \underline{\hspace{2cm}}, both shown in graphs \#.
+% [Claude] RQ2 restructured to the manual's 4.2 pattern (question, why it matters, which experiment answers it).
+% The findings moved to Results and Discussion (RQ2 there), with Figure fig:withwind.
+\noindent\textbf{RQ2.} How much does wind contribute to predicting drift? We expected wind to be the main driver of drift, since it both pushes on the USV and drives the surface current, and leeway models treat it as such~\cite{breivik2011leeway}. Wind is also one of only two inputs our models use, so the answer shows whether wind can steer a forecast or whether the current, which past drift already carries, dominates. We address this by comparing the direction of the drift with the downwind direction across wind speeds, and by fitting the drift against the wind speed and against the wind vector.
+
+
 
 % [Claude] RQ3: "using whole deployments as folds" added (random folds would leak, see the Dataset section).
 % Previous sentence: In response, we vary the input window length and learning rate with cross-validation on
@@ -119,21 +105,6 @@ Holding station currently depends on pilots who monitor DataXplorer's position a
 \noindent\textbf{RQ4.} How is this method different from widely used methods? 
 {\color{red}
 --Other popular methods will use large predictive current models, and current forecasts to predict the future drift.  Our's is a much lighter approach and uses only data which is readily available onboard the USV, namely, wind speed, wind direction, and location.}
-
-\section{Dataset}
-% [Claude] dataset section completed for the manual's checklist (4.3): source, statistics, features, target,
-% missing values, justification (relevance, size, representativeness, labels, accessibility) and the split.
-% It replaces the earlier [Claude] paragraph. Every number covers all 9 deployment files (data/raw + data/holdout,
-% Nov 16 2026), with the minutes that two files share (Jun 3-6) counted once.
-% CHECK: what exactly NOAA publishes for station 46012 (the abstract says the data is public through NOAA).
-% If NOAA publishes only the weather observations, say that here; motor power may exist only in our files.
-We use the 1-minute telemetry that DataXplorer recorded on station: nine deployments between April and November 2026, totalling 135{,}234 records (93.9~days). Each record holds the time, position, wind speed and direction, and motor power. It was collected by Open Ocean Robotics, which operates the vessel in place of NOAA buoy 46012, and the files we use are in our repository under \texttt{data/}. Table~\ref{tab:dataset} reports the statistics.
-
-\textbf{Samples.} The vessel drifts with its motor off in 50.3\% of minutes. A sample is a time with 60 valid minutes before it and 60 after it; a valid minute has the motor off, no missing value and a speed below 3~kn (faster means a tow). The input is the past hour with four features per minute (movement and wind push, each east and north). The target, the movement east and north over the next hour in metres, is read from later GPS positions, so no labelling is needed. This gives 34{,}223 samples, cleaned in the same way for every model.
-
-\textbf{Justification.} The dataset is the vessel's own record at the site where the forecast will be used, and no public benchmark covers this vessel. It spans spring to autumn with winds from calm to 28~kn. Its limits are one vessel, one site, no winter, and no measurement of current or waves.
-
-\textbf{Split.} Samples one minute apart share 59 of their 60 input minutes, so a random split would place near-copies of test samples in training. We therefore split by whole deployment in time order: the seven deployments from April to October form the development set (30{,}303 samples, 89\%), and the two from November form the final test set (3{,}920 samples, 11\%), which no model has seen.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -159,24 +130,41 @@ Wind direction         & 54\% from the NW \\
 \end{tabular}
 \end{table}
 
+
+\section{Dataset}
+% [Claude] dataset section completed for the manual's checklist (4.3): source, statistics, features, target,
+% missing values, justification (relevance, size, representativeness, labels, accessibility) and the split.
+% It replaces the earlier [Claude] paragraph. Every number covers all 9 deployment files (data/raw + data/holdout,
+% Nov 16 2026), with the minutes that two files share (Jun 3-6) counted once.
+% CHECK: what exactly NOAA publishes for station 46012 (the abstract says the data is public through NOAA).
+% If NOAA publishes only the weather observations, say that here; motor power may exist only in our files.
+We use the 1-minute telemetry that DataXplorer recorded on station: nine deployments between April and November 2026, totalling 135{,}234 records (93.9~days). Each record holds the time, position, wind speed and direction, and motor power. It was collected by Open Ocean Robotics, which operates the vessel in place of NOAA buoy 46012, and the files we use are in our repository under \texttt{data/}. Table~\ref{tab:dataset} reports the statistics.
+
+\textbf{Samples.} The vessel drifts with its motor off in 50.3\% of minutes. A sample is a time with 60 valid minutes before it and 60 after it; a valid minute has the motor off, no missing value and a speed below 3~kn (faster means a tow). The input is the past hour with four features per minute (movement and wind push, each east and north). The target, the movement east and north over the next hour in metres, is read from later GPS positions, so no labelling is needed. This gives 34{,}223 samples, cleaned in the same way for every model.
+
+\textbf{Justification.} The dataset is the vessel's own record at the site where the forecast will be used, and no public benchmark covers this vessel. It spans spring to autumn with winds from calm to 28~kn. Its limits are one vessel, one site, no winter, and no measurement of current or waves.
+
+\textbf{Split.} Samples one minute apart share 59 of their 60 input minutes, so a random split would place near-copies of test samples in training. We therefore split by whole deployment in time order: the seven deployments from April to October form the development set (30{,}303 samples, 89\%), and the two from November form the final test set (3{,}920 samples, 11\%), which no model has seen.
+
+
+
 % ===========================================================================
-% [Claude] LOOSE DRAFT from here to the end: rough text for each section, there to be rewritten.
-% Notes are comments ("% NOTE"). Red text is a provisional number or a blank still to fill.
 % The headings follow the manual (4.4 Baselines, 4.5 Evaluation Strategy and Metrics, 4.6 Results).
 % Marks: baselines 5%, strategy and metrics 5%, results with attribution and discussion 50%, reproducibility 20%.
-% The whole report must be EXACTLY 2 pages including references, so keep most of the space for the results.
 % ===========================================================================
 
+
 \section{Baselines}
+\section{ The following text needs completion}
+
 % NOTE (manual 4.4): for each baseline say how it works, why it is a fair competitor, its hyperparameters,
 % the library, and a reference. Milestone 3 has the full descriptions, so a sentence or two each is enough.
 We compare the LSTM and Transformer with two baselines. All four models use the same samples, cleaning and metric.
 
-\textbf{Persistence} predicts that the next hour's movement repeats the last hour's. It needs no training and has no hyperparameters. Current and tide change slowly, so it is the bar every model must beat.
+\textbf{Persistence} predicts that the next hour's movement repeats the last hour's. It needs no training and has no hyperparameters. It is the bar every model must beat.
 
-\textbf{Linear regression} predicts the movement from six numbers that summarise the past hour: the movement, the wind now and the mean wind, each east and north. Like a leeway model~\cite{breivik2011leeway}, it is linear in its inputs, so it shows what the sequence models gain from nonlinear patterns. We use scikit-learn's \texttt{LinearRegression}, which has no hyperparameters.
+\textbf{Linear regression} predicts the movement from six numbers that summarise the past hour: the movement, the wind now and the mean wind, each east and north. Naturally, it is linear, so it doubles as a prediction model and an example to show what models gain from nonlinear patterns. We use scikit-learn's \texttt{LinearRegression}, which has no hyperparameters.  However we did notice changes in $R^2$ by adjusting the time window \textit{H}.
 
-% NOTE: the two proposed models. Say only what the reader needs to follow RQ3.
 \textbf{LSTM and Transformer.} Both read the past hour minute by minute. Each has 2 layers of width 64 in PyTorch and is trained with Adam~\cite{kingma2015adam} and early stopping. Their input window and learning rate are studied in RQ3.
 
 \section{Evaluation Strategy and Metrics}
@@ -211,6 +199,15 @@ Learning rate & \prov{$10^{-4}$, $3{\times}10^{-4}$, $10^{-3}$, $3{\times}10^{-3
 \end{table}
 
 \section{Results and Discussion}
+
+
+% Metric	What It Measures	Best Used When
+% Accuracy	The percentage of total predictions the model got right.	Your classes are roughly balanced (e.g., 50% yes, 50% no).
+% Precision	Out of all positive predictions made, how many were actually positive.	False positives are costly (e.g., flagging a legitimate email as spam).
+% Recall	Out of all actual positives in the data, how many the model caught.	False negatives are costly (e.g., missing a medical diagnosis).
+% F1-Score	The harmonic mean combining Precision and Recall into a single number.	You have imbalanced classes and need a balance between precision and recall.
+
+
 % NOTE (manual 4.6): one part for each RQ: state the answer, give the numbers, then say why.
 % No result that does not answer an RQ. This section is 50% of the mark, so it gets the most space.
 
@@ -237,10 +234,46 @@ Transformer & \prov{272} & \prov{489} & \prov{0.85} \\
 \end{tabular}
 \end{table}
 
+% [Claude] RQ2 answer, in the manual's 4.6 pattern (answer, numbers, then why). Numbers from
+% src/linear_fits/drift_vs_wind.py 60 (development set, 25,640 motor-off minutes, drift over 60 min).
+% Earlier placeholder, kept in case there is room for the run without wind:
 % NOTE: show the error with and without wind for each learned model, as a small table or a bar chart.
-% NOTE: link the answer to the 13% fit, and to the 1-4% windage that GNOME assumes (zelenke2012gnome);
-% our fitted slope is 2.1% of the wind speed. Past drift may already carry the wind's effect.
-\textbf{RQ2: how much does wind contribute?} We retrain each learned model with the two wind features removed. \prov{Without wind, the median error of the [model] changes from [A]~m to [B]~m.} \prov{[Why.]}
+% \textbf{RQ2: how much does wind contribute?} We retrain each learned model with the two wind features removed. \prov{Without wind, the median error of the [model] changes from [A]~m to [B]~m.} \prov{[Why.]}
+\textbf{RQ2: how much does wind contribute?} In response to RQ2, Figure~\ref{fig:withwind} shows that wind steers the drift but does not dominate it. Over the development set, with the drift measured over 60 minutes, the USV drifts with the wind (within $\pm45^\circ$ of downwind) 47\% of the time, against the 25\% expected if wind had no effect on direction. The effect grows with wind speed: below 5~kn the share is 20\%, no better than chance, while above 15~kn it reaches 87\%. This can be attributed to the balance between the wind's push and the current: in light wind the current sets the direction, and only a strong wind overcomes it. For the same reason, wind speed alone explains little of the drift speed ($R^2 = 0.11$), because a current in any direction adds to the speed. The part of the drift along the wind grows by 4.2\% of the wind speed, just above the 1--4\% windage that GNOME assumes~\cite{zelenke2012gnome}, and a fit on the wind vector explains more of the drift ($R^2 = 0.23$), turning it about $20^\circ$ to the right of downwind, as expected from the Coriolis effect in the Northern Hemisphere. Wind thus accounts for about a quarter of the drift and current and tide for the rest, which explains why past drift, which already carries the current, is the strongest input, and may explain why the wind weights of the linear regression do not carry over to the test deployment (RQ1).
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar, bar width=16pt,
+    width=\columnwidth, height=4.6cm,
+    ymin=0, ymax=100, ytick={0,25,50,75,100},
+    ylabel={Time drifting with the wind (\%)},
+    xlabel={Wind speed (kn)},
+    xtick={1,2,3,4,5},
+    xticklabels={{1--5\\\scriptsize(19\%)}, {5--10\\\scriptsize(55\%)},
+                 {10--15\\\scriptsize(23\%)}, {$\geq$15\\\scriptsize(3\%)}, {All\\\scriptsize(100\%)}},
+    xticklabel style={align=center, font=\footnotesize},
+    enlarge x limits=0.15,
+    axis lines*=left,
+    nodes near coords={\pgfmathprintnumber{\pgfplotspointmeta}\%},
+    nodes near coords style={font=\footnotesize},
+    legend style={at={(0.02,0.98)}, anchor=north west, font=\scriptsize, draw=none},
+]
+\addplot[fill=gray!55, draw=black] coordinates {(1,20) (2,45) (3,64) (4,87) (5,47)};
+\addlegendentry{drift within $\pm45^\circ$ of downwind}
+\addlegendimage{dashed, black}
+\addlegendentry{no wind effect (25\%)}
+\draw[dashed] (rel axis cs:0,0.25) -- (rel axis cs:1,0.25);
+\end{axis}
+\end{tikzpicture}
+\Description{Bar chart of the share of time the USV drifts within 45 degrees of downwind:
+20\% at 1--5 kn, 45\% at 5--10 kn, 64\% at 10--15 kn, 87\% above 15 kn and 47\% overall,
+against 25\% expected if wind had no effect on direction.}
+\caption{Time the USV drifts within $\pm45^\circ$ of downwind, by wind speed
+(share of minutes in brackets). Dashed: no wind effect.}
+\label{fig:withwind}
+\end{figure}
 
 % NOTE: one figure: mean cross-validation error against the input window and against the learning rate,
 % one line for each model. Say which setting is best, how flat the curve is, and why.

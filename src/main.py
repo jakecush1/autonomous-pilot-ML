@@ -2,7 +2,7 @@
 """Runs the project: every step in order, or only the steps you name.
 
     python src/main.py                every step
-    python src/main.py fits           linear regressions for every window N and horizon H
+    python src/main.py fits           linear regressions: wind vs drift for every window N, and every horizon H
     python src/main.py prep           build the 60-minute windows:  data/raw -> data/preprocessed
     python src/main.py baselines      no drift, persistence and linear regression
     python src/main.py lstm           train and score the LSTM
@@ -18,7 +18,7 @@ import sys
 SRC = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SRC)
 
-FIT_WINDOWS = [1, 5, 10, 30, 60]      # N, minutes: drift speed is measured over this window
+FIT_WINDOWS = [1, 30, 60]             # N, minutes: drift speed and direction are measured over this window
 FIT_HORIZONS = [1, 30, 60]            # H, minutes: how far ahead the linear fit predicts
 
 
@@ -27,11 +27,11 @@ def banner(text):
 
 
 def fits():
-    """the two exploratory linear regressions (Section 3.2 of the Milestone 3 report)"""
+    """the exploratory linear regressions (Section 3.2 of the Milestone 3 report, plus wind direction)"""
     # each fit is its own script; here the plots are saved without opening a window
     env = dict(os.environ, MPLBACKEND="Agg", PYTHONWARNINGS="ignore::UserWarning")
     for n in FIT_WINDOWS:
-        banner(f"wind speed -> drift speed, window N = {n} min")
+        banner(f"wind speed and direction -> drift speed and direction, window N = {n} min")
         script = os.path.join(SRC, "linear_fits", "drift_vs_wind.py")
         subprocess.run([sys.executable, script, str(n)], check=True, env=env)
     for h in FIT_HORIZONS:

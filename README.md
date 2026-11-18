@@ -66,7 +66,7 @@ This sets up the environment the first time, then runs every step in order. It t
 
 | Step | What it runs | What you should see |
 |---|---|---|
-| `fits` | Both linear regressions, for every window N (1, 5, 10, 30, 60 min) and every horizon H (1, 30, 60 min) | Each fit printed with its R², and the plots in `evaluation/results/linear_fits/`. These are the numbers under [What drives the drift?](#what-drives-the-drift-linear-regression) |
+| `fits` | Both linear regressions: wind against drift speed and direction for every window N (1, 30, 60 min), and past drift + wind for every horizon H (1, 30, 60 min) | Each fit printed with its R², and the plots in `evaluation/results/linear_fits/`. These are the numbers under [What drives the drift?](#what-drives-the-drift-linear-regression) |
 | `prep` | Cuts the telemetry in `data/raw/` into 60-minute motor-off windows | The number of windows in each split |
 | `baselines` | No drift, persistence and linear regression | Their error on the validation and test deployments |
 | `lstm`, `transformer` | Trains and scores each neural network | The loss per epoch, then the error; the trained models go to `output/` |
@@ -86,7 +86,7 @@ bash quickstart.sh prep lstm         # rebuild the windows, then train the LSTM
 ```bash
 source .venv/bin/activate
 python src/linear_fits/drift_prediction.py 30    # past drift + wind -> movement over the next 30 minutes (default 60)
-python src/linear_fits/drift_vs_wind.py 5        # wind speed -> drift speed over 5 minutes (default 10)
+python src/linear_fits/drift_vs_wind.py 10      # wind -> drift speed and direction over 10 minutes (default 60)
 ```
 
 **V1 location check.** It asks for the USV's latitude and longitude and the wind direction.
@@ -99,21 +99,45 @@ python src/location_check/location_check.py
 
 ### What drives the drift? (linear regression)
 
-**Wind speed alone explains little.** The fit is `drift speed = w · wind speed + b` on motor-off minutes, with drift speed measured over a window of N minutes.
+**Wind speed alone explains little; wind direction explains about twice as much.** `src/linear_fits/drift_vs_wind.py` measures the drift over a window of N minutes and uses motor-off minutes where the whole window has no gaps, the motor off every minute, no tow-speed movement and at least 1 kn of wind. It fits three things on the same rows:
 
-| N (min) | w (m/min per kn) | b (m/min) | R² |
-|---|---|---|---|
-| 1 | 0.634 | 8.69 | 0.114 |
-| 5 | 0.661 | 8.48 | 0.129 |
-| **10** | 0.656 | 8.45 | **0.131** |
-| 30 | 0.598 | 8.61 | 0.111 |
-| 60 | 0.508 | 8.92 | 0.085 |
+- **speed:** drift speed = w · wind speed + b (printed only, for comparison)
+- **downwind:** drift **along the wind** = w · wind speed + b (plot a)
+- **vector:** drift (east, north) = W · wind push (east, north) + c, where c is the average current (plot b)
 
-- Wind speed explains at most 13% of the variation in drift speed. A 10-minute window is best: shorter windows carry GPS noise, and over longer ones the wind and current change.
-- The slope is about 2.1% of the wind speed.
-- With no wind the USV still drifts at about 8.5 m/min (0.27 kn), so current matters at least as much as wind.
+| N (min) | Rows | Speed R² | Downwind w (m/min per kn) | Downwind R² | Vector R² | W turns the wind | With the wind (±45°, all / ≥ 10 kn) |
+|---|---|---|---|---|---|---|---|
+| 1 | 49,644 | 0.115 | 1.249 (4.0% of wind) | 0.225 | 0.257 | 26° clockwise | 50% / 72% |
+| 30 | 33,320 | 0.109 | 1.299 (4.2%) | 0.207 | 0.237 | 24° clockwise | 48% / 70% |
+| **60** | 25,640 | 0.112 | 1.310 (4.2%) | 0.204 | 0.233 | 22° clockwise | 47% / 67% |
 
-![Drift speed against wind speed, N = 10 minutes](evaluation/results/linear_fits/10min-drift_plot.png)
+- Speed against speed explains only about 11% of the drift at every window. It mixes current into every reading regardless of direction, so it understates the wind (slope about 2.1% of wind speed).
+- The part of the drift that goes with the wind rises about 4% of the wind speed per knot, and wind explains about twice as much of it (R² 0.20–0.23).
+- **Share of time drifting with the wind** (drift direction within ±45° of downwind; 25% if wind had no effect on direction):
+
+  | Wind | N = 1 min | N = 30 min | **N = 60 min** | Share of minutes (N = 60) |
+  |---|---|---|---|---|
+  | 1–5 kn | 25% | 22% | 20% | 19% |
+  | 5–10 kn | 46% | 45% | 45% | 55% |
+  | 10–15 kn | 70% | 67% | 64% | 23% |
+  | ≥ 15 kn | 81% | 84% | 87% | 3% |
+  | all | 50% | 47% | 47% | 100% |
+
+  Below 5 kn the drift direction is no better than chance, so current decides where the USV goes. The share then rises with the wind, to 87% of the time at 15 kn or more.
+- The drift is on average 20–25° to the **right** of downwind, as Ekman drift predicts in the Northern Hemisphere. This matches the clockwise turn in the past-drift fit below.
+- The results barely change with N, so they are not an artefact of GPS noise (short N) or of averaging (long N). Wind still explains only about a quarter of the drift; the rest is current and tide. In some periods (Jun 11–15, Oct 16 and Oct 22) the USV drifts mostly against the wind.
+
+N = 1 minute:
+
+![Drift against wind direction, N = 1 minute](evaluation/results/linear_fits/1min-drift_vs_wind.png)
+
+N = 30 minutes:
+
+![Drift against wind direction, N = 30 minutes](evaluation/results/linear_fits/30min-drift_vs_wind.png)
+
+N = 60 minutes (used in the report):
+
+![Drift against wind direction, N = 60 minutes](evaluation/results/linear_fits/60min-drift_vs_wind.png)
 
 **Past drift plus wind predicts much better, and the horizon H matters.** The fit predicts the movement east and north over the next H minutes from the movement over the past H minutes and the wind vector.
 
