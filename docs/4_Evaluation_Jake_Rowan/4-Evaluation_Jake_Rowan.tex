@@ -26,6 +26,12 @@
 \setlength{\topmargin}{0pt}
 \setlength{\topsep}{0pt}
 \setlength{\partopsep}{0pt}
+% [Claude] less white space between a table or figure at the top of a column and the text below it
+% (the default is 20pt; this removes the gap under Table 1 and under Figures 1 and 2)
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+% [Claude] lets TeX widen the spaces of a line a little instead of letting the line stick out past the column
+% edge; it only acts on paragraphs that would otherwise overflow (Hyperparameters and Reproducibility did)
+\emergencystretch=1em
 %\linespread{0.95}
 \usepackage{mdwlist}
 \usepackage{amsmath}
@@ -39,19 +45,14 @@
 \definecolor{chartorange}{HTML}{EB6834}
 
 
-% ---------------------------------------------------------------------------
-% [Claude] two helper macros for the draft stage. Both must be gone from the submitted PDF.
-%
-% \prov{...}  a PROVISIONAL number, printed in red. Every \prov value comes from the current run
-%             (evaluation/results/results.json: Oct 16-23 deployment, default settings, seed 0),
-%             not from the final test set. Replace each one with the final number, then delete the \prov{ }.
-% \note{...}  a note to ourselves, printed in blue. To hide all notes at once, swap the two lines below.
-\newcommand{\prov}[1]{\textcolor{red}{#1}}
-\newcommand{\note}[1]{{\footnotesize\color{blue}[#1]}}
-% \newcommand{\note}[1]{}
-% ---------------------------------------------------------------------------
+% [Claude] the draft macros \prov and \note are removed: neither is used any more, and \note clashes with a
+% command acmart already defines.
 \begin{document}
-\title{Evaluating Ocean Drift Prediction from Wind and Location Data}
+% [Claude] \titlenote added: the manual (2.2.2) asks for the repository link in the title's footnote as well as
+% the abstract. \mbox keeps the title on one line; without it the footnote mark pushes the last word down.
+% \scalebox narrows the title by 1.5% (not visible) so that title + footnote mark fit the page width exactly.
+\title{\mbox{\scalebox{0.985}[1]{Evaluating Ocean Drift Prediction from Wind and Location Data}}}
+\titlenote{Code and data: \url{https://github.com/jakecush1/autonomous-pilot-ML}}
 \author{Jake Cushway}
 \affiliation{
   \institution{University of Victoria}
@@ -70,49 +71,47 @@
 
 
 \begin{abstract}
-DataXplorer, an uncrewed surface vehicle (USV) serving as a weather station off Half Moon Bay, California, must stay within 10~nautical miles (NM) of the retired NOAA buoy 46012. We forecast its position one hour ahead from onboard wind and GPS data alone, comparing an LSTM and a Transformer with persistence and linear regression on 94~days of 1-minute telemetry. Code and data: \url{https://github.com/jakecush1/autonomous-pilot-ML}.
+DataXplorer is an uncrewed surface vehicle (USV) that serves as a weather station off Half Moon Bay, California, and must stay within 10~nautical miles (NM) of the retired NOAA buoy 46012. We forecast its position one hour ahead from onboard wind and GPS data alone, comparing an LSTM and a Transformer with persistence and linear regression on 94~days of 1-minute telemetry. On unseen November data both beat the baselines: the LSTM's median error is 213~m, 30\% below persistence. Code and data: \mbox{\url{https://github.com/jakecush1/autonomous-pilot-ML}}.
+% [Claude] added the sentence with the main result ("On unseen November data ..."); numbers from RQ1.
+% \mbox keeps the link in one piece (it was breaking after "https:").
+% The first sentence is reworded because its first line stuck out 6pt past the column edge. Before:
+% "DataXplorer, an uncrewed surface vehicle (USV) serving as a weather station off Half Moon Bay, California,
+% must stay within 10~nautical miles (NM) of the retired NOAA buoy 46012."
 \end{abstract}
 
-\keywords{Uncrewed surface vehicle, drift prediction, time series regression, LSTM, transformer}
+% [Claude] "time series regression" dropped so the keywords fit on one line (page limit)
+\keywords{Uncrewed surface vehicle, drift prediction, LSTM, transformer}
 \maketitle
 \pagestyle{empty}
+% [Claude] this is what caused the white space under Table 1 and above "4 Baselines": acmart forbids a column
+% break after a line that ends in a hyphen (\brokenpenalty=10000). Where several such lines follow each other, the
+% whole paragraph has to move to the next column and the leftover space is spread over the column it left.
+% 100 is the normal LaTeX value: a column may end on a hyphenated line.
+\brokenpenalty=100
 
 \section{Introduction}
 Pilots keep DataXplorer on station by watching its position and repositioning it; a reliable drift forecast would let them intervene only when needed. Operational drift models such as GNOME~\cite{zelenke2012gnome} and leeway models~\cite{breivik2011leeway} move an object with a fitted fraction of the wind on top of forecast currents. We instead learn the drift from the USV's own record, and test whether an LSTM~\cite{hochreiter1997lstm} and a Transformer~\cite{vaswani2017attention} improve on persistence and linear regression.
 
 
 \section{Research Questions}
-\noindent\textbf{RQ1.} Do the sequence models predict the USV's position one hour ahead more accurately than the baselines, and which model is best? Answering this shows whether learning patterns within the past hour, such as the drift turning or slowing, is worth the extra complexity. In response, we benchmark the LSTM~\cite{hochreiter1997lstm} and the Transformer~\cite{vaswani2017attention} against persistence and linear regression by their endpoint error on the final test set.
+\noindent\textbf{RQ1.} Do the sequence models predict the USV's position one hour ahead more accurately than the baselines, and which model is best? Answering this shows whether learning patterns within the past hour, such as the drift turning or slowing, is worth the extra complexity. In response, we benchmark both against persistence and linear regression by their endpoint error on the final test set.
+% [Claude] shortened for the page limit: "the LSTM~\cite{hochreiter1997lstm} and the Transformer~\cite{vaswani2017attention}"
+% became "both" (the Introduction, one paragraph up, names and cites them).
 
 
 \noindent\textbf{RQ2.} How much does wind contribute to predicting drift? We expected wind to be the main driver of drift, since it both pushes on the USV and drives the surface current.
-Leeway models treat it as such~\cite{breivik2011leeway}, and it is one of only two inputs our models use. In response, we measure how often the USV drifts in the same direction as the wind at different wind speeds, how much of the drift a linear fit on the wind can explain, and how the linear regression's error changes without its wind features.
+Leeway models treat it as such~\cite{breivik2011leeway}, and it is one of only two inputs our models use. In response, we measure how often the USV drifts with the wind, how much of the drift a linear fit on the wind explains, and how the linear regression's error changes without its wind features.
+% [Claude] shortened for the page limit. Before: "... how often the USV drifts in the same direction as the wind at
+% different wind speeds, how much of the drift a linear fit on the wind can explain, and ..."
 
 
 
 
-% [Claude] RQ3: "using whole deployments as folds" added (random folds would leak, see the Dataset section).
-% Previous sentence: In response, we vary the input window length and learning rate with cross-validation on
-% the development set and plot the mean validation error for each setting.
-\noindent\textbf{RQ3.} How sensitive are the LSTM and Transformer to their hyperparameters? 
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
+% [Claude] Nov 18: no cross-validation (decided by Jake and Rowan). RQ3 uses the single validation deployment, Oct 16-23.
+% [Claude] RQ3 tightened for the page limit. Before: "Our models were trained with an untested learning rate;  this
+% checks whether their performance depends on that learning rate. In response, we train each model with four
+% learning rates and compare the validation error to see if our models work regardless of learning rate."
+\noindent\textbf{RQ3.} How sensitive are the LSTM and the Transformer to their learning rate? Both were trained with an untuned learning rate, so this checks whether their performance depends on that choice. In response, we retrain each model with four learning rates and compare the validation errors.
 
 
 
@@ -128,7 +127,8 @@ Records (1 per minute) & 135{,}234 (93.9 days) \\
 Missing values         & 11.0\% of records \\
 Motor off              & 50.3\% of minutes \\
 % Motor-on episodes      & 592 \\
-Valid drift minutes    & 66{,}804 (46.4 days) \\
+% [Claude] corrected from 66,804: `python src/main.py stats` prints 66,803
+Valid drift minutes    & 66{,}803 (46.4 days) \\
 Samples (dev.\ / final test) & 30{,}303 / 3{,}920 \\
 % Input features         & 4 per minute $\times$ 60 minutes \\
 % Target (next 60 min)   & movement east, north (m) \\
@@ -140,9 +140,15 @@ Wind direction         & 54\% from the NW \\
 \end{tabular}
 \end{table}
 
-
 \section{Dataset}
-The data was collected directly from DataXplorer by Open Ocean Robotics at the site of NOAA buoy 46012, and we exported only the channels this experiment needs: time, GPS position, wind speed and direction, and motor power. It covers nine deployments from April to November 2026, 135{,}234 one-minute records (93.9~days on the water). A minute is valid when the motor is off, no value is missing and the vessel moves slower than 3~kn (faster means a tow). A sample needs 120 consecutive valid minutes: the past hour is the input, with four features per minute (movement and wind push, each east and north), and the movement over the next hour, read from later GPS positions, is the target. This gives 34{,}223 samples (Table~\ref{tab:dataset}). No public benchmark covers this vessel; its own record at the site of use is the most relevant data, though it covers one vessel, no winter, and no measurement of current.
+% [Claude] three changes: (1) the record count and days are only in Table 1 now (they were given twice);
+% (2) "no value is missing" was not exact: src/cmn/data_prep.py first fills gaps of up to 5 minutes (MAX_GAP);
+% (3) says the files are in the repository (the manual's "Accessibility" point).
+% Before: "It covers nine deployments from April to November 2026, 135,234 one-minute records (93.9 days on the
+% water). A minute is valid when the motor is off, no value is missing and the vessel moves slower than 3 kn
+% (faster means a tow)." and "No public benchmark covers this vessel; its own record at the site of use is the
+% most relevant data, though it covers one vessel, no winter, and no measurement of current."
+The data was collected directly from DataXplorer by Open Ocean Robotics at the site of NOAA buoy 46012; we exported only the channels this experiment needs (time, GPS position, wind speed and direction, and motor power), and the files are in our repository. They cover nine deployments from April to November 2026 (Table~\ref{tab:dataset}). A minute is valid when the motor is off, the vessel moves slower than 3~kn (faster means a tow) and no value is missing after gaps of up to 5~minutes are interpolated. A sample needs 120 consecutive valid minutes: the past hour is the input, with four features per minute (movement and wind push, each east and north), and the movement over the next hour, read from later GPS positions, is the target. This gives 34{,}223 samples. No public benchmark covers this vessel, so its own record at the site of use is the most relevant data; it covers one vessel, with no winter or current data.
 
 % ===========================================================================
 % The headings follow the manual (4.4 Baselines, 4.5 Evaluation Strategy and Metrics, 4.6 Results).
@@ -156,45 +162,21 @@ The data was collected directly from DataXplorer by Open Ocean Robotics at the s
 % the library, and a reference. Milestone 3 has the full descriptions, so a sentence or two each is enough.
 We compare the LSTM and Transformer with two baselines. All four models use the same samples, cleaning and metric.
 
-\textbf{Persistence} predicts that the next hour's movement repeats the last hour's. It needs no training and has no hyperparameters. It is the bar every model must beat.
+\textbf{Persistence} predicts that the next hour's movement repeats the last hour's. It needs no training, has no hyperparameters, and is the bar every model must beat.
 
-\textbf{Linear regression} predicts the next hour's movement from six numbers summarising the past hour: the movement, the current wind and the mean wind. Like a leeway model~\cite{breivik2011leeway}, it moves the USV linearly with the wind, on top of a term for its past drift, so it tests whether a linear model suffices before turning to nonlinear ones. We use scikit-learn's \texttt{LinearRegression}, which has no hyperparameters to tune.
-
-
-\textbf{LSTM and Transformer.}
-% [Claude] NOTE for Rowan (this part is yours to write). Facts from src/models/nn_models.py:
-%   both read the past hour minute by minute ([dx, dy, wind_push_e, wind_push_n] per minute);
-%   LSTM: 2 layers, 64 hidden, dropout 0.2, last hidden state -> (east, north);
-%   Transformer: 2 encoder layers, d=64, 4 heads, sin/cos positions, mean-pool -> (east, north);
-%   PyTorch, Adam, MSE loss, inputs/targets standardised with train stats, seed 0.
-%   Possible draft, if useful: "Both read the past hour minute by minute, so they can see the drift turn or slow
-%   within the hour. The LSTM~\cite{hochreiter1997lstm} carries a memory through the sequence, while the
-%   Transformer~\cite{vaswani2017attention} uses attention to weigh every minute against every other. Each has
-%   two layers of width 64, is built in PyTorch, and is trained with Adam~\cite{kingma2015adam} on the mean squared error."
-% Both read the past hour minute by minute. Each has 2 layers of width 64 in PyTorch and is trained with Adam~\cite{kingma2015adam} and early stopping. Their input window and learning rate are studied in RQ3.
-
-{\color{red}
-------------------}
+% [Claude] "each east and north" added, so that the three quantities add up to the six numbers.
+\textbf{Linear regression} predicts the next hour's movement from six numbers summarizing the past hour: the movement, the current wind and the mean wind, each east and north. Like a leeway model~\cite{breivik2011leeway}, it moves the USV linearly with the wind, on top of a term for its past drift, so it tests whether a linear model suffices before turning to nonlinear ones. We use \texttt{LinearRegression} from scikit-learn, which has no hyperparameters to tune.
 
 
-{\color{red}
-------------------}
-
-
-{\color{red}
-------------------}
-
-
-{\color{red}
-------------------}
-
-
-{\color{red}
-------------------}
-
-
-{\color{red}
-------------------}
+% [Claude] light edit of the team's paragraph for length and grammar ("one-minute", "the LSTM"); content unchanged.
+% Before: "Unlike our linear regression and persistence approaches, LSTM and Transformer both look at the past hour
+% as 60 one minute intervals of movement and wind. The LSTM [2] processes the minutes in order and updates its
+% memory at each step before finalizing its prediction. The Transformer [4] instead looks at all 60 minutes at
+% once, using attention to weigh each minute against every other minute. Both predict the movement east and north
+% over the next hour and have two layers of width 64. They are both implemented in PyTorch and trained with Adam [3]."
+% Facts checked against src/models/nn_models.py (LSTM: 2 layers, 64 hidden, dropout 0.2; Transformer: 2 encoder
+% layers, d=64, 4 heads, dropout 0.1, sin/cos positions, mean-pool).
+\textbf{LSTM and Transformer.} Unlike the two baselines, the LSTM and the Transformer read the past hour as 60 one-minute steps of movement and wind. The LSTM~\cite{hochreiter1997lstm} processes the minutes in order, updating its memory at each step. The Transformer~\cite{vaswani2017attention} instead looks at all 60 minutes at once, using attention to weigh each minute against every other. Both have two layers of width 64, predict the movement east and north over the next hour, and are implemented in PyTorch and trained with Adam~\cite{kingma2015adam}.
 
 
 % [Claude] Table 2 replaced by a bar chart (final test set, evaluation/results/results.json "test").
@@ -204,11 +186,13 @@ We compare the LSTM and Transformer with two baselines. All four models use the 
 \begin{tikzpicture}
 \begin{axis}[
     ybar, bar width=7pt,
-    scale only axis, width=0.8\columnwidth, height=3.0cm,  % axis box only; the y label adds ~1 cm
+    scale only axis, width=0.8\columnwidth, height=2.6cm,  % axis box only; the y label adds ~1 cm
     ymin=0, ymax=750, ytick={0,200,400,600},
     ylabel={Error after 60 min (m)},
     xtick={1,2,3,4},
-    xticklabels={{Persistence\\$R^2$ 0.87}, {Linear\\regression\\$R^2$ 0.90}, {LSTM\\$R^2$ 0.92}, {Transformer\\$R^2$ 0.93}},
+    % [Claude] "Linear reg." on one line and height 3.0 -> 2.6 cm, for the page limit. The labels say "R^2 0.87"
+    % again instead of "(0.87)", so the caption no longer has to explain the brackets (Jake asked what they meant).
+    xticklabels={{Persistence\\$R^2$ 0.87}, {Linear reg.\\$R^2$ 0.90}, {LSTM\\$R^2$ 0.92}, {Transformer\\$R^2$ 0.93}},
     xticklabel style={align=center, font=\scriptsize},
     enlarge x limits=0.12,
     axis lines*=left,
@@ -224,60 +208,57 @@ We compare the LSTM and Transformer with two baselines. All four models use the 
 \Description{Vertical bar chart of the median and 90th-percentile endpoint error on the final test set:
 persistence 305 and 572 m (R-squared 0.87), linear regression
 269 and 476 m (0.90), LSTM 213 and 433 m (0.92), Transformer 222 and 387 m (0.93).}
-\caption{Endpoint error after 60 minutes on the final test set (November). Assuming no drift gives 747~m (median) and 1{,}663~m (90th percentile).}
+% [Claude] caption shortened to one line; the no-drift sentence is removed at Jake's request (747 m is still in the
+% RQ1 text). Before: "Endpoint error after 60 minutes on the final test set (November), with $R^2$ in brackets.
+% Assuming no drift gives 747~m (median) and 1{,}663~m (90th percentile)."
+\caption{Endpoint error on the final test set (November).}
 \label{fig:results}
 \end{figure}
 
 
 \section{Evaluation Strategy and Metrics}
 
-\textbf{Splits.} Neighbouring samples overlap almost completely, so instead of a random split we split by deployment in time order: April--October form the development set (30{,}303 samples) and November the final test set (3{,}920 samples), scored once after all settings were fixed.
+\textbf{Splits.} Neighbouring samples overlap almost completely, so instead of a random split we split by deployment in time order: April--October form the development set (30{,}303 samples, 89\%) and November the final test set (3{,}920 samples), scored once after all settings were fixed. Within the development set, the latest deployment (October 16--23) is the validation set, in place of $n$-fold cross-validation, so that training (April to October~13) always precedes validation in time; it is used for early stopping and for RQ3.
+% [Claude] two changes to the last sentence: it now says why there is no n-fold cross-validation (the manual's
+% 4.5.3 expects it, so its absence needs a reason), and "for choosing hyperparameters" became "for the
+% learning-rate study (RQ3)", because no hyperparameter was chosen on it. Before: "..., and the latest deployment
+% (October 16--23) is the validation set, used for early stopping and for choosing hyperparameters."
 
-\textbf{Metric.} The endpoint error is the distance in metres between the predicted and the true position after 60 minutes. We report its median (a typical miss) and 90th percentile (a bad case, usable as a safety radius), and $R^2$, the share of the variation in the movement that a model explains. As the output is a position, classification metrics such as accuracy or F1 do not apply.
+\textbf{Metric.} The endpoint error is the distance in metres between the predicted and the true position after 60 minutes. We report its median (a typical miss) and 90th percentile (a bad case, usable as a safety radius), and $R^2$, the share of the variation in the movement that a model explains; classification metrics do not apply.
+% [Claude] last sentence shortened for the page limit. Before: "As the output is a position, classification metrics
+% such as accuracy or F1 do not apply."
 
+% [Claude] fixes: "Table~\ref{tab:hyper}" printed "Table ??" (that table is commented out), so it now points to
+% Table 2 (tab:rq3); present tense throughout. Before: "The LSTM and Transformer were trained with a learning rate
+% of $10^{-3}$, batches of 256 samples and the mean squared error as the loss, with inputs and targets standardized
+% using training statistics only. Training runs for up to 80 epochs and keeps the epoch with the lowest validation
+% error, stopping after 10 epochs without improvement. These settings were not tuned before the final test; RQ3
+% tests the learning rates in Table~\ref{tab:hyper}. All runs use seed~0."
 \textbf{Hyperparameters.}
-% [Claude] NOTE for Rowan (this part is yours to write). Facts for the final run (Nov 18):
-%   learning rate 1e-3, batch 256, up to 80 epochs, early stopping with patience 10 on the validation
-%   deployment Oct 16-23 (changed from Oct 3-13: train is now Apr-Oct 13, test = November holdout);
-%   no hyperparameter search was run, so these are untuned defaults; the tab:hyper table is commented out below.
-%   Persistence and linear regression have no hyperparameters.
+Both networks are trained on the mean squared error with a learning rate of $10^{-3}$ and batches of 256 samples; inputs and targets are standardized using training statistics only. Training runs for up to 80 epochs, stops after 10 epochs without improvement, and keeps the epoch with the lowest validation error. These settings were not tuned before the final test; RQ3 varies the learning rate (Table~\ref{tab:rq3}). All runs use seed~0.
 
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-% \begin{table}[t]
-% \centering\footnotesize
-% % NOTE: mark the best value of each row in bold once RQ3 is run.
-% \caption{Hyperparameters of the LSTM and Transformer (RQ3).}
-% \label{tab:hyper}
-% \begin{tabular}{@{}ll@{}}
-% \toprule
-% Hyperparameter & Values \\
-% \midrule
-% Input window (min) & \prov{15, 30, 60, 120} \\
-% Learning rate & \prov{$10^{-4}$, $3{\times}10^{-4}$, $10^{-3}$, $3{\times}10^{-3}$} \\
-% \bottomrule
-% \end{tabular}
-% \end{table}
+ % \begin{table}[H]
+ %  \centering\footnotesize
+ %  \caption{Training settings of the LSTM and Transformer}
+ %  \label{tab:hyper}
+ %  \begin{tabular}{@{}ll@{}}
+ %  \toprule
+ %  Setting & Value \\
+ %  \midrule
+ %  Learning rate (final model) & $10^{-3}$ \\
+ %  Learning rates tested (RQ3) & $10^{-4}$, $3{\times}10^{-4}$, $10^{-3}$, $3{\times}10^{-3}$ \\
+ %  Batch size                  & 256 \\
+ %  Maximum epochs              & 80 \\
+ %  Early stopping patience     & 10 epochs \\
+ %  Loss                        & Mean squared error \\
+ %  Optimiser                   & Adam \\
+ %  Dropout (LSTM / Transformer)& 0.2 / 0.1 \\
+ %  Seed                        & 0 \\
+ %  \bottomrule
+ %  \end{tabular}
+ %  \end{table}
 
 \section{Results and Discussion}
-
-
 
 % NOTE (manual 4.6): one part for each RQ: state the answer, give the numbers, then say why.
 % No result that does not answer an RQ. This section is 50% of the mark, so it gets the most space.
@@ -287,7 +268,7 @@ persistence 305 and 572 m (R-squared 0.87), linear regression
 % numbers are in git history. Still one seed per model, so the 9 m LSTM-Transformer gap may be noise.
 
 % [Claude] RQ1 answer with the final-test numbers, in the example paper's pattern.
-\textbf{RQ1: do the sequence models beat the baselines?} Figure~\ref{fig:results} shows that both sequence models outperform all baselines on the final test set. The LSTM has the lowest median error, 213~m, 30\% below persistence and 21\% below linear regression, while the Transformer has the lowest 90th percentile, 387~m, 32\% below persistence; both explain 92--93\% of the variation ($R^2$). This can be attributed to the sequence models reading the past hour minute by minute, so they see the drift turn or slow, whereas persistence assumes the last hour repeats and linear regression sees only its totals. Persistence still more than halves the error of assuming no drift (747~m), because the current changes slowly (RQ2), and linear regression beats it only through its wind features. With one seed per model, the 9~m gap between the LSTM and Transformer may be noise.
+\textbf{RQ1: do the sequence models beat the baselines?} Figure~\ref{fig:results} shows that both sequence models outperform both baselines on the final test set. The LSTM has the lowest median error, 213~m, 30\% below persistence and 21\% below linear regression, while the Transformer has the lowest 90th percentile, 387~m, 32\% below persistence; both explain 92--93\% of the variation ($R^2$). This can be attributed to the sequence models reading the past hour minute by minute, so they see the drift turn or slow, whereas persistence assumes the last hour repeats and linear regression sees only its totals. Persistence still more than halves the error of assuming no drift (747~m), because the current changes slowly (RQ2), and linear regression beats it only through its wind features. With one seed per model, the 9~m gap between the two may be noise.
 
 
 
@@ -296,16 +277,37 @@ persistence 305 and 572 m (R-squared 0.87), linear regression
 % Earlier placeholder, kept in case there is room for the run without wind:
 % NOTE: show the error with and without wind for each learned model, as a small table or a bar chart.
 % \textbf{RQ2: how much does wind contribute?} We retrain each learned model with the two wind features removed. \prov{Without wind, the median error of the [model] changes from [A]~m to [B]~m.} \prov{[Why.]}
-\textbf{RQ2: how much does wind contribute?} Figure~\ref{fig:withwind} shows that wind steers the drift but does not dominate it. On the development set, the USV drifts within $\pm45^\circ$ of downwind 47\% of the time, against 25\% if wind had no effect on direction; below 5~kn the share is 20\%, no better than chance, and above 15~kn it reaches 87\%. This can be attributed to the balance between the wind's push and the current: in light wind the current sets the direction, and only a strong wind overcomes it. Hence wind speed alone explains little of the drift speed ($R^2 = 0.11$). The part of the drift along the wind grows by 4.2\% of the wind speed, near the 1--4\% windage GNOME assumes~\cite{zelenke2012gnome}, and a fit on the wind vector explains more ($R^2 = 0.23$), turning the drift about $20^\circ$ right of downwind, as the Coriolis effect predicts. Wind thus explains about a quarter of the drift, so its value for prediction depends on the weather: removing the wind features from the linear regression raises its median error on the final test set from 269 to 301~m (90th percentile 476 to 587~m, $R^2$ 0.90 to 0.86), but by only 2~m on the validation week, which was much calmer (an hourly mean wind of at least 10~kn in 34\% of samples, against 73\% in November).
+% [Claude] the middle of this paragraph is shortened for the page limit; every number is unchanged. Before:
+% "... against 25\% if wind had no effect on direction; ... This can be attributed to the balance between the wind's
+% push and the current: in light wind the current sets the direction, and only a strong wind overcomes it. Hence
+% wind speed alone explains little of the drift speed ($R^2 = 0.11$). The part of the drift along the wind grows by
+% 4.2\% of the wind speed, near the 1--4\% windage GNOME assumes~\cite{zelenke2012gnome}, and a fit on the wind
+% vector explains more ($R^2 = 0.23$), turning the drift about $20^\circ$ right of downwind, as the Coriolis effect
+% predicts. Wind thus explains about a quarter of the drift, so its value for prediction depends on the weather:
+% removing the wind features ... (90th percentile 476 to 587~m, $R^2$ 0.90 to 0.86), but by only 2~m on the
+% validation week, which was much calmer (an hourly mean wind of at least 10~kn in 34\% of samples, against 73\% in November)."
+% [Claude] shortened again at Jake's request (Nov 19): the turn to the right of downwind (about 20 degrees, Coriolis),
+% the wind-speed-only fit (R^2 = 0.11) and the 90th-percentile numbers are left out. The version before this cut:
+% "... against 25\% if wind had no effect; below 5~kn the share is 20\%, no better than chance, and above 15~kn it
+% reaches 87\%. This can be attributed to the balance between wind and current: in light wind the current sets the
+% direction, and only a strong wind overcomes it. The drift along the wind grows by 4.2\% of the wind speed, near the
+% 1--4\% windage GNOME assumes~\cite{zelenke2012gnome}, and is turned about $20^\circ$ right of downwind, as the
+% Coriolis effect predicts. Still, wind speed alone explains little of the drift speed ($R^2 = 0.11$), and the wind
+% vector about a quarter of the drift ($R^2 = 0.23$). The value of wind for prediction therefore depends on the
+% weather: removing the wind features from the linear regression raises its median error on the final test set from
+% 269 to 301~m (90th percentile 476 to 587~m), but by only 2~m on the validation week, which was much calmer (an
+% hourly mean wind of at least 10~kn in 34\% of samples, against 73\% in November)."
+\textbf{RQ2: how much does wind contribute?} Figure~\ref{fig:withwind} shows that wind steers the drift but does not dominate it. On the development set, the USV drifts within $\pm45^\circ$ of downwind 47\% of the time, against 25\% if wind had no effect; the share rises from 20\% below 5~kn, no better than chance, to 87\% above 15~kn. This can be attributed to the balance between wind and current: in light wind the current sets the direction, and only a strong wind overcomes it. The drift along the wind grows by 4.2\% of the wind speed, near the 1--4\% windage GNOME assumes~\cite{zelenke2012gnome}, yet the wind vector explains only about a quarter of the drift ($R^2 = 0.23$). The value of wind for prediction therefore depends on the weather: removing the wind features from the linear regression raises its median error on the final test set from 269 to 301~m, but by only 2~m on the validation week, which was much calmer (an hourly mean wind of at least 10~kn in 34\% of samples, against 73\% in November).
 
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}
 \begin{axis}[
     ybar, bar width=12pt,
-    scale only axis, width=0.78\columnwidth, height=2.7cm,  % axis box only; the y label and ticks add ~1.3 cm
+    scale only axis, width=0.78\columnwidth, height=2.4cm,  % axis box only; the y label and ticks add ~1.3 cm
     ymin=0, ymax=100, ytick={0,25,50,75,100},
-    ylabel={Time drifting with the wind (\%)},
+    % [Claude] label shortened (it was longer than the axis is tall): "Time drifting with the wind (\%)"
+    ylabel={Share of time (\%)},
     xlabel={Wind speed (kn)},
     xtick={1,2,3,4,5},
     xticklabels={{1--5\\\scriptsize(19\%)}, {5--10\\\scriptsize(55\%)},
@@ -314,53 +316,79 @@ persistence 305 and 572 m (R-squared 0.87), linear regression
     enlarge x limits=0.15,
     axis lines*=left,
     nodes near coords={\pgfmathprintnumber{\pgfplotspointmeta}\%},
-    nodes near coords style={font=\scriptsize},
+    % [Claude] white box behind each value, and the dashed line drawn first, so the line no longer crosses "20%"
+    nodes near coords style={font=\scriptsize, fill=white, inner sep=1pt, yshift=1pt},
     legend style={at={(0.5,1.03)}, anchor=south, legend columns=2, font=\scriptsize, draw=none},
 ]
+\draw[dashed, black!60] (rel axis cs:0,0.25) -- (rel axis cs:1,0.25);
 \addplot[fill=chartblue, draw=none] coordinates {(1,20) (2,45) (3,64) (4,87) (5,47)};
 \addlegendentry{drift within $\pm45^\circ$ of downwind}
 \addlegendimage{line legend, dashed, black!60}
 \addlegendentry{no wind effect (25\%)}
-\draw[dashed, black!60] (rel axis cs:0,0.25) -- (rel axis cs:1,0.25);
 \end{axis}
 \end{tikzpicture}
 \Description{Bar chart of the share of time the USV drifts within 45 degrees of downwind:
 20\% at 1--5 kn, 45\% at 5--10 kn, 64\% at 10--15 kn, 87\% above 15 kn and 47\% overall,
 against 25\% expected if wind had no effect on direction.}
-\caption{Time the USV drifts within $\pm45^\circ$ of downwind, by wind speed
-(share of minutes in brackets). Dashed: no wind effect.}
+\caption{Time the USV drifts within $\pm45^\circ$ of downwind, by wind speed (share of minutes in brackets).}
 \label{fig:withwind}
 \end{figure}
 
-% NOTE: one figure: mean cross-validation error against the input window and against the learning rate,
-% one line for each model. Say which setting is best, how flat the curve is, and why.
-% [Claude] NOTE for Rowan: fig:hyper no longer exists, so this \ref prints "Figure ??" until the figure is added
-% or the sentence changes. No sweep has been run yet (see the Hyperparameters note).
-\textbf{RQ3: how sensitive are the models?} Figure~\ref{fig:hyper} shows the mean cross-validation error for each setting. 
+% [Claude] RQ3 paragraph rewritten after rerunning the sweep (Nov 19; usv-intervention/v-claude/lr_sweep.py, which
+% calls the unchanged train() of src/models/nn_models.py at each learning rate, seed 0). What the rerun changed:
+%  (1) the 3e-3 row of the team's table repeated the default row (LSTM 90th 541, Transformer 241 / 513). The rerun
+%      gives LSTM 223 / 491 and Transformer 267 / 529: the LSTM is clearly better at 3e-3 than at the default, and
+%      the Transformer is worse, so "only slightly sensitive" and "Neither improved the default significantly"
+%      did not hold. The other three rows were reproduced exactly.
+%  (2) "both models reaching their best validation error within the first few epochs" holds at 1e-3 and 3e-3
+%      (epoch 1 or 2) but not at 1e-4 (epoch 8 for the LSTM, 11 for the Transformer), so the "why" is now early stopping.
+% Rerun, validation median / 90th percentile (m) and the epoch that early stopping kept:
+%   lr      LSTM                      Transformer
+%   1e-4    256.7 / 531.4  epoch 8    249.4 / 516.1  epoch 11
+%   3e-4    249.0 / 528.9  epoch 3    252.4 / 512.9  epoch 3
+%   1e-3    236.4 / 540.9  epoch 1    240.8 / 512.6  epoch 2    (default; equal to evaluation/results/results.json)
+%   3e-3    223.2 / 491.0  epoch 1    266.8 / 529.5  epoch 1
+% Before (heading alone on a line, then the table, then):
+% "Table~\ref{tab:rq3} shows that the sequence models are only slightly sensitive to their learning rate. Across the
+% four learning rates, the LSTM's median validation error ranges from 223~m to 257~m and the Transformers is from
+% 241~m to 252~m. They both stay below persistence (294~m) at every setting. The best learning rate is
+% $3{\times}10^{-3}$ for the LSTM and the default for the Transformer. Neither improved the default of $10^{-3}$
+% significantly. This can be attributed to both models reaching their best validation error within the first few
+% epochs. The advantage of the sequence models in RQ1 therefore does not depend on the choice of learning rate."
+\textbf{RQ3: how sensitive are the models to their learning rate?} Table~\ref{tab:rq3} shows that both models are moderately sensitive, in opposite directions. The LSTM's median validation error falls steadily from 257~m to 223~m as the rate grows; its best rate, $3{\times}10^{-3}$, is 13~m (median) and 50~m (90th percentile) better than the default of $10^{-3}$, so its optimum may lie above the range we tested. The Transformer stays within 241--252~m up to the default, its best setting, but worsens to 267~m at $3{\times}10^{-3}$. Both stay below persistence (294~m) at every setting, so their advantage in RQ1 does not depend on the learning rate. This can be attributed to early stopping, which absorbs a slower start: a smaller rate only delays the best epoch (epoch 8--11 at $10^{-4}$, against 1--2 at the default). The largest rate is too large for the Transformer, which is usually trained with a warm-up~\cite{vaswani2017attention}.
 
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
-{\color{red}
-------------------}
-
+% [Claude] Table 2 turned on its side (one row per model instead of one per learning rate): it is three lines
+% shorter and reads left to right as the learning rate grows. The team's table, for reference:
+%   lr        LSTM median / 90th   Transformer median / 90th
+%   1e-4      257 / 531            249 / 516
+%   3e-4      249 / 529            252 / 513
+%   1e-3      236 / 541            241 / 513     (default)
+%   3e-3      223 / 541            241 / 513     <- corrected below to 223 / 491 and 267 / 529 (sweep rerun)
+\begin{table}[!ht]
+\centering\footnotesize
+% [Claude] caption shortened to one line at Jake's request. Before: "Validation error (Oct 16--23) by learning rate:
+% median / 90th pct.\ (m). Default: $10^{-3}$. Persistence: 294 / 570." (the default and persistence are in the text)
+\caption{Validation error by learning rate: median / 90th (m).}
+\label{tab:rq3}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Learning rate & $10^{-4}$ & $3{\times}10^{-4}$ & $10^{-3}$ & $3{\times}10^{-3}$ \\
+\midrule
+LSTM        & 257 / 531 & 249 / 529 & 236 / 541 & 223 / 491 \\
+Transformer & 249 / 516 & 252 / 513 & 241 / 513 & 267 / 529 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 
 % NOTE: 20% of the mark. Give the one command that reproduces every table and figure, the fixed seeds,
 % the run time, and where the results are written.
-\textbf{Reproducibility.} The command \texttt{bash quickstart.sh} installs the pinned dependencies and reruns every step, from the raw telemetry in \texttt{data/} to the scores in \texttt{evaluation/results/} and the trained models in \texttt{output/}. Seeds are fixed, and the full run takes about 5~minutes on a laptop CPU.
+% [Claude] reworded: (1) two lines stuck out past the column edge; (2) quickstart.sh does not run the learning-rate
+% sweep, so the paragraph now says how Table 2 is rerun with the code that is in the repository. Before:
+% "The command \texttt{bash quickstart.sh} installs the pinned dependencies and reruns every step, from the raw
+% telemetry in \texttt{data/} to the scores in \texttt{evaluation/results/} and the trained models in
+% \texttt{output/}. Seeds are fixed, and the full run takes about 5~minutes on a laptop CPU."
+\textbf{Reproducibility.} With fixed seeds, \texttt{bash quickstart.sh} installs the pinned dependencies and reruns every step behind Table~\ref{tab:dataset}, RQ1 and RQ2, from the raw telemetry to the scores in \path{evaluation/results/}, in about 5~minutes on a laptop CPU. For RQ3, set \texttt{LR} in \path{src/models/nn_models.py} and rerun the \texttt{lstm} and \texttt{transformer} steps.
 
 % NOTE: if there is room, close with one sentence: what a pilot can rely on, and what comes next.
 
@@ -368,3 +396,4 @@ against 25\% expected if wind had no effect on direction.}
 \bibliography{bibliography.bib}
 
 \end{document}
+
