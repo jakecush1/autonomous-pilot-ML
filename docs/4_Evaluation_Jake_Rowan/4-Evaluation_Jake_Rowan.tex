@@ -208,7 +208,7 @@ We compare the LSTM and Transformer with two baselines. All four models use the 
     ymin=0, ymax=750, ytick={0,200,400,600},
     ylabel={Error after 60 min (m)},
     xtick={1,2,3,4},
-    xticklabels={{Persistence\\(0.87)}, {Linear\\regression\\(0.90)}, {LSTM\\(0.92)}, {Transformer\\(0.93)}},
+    xticklabels={{Persistence\\$R^2$ 0.87}, {Linear\\regression\\$R^2$ 0.90}, {LSTM\\$R^2$ 0.92}, {Transformer\\$R^2$ 0.93}},
     xticklabel style={align=center, font=\scriptsize},
     enlarge x limits=0.12,
     axis lines*=left,
@@ -224,7 +224,7 @@ We compare the LSTM and Transformer with two baselines. All four models use the 
 \Description{Vertical bar chart of the median and 90th-percentile endpoint error on the final test set:
 persistence 305 and 572 m (R-squared 0.87), linear regression
 269 and 476 m (0.90), LSTM 213 and 433 m (0.92), Transformer 222 and 387 m (0.93).}
-\caption{Endpoint error after 60 minutes on the final test set (November), with $R^2$ in brackets. Assuming no drift gives 747~m (median) and 1{,}663~m (90th percentile).}
+\caption{Endpoint error after 60 minutes on the final test set (November). Assuming no drift gives 747~m (median) and 1{,}663~m (90th percentile).}
 \label{fig:results}
 \end{figure}
 

@@ -68,9 +68,11 @@ This sets up the environment the first time, then runs every step in order. It t
 |---|---|---|
 | `fits` | Both linear regressions: wind against drift speed and direction for every window N (1, 30, 60 min), and past drift + wind for every horizon H (1, 30, 60 min) | Each fit printed with its R², and the plots in `evaluation/results/linear_fits/`. These are the numbers under [What drives the drift?](#what-drives-the-drift-linear-regression) |
 | `prep` | Cuts the telemetry in `data/raw/` into 60-minute motor-off windows | The number of windows in each split |
+| `stats` | Computes the dataset statistics | The numbers in Table 1 of the Milestone 4 report: records, missing values, valid drift minutes, samples, drift and wind statistics |
 | `baselines` | No drift, persistence and linear regression | Their error on the validation and test deployments |
 | `lstm`, `transformer` | Trains and scores each neural network | The loss per epoch, then the error; the trained models go to `output/` |
 | `compare` | Puts all the scores together | The results table, and the chart `evaluation/results/comparison.png`. These are the numbers under [Four models on the final test set](#four-models-on-the-final-test-set) |
+| `windbands` | Splits every model's final-test error by wind strength (RQ3) | A table of median and 90th-percentile error for wind below 10 kn, 10–15 kn and 15 kn or more; also saved to `evaluation/results/error_by_wind.json` |
 
 To use another Python version, put `PYTHON=` in front, for example `PYTHON=python3.12 bash quickstart.sh`.
 
