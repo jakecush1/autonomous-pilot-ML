@@ -4,10 +4,12 @@
     python src/main.py                every step
     python src/main.py fits           linear regressions: wind vs drift for every window N, and every horizon H
     python src/main.py prep           build the 60-minute windows:  data/raw -> data/preprocessed
+    python src/main.py stats          dataset statistics (Table 1 of the Milestone 4 report)
     python src/main.py baselines      no drift, persistence and linear regression
     python src/main.py lstm           train and score the LSTM
     python src/main.py transformer    train and score the transformer
     python src/main.py compare        results table and chart
+    python src/main.py windbands      final-test error of every model by wind strength (RQ3)
 
 Trained models are saved in output/, scores and charts in evaluation/results/.
 """
@@ -70,8 +72,20 @@ def compare():
     comparison.main()
 
 
-STEPS = {"fits": fits, "prep": prep, "baselines": baselines,
-         "lstm": lstm, "transformer": transformer, "compare": compare}
+def stats():
+    banner("dataset statistics")
+    from evaluate import dataset_stats
+    dataset_stats.main()
+
+
+def windbands():
+    banner("error by wind strength (final test set)")
+    from evaluate import error_by_wind
+    error_by_wind.main()
+
+
+STEPS = {"fits": fits, "prep": prep, "stats": stats, "baselines": baselines,
+         "lstm": lstm, "transformer": transformer, "compare": compare, "windbands": windbands}
 
 
 def main():

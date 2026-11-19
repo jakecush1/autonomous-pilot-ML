@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # one-command run: sets up the environment (first time only), then runs every step of the project
 # usage:  bash quickstart.sh            everything
-#         bash quickstart.sh fits       one step: fits | prep | baselines | lstm | transformer | compare
+#         bash quickstart.sh fits       one step: fits | prep | stats | baselines | lstm | transformer | compare | windbands
 set -euo pipefail
 cd "$(dirname "$0")"
 
