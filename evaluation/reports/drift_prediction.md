@@ -56,23 +56,23 @@ intercept (east, north): (−0.4, +31.4) m/h
 ## TODO
 
 ### Lesson 3: honest testing (do before any tuning)
-- [ ] Move one whole file (latest deployment) → `data/holdout/`.
-      Don't touch until the end.
-- [ ] Split remaining data **by time**: first 80% train, last 20%
-      validation. Never a random split.
+- [x] Move one whole file (latest deployment) → `data/holdout/`.
+      Don't touch until the end. *(Nov 2–9 and Nov 11–16; scored once on Nov 18)*
+- [x] Split remaining data **by time**: first 80% train, last 20%
+      validation. Never a random split. *(by deployment: train Apr–Oct 13, validation Oct 16–23)*
 - [ ] Add a gap of H rows between train and validation so no
       window spans both
-- [ ] Baseline: predict `future = past` (no model). Compute its error.
-- [ ] Report error in **metres** (median + 90th pct), not just R²
+- [x] Baseline: predict `future = past` (no model). Compute its error. *(persistence, `src/models/linear_reg.py`)*
+- [x] Report error in **metres** (median + 90th pct), not just R²
 - [ ] Convert prediction → predicted lat/lon
 
 ### Tests (run on VALIDATION, change one thing at a time)
 
 | # | Change                                   | Median err (m) | 90th pct (m) | Keep? |
 |---|------------------------------------------|----------------|--------------|-------|
-| 0 | Baseline: future = past                  |                |              |   —   |
-| 1 | v2 as-is (H = 60)                        |                |              |       |
-| 2 | Past drift only (no wind)                |                |              |       |
+| 0 | Baseline: future = past                  | 294            | 570          |   —   |
+| 1 | v2 as-is (H = 60)                        | 320            | 629          |  yes  |
+| 2 | Past drift only (no wind)                | 322            | 645          |  no   |
 | 3 | Wind only (no past drift)                |                |              |       |
 | 4 | Wind averaged over past hour (rolling)   |                |              |       |
 | 5 | Separate past window P = 30 (H = 60)     |                |              |       |
@@ -82,13 +82,16 @@ intercept (east, north): (−0.4, +31.4) m/h
 | 9 | Ridge(alpha=…) instead of LinearRegression |              |              |       |
 | 10| H = 15 / 30 / 120: error vs. horizon     |                |              |   —   |
 
+Rows 0–2 are on the validation week (Oct 16–23), from `src/models/linear_reg.py`, whose v2 also
+uses the mean wind over the past hour (6 features). Tests 3–10 were not run.
 Tests 2 and 3 show how much each feature group contributes.
 Test 10 isn't a "keep" decision; it shows how fast error grows.
 
 ### Final
 - [ ] Pick the best settings from the table
 - [ ] Retrain on train + validation
-- [ ] Score ONCE on `data/holdout/` → this is the real number
+- [x] Score ONCE on `data/holdout/` → this is the real number
+      *(Nov 18: 269 m median, 476 m 90th pct; without wind 301 / 587; persistence 305 / 572)*
 - [ ] If more data arrives (new season / new station area), test
       on it before trusting the model there
 

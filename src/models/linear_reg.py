@@ -35,9 +35,16 @@ def main():
     model = LinearRegression().fit(F["train"], ytr)
     linreg = {s: dp.score(data[s][1], model.predict(F[s])) for s in ["val", "test"]}
 
+    # same model without the wind features (past drift only): how much does wind add? (RQ2)
+    no_wind = LinearRegression().fit(F["train"][:, :2], ytr)
+    linreg_nw = {s: dp.score(data[s][1], no_wind.predict(F[s][:, :2])) for s in ["val", "test"]}
+
     print(pd.DataFrame(model.coef_.T, index=dp.SUMMARY_NAMES, columns=["east", "north"]).round(3))
     print("intercept (east, north) m:", model.intercept_.round(1))
-    for name, res in [("no_drift", zero), ("persistence", persist), ("linear_reg", linreg)]:
+    print("no-wind weights (rows east, north; cols past_dx, past_dy):", no_wind.coef_.round(3).tolist(),
+          " intercept m:", no_wind.intercept_.round(1))
+    for name, res in [("no_drift", zero), ("persistence", persist), ("linear_reg", linreg),
+                      ("linear_reg_no_wind", linreg_nw)]:
         save_results(name, res)
         print(f"{name:12s} val median {res['val']['median_m']:5.0f} m  p90 {res['val']['p90_m']:5.0f} m"
               f"  | test median {res['test']['median_m']:5.0f} m  p90 {res['test']['p90_m']:5.0f} m")

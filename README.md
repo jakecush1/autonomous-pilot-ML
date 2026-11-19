@@ -70,7 +70,7 @@ This sets up the environment the first time, then runs every step in order. It t
 | `prep` | Cuts the telemetry in `data/raw/` into 60-minute motor-off windows | The number of windows in each split |
 | `baselines` | No drift, persistence and linear regression | Their error on the validation and test deployments |
 | `lstm`, `transformer` | Trains and scores each neural network | The loss per epoch, then the error; the trained models go to `output/` |
-| `compare` | Puts all the scores together | The results table, and the chart `evaluation/results/comparison.png`. These are the numbers under [Four models on an unseen deployment](#four-models-on-an-unseen-deployment) |
+| `compare` | Puts all the scores together | The results table, and the chart `evaluation/results/comparison.png`. These are the numbers under [Four models on the final test set](#four-models-on-the-final-test-set) |
 
 To use another Python version, put `PYTHON=` in front, for example `PYTHON=python3.12 bash quickstart.sh`.
 
@@ -165,22 +165,23 @@ H = 60 minutes:
 
 These numbers are measured on the same data the fits were trained on, so they are optimistic. The next table is the test on unseen data.
 
-### Four models on an unseen deployment
+### Four models on the final test set
 
-Position error after 60 minutes on the test deployment (Oct 16–23), which no model saw during training:
+Position error after 60 minutes on the final test set (the two November deployments, Nov 2–9 and Nov 11–16), which no model or choice saw before. The models train on April to Oct 13 and stop early on the latest development deployment (Oct 16–23):
 
 | Model | Median (m) | 90th percentile (m) | R² |
 |---|---|---|---|
-| No drift (stays put) | 586 | 1515 | 0.00 |
-| Persistence (next hour = last hour) | 294 | 570 | 0.80 |
-| Linear regression | 324 | 626 | 0.77 |
-| **LSTM** | **257** | 510 | 0.84 |
-| Transformer | 272 | **489** | **0.85** |
+| No drift (stays put) | 747 | 1663 | −0.01 |
+| Persistence (next hour = last hour) | 305 | 572 | 0.87 |
+| Linear regression | 269 | 476 | 0.90 |
+| Linear regression without wind | 301 | 587 | 0.86 |
+| **LSTM** | **213** | 433 | 0.92 |
+| Transformer | 222 | **387** | **0.93** |
 
-- Persistence already halves the error of assuming no drift.
-- Linear regression does not beat persistence on unseen data: its R² of 0.82 on training data falls to 0.77.
-- The LSTM and transformer both beat persistence: the LSTM has the lowest median error (13% below persistence), the transformer the lowest 90th percentile.
-- Trained on five deployments (Milestone 3) instead of seven, the LSTM and transformer scored 247 m and 246 m. Adding two training deployments did not lower the test error; with one seed per model, differences of this size may be noise.
+- Persistence already more than halves the error of assuming no drift.
+- The LSTM and transformer beat every baseline: the LSTM has the lowest median error (30% below persistence, 21% below linear regression), the transformer the lowest 90th percentile (32% below persistence).
+- Linear regression beats persistence in November, but only with its wind features: without them it is no better than persistence. On the calmer validation week it did not beat persistence (320 m vs 294 m). November was much windier (73% of hours with wind of 10 kn or more, against 34% in the validation week), and wind steers the drift mainly in strong wind (see *What drives the drift?*).
+- With one seed per model, the 9 m gap between the LSTM and transformer may be noise.
 
 ![Median and 90th-percentile error by model](evaluation/results/comparison.png)
 

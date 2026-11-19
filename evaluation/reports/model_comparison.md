@@ -1,5 +1,9 @@
 # Drift prediction: linear regression → LSTM → transformer
 
+> **Updated Nov 18, 2026:** the test set is now the final test set in `data/holdout/` (November),
+> scored once. Earlier versions of this report used Oct 16–23 as the test set; those numbers are
+> kept at the end of the Results section for comparison.
+
 **Question:** the USV is drifting with its motor off. Given the last 60 minutes,
 where will it be 60 minutes from now?
 
@@ -35,10 +39,9 @@ python3.13 -m venv .venv && .venv/bin/pip install -r requirements.txt
 - **Split by deployment, never random.** Neighbouring windows share 59 of their 60 minutes.
   | split | deployments | windows |
   |---|---|---|
-  | train | Apr 17–29, May 19–Jun 6, Jun 3–17, Aug 5–14, Sep 10–22 | 23,455 |
-  | val (early stopping) | Oct 3–13 | 2,289 |
-  | test (only scored, never tuned on) | Oct 16–23 | 4,559 |
-  | holdout (unused until the final score) | Nov 2–9, Nov 11–16 (`data/holdout/`) | — |
+  | train | Apr 17–29, May 19–Jun 6, Jun 3–17, Aug 5–14, Sep 10–22, Oct 3–13 | 25,744 |
+  | val (early stopping only) | Oct 16–23 | 4,559 |
+  | test = final test set (scored once, never tuned on) | Nov 2–9, Nov 11–16 (`data/holdout/`) | 3,920 |
 
   May 19–Jun 6 and Jun 3–17 overlap on Jun 3–6; `build()` keeps one window per time, so those days count once.
 
@@ -48,6 +51,7 @@ python3.13 -m venv .venv && .venv/bin/pip install -r requirements.txt
 | no_drift | — | baseline: it stays put (sanity floor) |
 | persistence | past-hour drift | baseline: next hour = last hour, no wind, no training. **The bar every model must beat** |
 | linear_reg | past-hour drift, wind now, mean wind past hour | `y = A·x + c` |
+| linear_reg_no_wind | past-hour drift only | same, without the wind features: how much does wind add? |
 | lstm | full 60-min sequence | 2-layer LSTM (64 hidden), last hidden state → (e, n) |
 | transformer | full 60-min sequence | 2-layer encoder (d=64, 4 heads), sin/cos positions, mean-pool → (e, n) |
 
@@ -57,51 +61,53 @@ early stopping on val loss (patience 10), and seed 0.
 ## Results (position error after 60 min, metres)
 | model | test median | test p90 | test R² | val median | val p90 |
 |---|---|---|---|---|---|
-| no_drift | 586 | 1515 | 0.00 | 635 | 1257 |
-| persistence | 294 | 570 | 0.80 | 326 | 563 |
-| linear_reg | 324 | 626 | 0.77 | 237 | 456 |
-| **lstm** | **257** | 510 | 0.84 | 163 | 342 |
-| transformer | 272 | **489** | **0.85** | 171 | 338 |
+| no_drift | 747 | 1663 | −0.01 | 586 | 1515 |
+| persistence | 305 | 572 | 0.87 | 294 | 570 |
+| linear_reg | 269 | 476 | 0.90 | 320 | 629 |
+| linear_reg_no_wind | 301 | 587 | 0.86 | 322 | 645 |
+| **lstm** | **213** | 433 | 0.92 | 236 | 541 |
+| transformer | 222 | **387** | **0.93** | 241 | 513 |
 
-Test median vs. persistence: linear_reg **+30 m (worse)**, lstm **−37 m**, transformer **−22 m**.
+Test (November) median vs. persistence: linear_reg **−36 m**, linear_reg_no_wind −4 m, lstm **−92 m**, transformer **−83 m**.
 
-Milestone 3 (5 deployments, 16,471 training windows) scored linear_reg 318, lstm 247, transformer 246 m on the same test set:
-42% more training data did not lower the test error.
+Earlier runs, test = Oct 16–23 (not comparable: different test week and less training data):
+Nov 16 (7 deployments) linear_reg 324, lstm 257, transformer 272 m; Milestone 3 (5 deployments) linear_reg 318, lstm 247,
+transformer 246 m.
 
 ## How to read the output
 - **median / p90:** half (90%) of predicted positions were within this many metres of where
   the USV really was after 60 min. p90 is the "how bad can it get" number.
-- **val vs test:** val (Oct 3–13) is used to decide when the nets stop training; test (Oct 16–23)
+- **val vs test:** val (Oct 16–23) is used to decide when the nets stop training; test (November)
   is never trained or tuned on. **Quote test.**
-- **Linear-reg weights:** `predicted east = 0.881·past_dx + 0.188·past_dy + … + 42.8`.
-  Diagonal ≈ 0.86–0.88 means drift mostly continues; the off-diagonals (−0.306, +0.188) mean it turns
+- **Linear-reg weights:** `predicted east = 0.892·past_dx + 0.190·past_dy + … + 29.7`.
+  Diagonal ≈ 0.86–0.89 means drift mostly continues; the off-diagonals (−0.316, +0.190) mean it turns
   clockwise. `wind_*_now` and `wind_*_mean` are nearly the same signal, so their weights partly
-  cancel (+53 / −39). Don't read them one by one.
+  cancel (+56 / −40). Don't read them one by one.
 - **Epoch lines** (`epoch 3  train 0.098  val 0.065`): an epoch is one pass over the train set; the numbers are
   MSE loss in standardised units (0 = perfect, ~1 = always guessing the average drift).
-  The epoch with the lowest **val** is kept (LSTM: epoch 1, transformer: epoch 2). After that, val rises while
+  The epoch with the lowest **val** is kept (in the earlier runs, epoch 1–2). After that, val rises while
   train falls (overfitting), and training stops after 10 epochs without improvement. `train` is the last
   batch only, so it's noisy; watch its trend.
 
 ## What it means
-- **Past drift is most of the signal.** Persistence alone cuts error in half vs. no_drift.
+- **Past drift is most of the signal.** Persistence alone cuts the error by more than half vs. no_drift.
   Drift is mostly current/tide, which changes slowly, so whatever pushed the USV last hour
   is probably still pushing it.
-- **Linear regression beats persistence on val but not on test.** Its wind weights fit
-  the training deployments, and Oct 16–23 behaves differently. This is why we hold out a whole
-  deployment: Jake's training-set R² of 0.82 looked better than the model really is.
-- **LSTM and transformer both beat persistence on test** (LSTM 13% lower median and 11% lower p90;
-  transformer 8% lower median and 14% lower p90).
+- **Linear regression beats persistence only when it is windy.** On November (73% of hours with wind
+  ≥ 10 kn) it is 36 m better than persistence, and without its wind features it is no better (301 m).
+  On the calmer validation week (34% of hours ≥ 10 kn) it is 26 m *worse* than persistence, and the wind
+  features change little. Wind steers the drift mainly in strong wind (`drift_vs_wind.md`).
+- **LSTM and transformer beat every baseline on the final test set** (LSTM 30% lower median than
+  persistence and 21% lower than linear regression; transformer 32% lower p90 than persistence).
   Reading the minute-by-minute sequence shows them the drift *turning* and changing speed, which
   a single past-hour total can't. Persistence assumes the last hour simply repeats.
-- **Transformer no better than LSTM.** With ~30k heavily-overlapping windows (≈ 500 independent hours),
-  there isn't enough data for the transformer's extra capacity to help. Both overfit within a few
-  epochs (best val loss at epoch 1–2), so early stopping matters.
-- **p90 ≈ 490–510 m** is a candidate safety radius for "where could it be in an hour".
+- **Transformer no better than LSTM on the median.** With ~30k heavily-overlapping windows (≈ 500 independent
+  hours), there isn't enough data for the transformer's extra capacity to help, although it has the lowest p90.
+  Both overfit within a few epochs, so early stopping matters.
+- **p90 ≈ 390–430 m** is a candidate safety radius for "where could it be in an hour".
 
 ## Caveats / next steps
-- One seed per model; the 15 m gap between LSTM and transformer, and the change since Milestone 3,
-  may be inside run-to-run noise.
+- One seed per model; the 9 m gap between LSTM and transformer may be inside run-to-run noise.
   Run 3–5 seeds and report mean ± std before claiming either wins.
 - Val is used for early stopping, so val numbers are slightly optimistic; quote test.
 - Try: H = 15/30/120, tide phase (12.42 h sin/cos) as a feature, predicting the residual

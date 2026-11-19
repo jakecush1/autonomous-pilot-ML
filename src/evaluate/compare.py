@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from models.linear_reg import RESULTS
 from cmn import data_prep as dp
 
-ORDER = ["no_drift", "persistence", "linear_reg", "lstm", "transformer"]
+ORDER = ["no_drift", "persistence", "linear_reg", "linear_reg_no_wind", "lstm", "transformer"]
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
     test = table.xs("test", axis=1, level=1)
     ax = test[["median_m", "p90_m"]].plot.bar(figsize=(8, 4.5), rot=0)
     ax.set_ylabel(f"error after {dp.H} min (m)")
-    ax.set_title(f"Drift prediction, test deployment (Oct 16-23), H = {dp.H} min")
+    ax.set_title(f"Drift prediction, final test set (Nov 2-16), H = {dp.H} min")
     ax.legend(["median", "90th percentile"])
     plt.tight_layout()
     plt.savefig(os.path.join(dp.RESULTS_DIR, "comparison.png"), dpi=150)

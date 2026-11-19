@@ -23,22 +23,28 @@ EARTH_R = 6371000
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))                   # top folder of the repository
-DATA_DIR = os.path.join(ROOT, "data", "raw")                              # 1-minute telemetry, one file per deployment
+DATA_DIR = os.path.join(ROOT, "data", "raw")                              # 1-minute telemetry, one file per deployment (development set)
+HOLDOUT_DIR = os.path.join(ROOT, "data", "holdout")                       # the final test set (Nov), scored once at the end
 CACHE = os.path.join(ROOT, "data", "preprocessed", f"windows_H{H}.npz")   # the windows built from it
 OUTPUT_DIR = os.path.join(ROOT, "output")                                 # trained models
 RESULTS_DIR = os.path.join(ROOT, "evaluation", "results")                 # scores and charts
 
 # whole deployments per split, in time order: train < val < test.
-# the latest deployments (Nov) are in data/holdout/, unseen until the final score
+# development set = data/raw/ (Apr-Oct): train, plus the latest deployment as val (early stopping only).
+# final test set = data/holdout/ (Nov): never used for any choice, scored once at the end.
+# (Until Nov 18, 2026, train stopped at Sep, val was Oct 3-13 and test was Oct 16-23.)
 SPLITS = {
     "train": ["1min_2026-04-17_to_2026-04-29.csv",
               "1min_2026-05-19_to_2026-06-06.csv",
               "1min_2026-06-03_to_2026-06-17.csv",      # overlaps the file above on Jun 3-6 (see build)
               "1min_2026-08-05_to_2026-08-14.csv",
-              "1min_2026-09-10_to_2026-09-22.csv"],
-    "val":   ["1min_2026-10-03_to_2026-10-13.csv"],
-    "test":  ["1min_2026-10-16_to_2026-10-23.csv"],
+              "1min_2026-09-10_to_2026-09-22.csv",
+              "1min_2026-10-03_to_2026-10-13.csv"],
+    "val":   ["1min_2026-10-16_to_2026-10-23.csv"],
+    "test":  ["1min_2026-11-02_to_2026-11-09.csv",      # in data/holdout/
+              "1min_2026-11-11_to_2026-11-16.csv"],
 }
+SPLIT_DIR = {"train": DATA_DIR, "val": DATA_DIR, "test": HOLDOUT_DIR}
 SEQ_FEATURES = ["dx", "dy", "wind_push_e", "wind_push_n"]
 
 
@@ -89,7 +95,7 @@ def make_windows(d):
 def build():
     out = {}
     for split, files in SPLITS.items():
-        parts = [make_windows(load_file(os.path.join(DATA_DIR, f))) for f in files]
+        parts = [make_windows(load_file(os.path.join(SPLIT_DIR[split], f))) for f in files]
         X, y, t = (np.concatenate([p[i] for p in parts]) for i in range(3))
         # files that overlap in time give the same window twice: keep one per time
         t, first = np.unique(t, return_index=True)
